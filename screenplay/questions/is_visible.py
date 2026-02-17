@@ -1,8 +1,9 @@
+from screenplay.core.question import Question
 from screenplay.abilities.browse_the_web import BrowseTheWeb
 
 
-class IsVisible:
-    """Question: is a selector visible?"""
+class IsVisible(Question):
+    """Question: is an element visible?"""
 
     def __init__(self, selector: str):
         self.selector = selector

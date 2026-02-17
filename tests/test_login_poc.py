@@ -1,4 +1,4 @@
-from screenplay.actor import Actor
+from screenplay.core.actor import Actor
 from screenplay.abilities.browse_the_web import BrowseTheWeb
 from screenplay.tasks.login import Login
 from screenplay.questions.is_visible import IsVisible

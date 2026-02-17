@@ -1,7 +1,8 @@
+from screenplay.core.interaction import Interaction
 from screenplay.abilities.browse_the_web import BrowseTheWeb
 
 
-class Fill:
+class Fill(Interaction):
     """Interaction: fill an input using a CSS selector."""
 
     def __init__(self, selector: str, text: str):

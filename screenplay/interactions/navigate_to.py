@@ -1,7 +1,8 @@
+from screenplay.core.interaction import Interaction
 from screenplay.abilities.browse_the_web import BrowseTheWeb
 
 
-class NavigateTo:
+class NavigateTo(Interaction):
     """Interaction: navigate the browser to a URL."""
 
     def __init__(self, url: str):

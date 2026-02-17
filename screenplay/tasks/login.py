@@ -1,10 +1,11 @@
+from screenplay.core.task import Task
 from screenplay.interactions.navigate_to import NavigateTo
 from screenplay.interactions.fill import Fill
 from screenplay.interactions.click import Click
 from screenplay.ui.saucedemo import SauceDemo
 
 
-class Login:
+class Login(Task):
     """Task: log into SauceDemo."""
 
     def __init__(self, username: str, password: str):
@@ -21,5 +22,4 @@ class Login:
 
     @staticmethod
     def with_credentials(username: str, password: str):
-        # Nice Screenplay-ish factory method
         return Login(username, password)
