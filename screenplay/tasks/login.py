@@ -15,8 +15,8 @@ class Login(Task):
     def perform_as(self, actor):
         actor.attempts_to(
             NavigateTo(SauceDemo.URL),
-            Fill(SauceDemo.USERNAME, self.username),
-            Fill(SauceDemo.PASSWORD, self.password),
+            Fill(SauceDemo.LOGIN_USERNAME, self.username),
+            Fill(SauceDemo.LOGIN_PASSWORD, self.password),
             Click(SauceDemo.LOGIN_BUTTON),
         )
 

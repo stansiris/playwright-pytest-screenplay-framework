@@ -1,13 +1,12 @@
 from screenplay.core.question import Question
-from screenplay.abilities.browse_the_web import BrowseTheWeb
+from screenplay.core.target import Target
 
 
 class IsVisible(Question):
     """Question: is an element visible?"""
 
-    def __init__(self, selector: str):
-        self.selector = selector
+    def __init__(self, target: Target):
+        self.target = target
 
     def answered_by(self, actor):
-        page = actor.ability_to(BrowseTheWeb).page
-        return page.locator(self.selector).is_visible()
+        return self.target.resolve_for(actor).is_visible()
