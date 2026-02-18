@@ -1,10 +1,14 @@
+from screenplay.core.activity import Activity
+from screenplay.core.question import Question
+
+
 class Actor:
 
     def __init__(self, name: str):
         self.name = name
         self._abilities = {}
 
-    def can(self, ability):
+    def can(self, ability) -> "Actor":
         self._abilities[ability.__class__] = ability
         return self
 
@@ -15,9 +19,9 @@ class Actor:
             )
         return self._abilities[ability_class]
 
-    def attempts_to(self, *activities):
+    def attempts_to(self, *activities: Activity) -> None:
         for activity in activities:
             activity.perform_as(self)
 
-    def asks_for(self, question):
+    def asks_for(self, question: Question):
         return question.answered_by(self)

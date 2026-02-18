@@ -1,5 +1,4 @@
-class Interaction:
-    """Base class for low-level actions."""
+from screenplay.core.activity import Activity
 
-    def perform_as(self, actor):
-        raise NotImplementedError("Interactions must implement perform_as(actor).")
+class Interaction(Activity):
+    """Base class for low-level actions."""

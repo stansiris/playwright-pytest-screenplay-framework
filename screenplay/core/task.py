@@ -1,5 +1,4 @@
-class Task:
-    """Base class for higher-level actions composed of interactions."""
+from screenplay.core.activity import Activity
 
-    def perform_as(self, actor):
-        raise NotImplementedError("Tasks must implement perform_as(actor).")
+class Task(Activity):
+    """Base class for higher-level actions composed of interactions."""
