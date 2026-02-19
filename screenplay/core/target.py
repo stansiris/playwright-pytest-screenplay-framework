@@ -19,3 +19,7 @@ class Target:
     def resolve_for(self, actor) -> Locator:
         page = actor.ability_to(BrowseTheWeb).page
         return self.locator_function(page)
+
+    def __repr__(self) -> str:
+        return f"Target(description='{self.description}')"
+

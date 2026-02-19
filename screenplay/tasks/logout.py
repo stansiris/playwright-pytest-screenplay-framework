@@ -6,6 +6,9 @@ from screenplay.ui.saucedemo import SauceDemo
 class Logout(Task):
     """Task: Log Out of SauceDemo."""
 
+    def __repr__(self) -> str:
+        return "Logout()"
+
     def perform_as(self, actor):
         actor.attempts_to(
             Click(SauceDemo.MENU_BUTTON),

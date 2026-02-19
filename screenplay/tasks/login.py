@@ -8,6 +8,9 @@ from screenplay.ui.saucedemo import SauceDemo
 class Login(Task):
     """Task: log into SauceDemo."""
 
+    def __repr__(self) -> str:
+        return f"Login(username='{self.username}')"
+
     def __init__(self, username: str, password: str):
         self.username = username
         self.password = password
@@ -19,6 +22,7 @@ class Login(Task):
             Fill(SauceDemo.LOGIN_PASSWORD, self.password),
             Click(SauceDemo.LOGIN_BUTTON),
         )
+
 
     @staticmethod
     def with_credentials(username: str, password: str):

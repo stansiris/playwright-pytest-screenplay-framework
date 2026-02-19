@@ -16,3 +16,9 @@ class WaitUntilVisible(Interaction):
     def for_(target: Target, timeout_ms: int = 5000) -> "WaitUntilVisible":
         # DSL-ish helper: WaitUntilVisible.for_(SauceDemo.LOGIN_BUTTON)
         return WaitUntilVisible(target, timeout_ms)
+
+    def __repr__(self) -> str:
+        return (
+            f"WaitUntilVisible(target='{self.target.description}', "
+            f"timeout_ms={self.timeout_ms})"
+        )

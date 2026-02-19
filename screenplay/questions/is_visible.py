@@ -10,3 +10,6 @@ class IsVisible(Question):
 
     def answered_by(self, actor):
         return self.target.resolve_for(actor).is_visible()
+
+    def __repr__(self) -> str:
+        return f"IsVisible(target='{self.target.description}')"

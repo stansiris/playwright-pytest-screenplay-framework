@@ -8,6 +8,9 @@ class NavigateTo(Interaction):
     def __init__(self, url: str):
         self.url = url
 
+    def __repr__(self) -> str:
+        return f"NavigateTo(url='{self.url}')"
+
     def perform_as(self, actor):
         page = actor.ability_to(BrowseTheWeb).page
         page.goto(self.url)
