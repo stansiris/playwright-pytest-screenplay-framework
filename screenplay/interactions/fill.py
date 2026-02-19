@@ -3,7 +3,7 @@ from screenplay.core.target import Target
 
 
 class Fill(Interaction):
-    """Interaction: fill an input using a CSS selector."""
+    """Interaction: fill an input field identified by a Target."""
 
     def __init__(self, target: Target, text: str):
         self.target = target
