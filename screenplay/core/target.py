@@ -1,4 +1,4 @@
-from collections.abc import Callable
+﻿from collections.abc import Callable
 
 from playwright.sync_api import Locator, Page
 

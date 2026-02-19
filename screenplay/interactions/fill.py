@@ -1,4 +1,4 @@
-from screenplay.core.interaction import Interaction
+﻿from screenplay.core.interaction import Interaction
 from screenplay.core.target import Target
 
 

@@ -1,4 +1,4 @@
-from screenplay.core.task import Task
+﻿from screenplay.core.task import Task
 from screenplay.interactions.click import Click
 from screenplay.interactions.fill import Fill
 from screenplay.interactions.navigate_to import NavigateTo

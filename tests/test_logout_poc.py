@@ -1,4 +1,4 @@
-from screenplay.abilities.browse_the_web import BrowseTheWeb
+﻿from screenplay.abilities.browse_the_web import BrowseTheWeb
 from screenplay.core.actor import Actor
 from screenplay.interactions.wait_until_visible import WaitUntilVisible
 from screenplay.questions.is_visible import IsVisible

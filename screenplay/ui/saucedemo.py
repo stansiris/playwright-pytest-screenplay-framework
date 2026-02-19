@@ -1,4 +1,4 @@
-from screenplay.core.target import Target
+﻿from screenplay.core.target import Target
 
 
 def menu_button_locator(page):

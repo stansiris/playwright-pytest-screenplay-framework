@@ -1,4 +1,4 @@
-import logging
+﻿import logging
 import time
 
 from screenplay.core.activity import Activity

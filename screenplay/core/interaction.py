@@ -1,4 +1,4 @@
-from screenplay.core.activity import Activity
+﻿from screenplay.core.activity import Activity
 
 
 class Interaction(Activity):

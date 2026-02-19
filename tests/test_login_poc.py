@@ -1,4 +1,4 @@
-import pytest
+﻿import pytest
 
 from screenplay.abilities.browse_the_web import BrowseTheWeb
 from screenplay.core.actor import Actor

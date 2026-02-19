@@ -1,4 +1,4 @@
-from screenplay.abilities.browse_the_web import BrowseTheWeb
+﻿from screenplay.abilities.browse_the_web import BrowseTheWeb
 from screenplay.core.interaction import Interaction
 
 

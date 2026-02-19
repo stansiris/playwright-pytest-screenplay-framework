@@ -1,4 +1,4 @@
-class BrowseTheWeb:
+﻿class BrowseTheWeb:
     """
     Ability wrapper around Playwright's page.
     Keeps Playwright details out of Actor/Tasks.
