@@ -1,7 +1,7 @@
 from screenplay.core.task import Task
-from screenplay.interactions.navigate_to import NavigateTo
-from screenplay.interactions.fill import Fill
 from screenplay.interactions.click import Click
+from screenplay.interactions.fill import Fill
+from screenplay.interactions.navigate_to import NavigateTo
 from screenplay.ui.saucedemo import SauceDemo
 
 
@@ -22,7 +22,6 @@ class Login(Task):
             Fill(SauceDemo.LOGIN_PASSWORD, self.password),
             Click(SauceDemo.LOGIN_BUTTON),
         )
-
 
     @staticmethod
     def with_credentials(username: str, password: str):

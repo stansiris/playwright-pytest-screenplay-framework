@@ -16,7 +16,6 @@ def test_logout_success(page):
         Login.with_credentials("standard_user", "secret_sauce"),
         Logout(),
         WaitUntilVisible.for_(SauceDemo.LOGIN_BUTTON),
-
     )
 
     assert stan.asks_for(IsVisible(SauceDemo.LOGIN_BUTTON))

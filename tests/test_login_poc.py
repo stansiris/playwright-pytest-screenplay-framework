@@ -11,4 +11,4 @@ from screenplay.ui.saucedemo import SauceDemo
 def test_login_success(page):
     stan = Actor("Stan").can(BrowseTheWeb.using(page))
     stan.attempts_to(NavigateTo(SauceDemo.URL))
-    assert stan.asks_for(TextOf(SauceDemo.LOGIN_BUTTON)) == 'Login'
+    assert stan.asks_for(TextOf(SauceDemo.LOGIN_BUTTON)) == "Login"

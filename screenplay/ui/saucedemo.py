@@ -4,21 +4,26 @@ from screenplay.core.target import Target
 def menu_button_locator(page):
     return page.get_by_role("button", name="Open Menu")
 
+
 def logout_link_locator(page):
-    return page.locator("[data-test=\"logout-sidebar-link\"]")
+    return page.locator('[data-test="logout-sidebar-link"]')
+
 
 def login_button_locator(page):
-    return page.locator("[data-test=\"login-button\"]")
+    return page.locator('[data-test="login-button"]')
     # return page.get_by_role("button", name="Login")
 
+
 def login_username_locator(page):
-    return page.locator("[data-test=\"username\"]")
+    return page.locator('[data-test="username"]')
+
 
 def login_password_locator(page):
-    return page.locator("[data-test=\"password\"]")
+    return page.locator('[data-test="password"]')
+
 
 def inventory_container_locator(page):
-    return page.locator("[data-test=\"inventory-container\"]")
+    return page.locator('[data-test="inventory-container"]')
 
 
 class SauceDemo:

@@ -18,9 +18,7 @@ class Actor:
 
     def ability_to(self, ability_class):
         if ability_class not in self._abilities:
-            raise Exception(
-                f"{self.name} does not have ability {ability_class.__name__}."
-            )
+            raise Exception(f"{self.name} does not have ability {ability_class.__name__}.")
         return self._abilities[ability_class]
 
     def attempts_to(self, *activities: Activity) -> None:

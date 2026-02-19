@@ -1,6 +1,6 @@
-from typing import Callable
+from collections.abc import Callable
 
-from playwright.sync_api import Page, Locator
+from playwright.sync_api import Locator, Page
 
 from screenplay.abilities.browse_the_web import BrowseTheWeb
 
@@ -22,4 +22,3 @@ class Target:
 
     def __repr__(self) -> str:
         return f"Target(description='{self.description}')"
-
