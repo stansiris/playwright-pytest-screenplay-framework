@@ -1,0 +1,47 @@
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Packaging / build artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# Test, lint, and coverage artifacts
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# Playwright artifacts
+playwright-report/
+test-results/
+
+# Logs and temp files
+*.log
+*.tmp
+*.temp
+
+# Environment and local config
+.env
+.env.*
+
+# IDE/editor settings
+.idea/
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
