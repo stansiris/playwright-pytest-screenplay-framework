@@ -28,6 +28,7 @@ coverage.xml
 # Playwright artifacts
 playwright-report/
 test-results/
+generated/
 
 # Logs and temp files
 *.log
