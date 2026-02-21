@@ -13,7 +13,7 @@ from screenplay.ui.saucedemo import SauceDemo
 def test_golden_path_purchase_and_logout(customer):
     customer.attempts_to(
         Login.with_credentials("standard_user", "secret_sauce"),
-        AddProductToCart.red_t_shirt(),
+        AddProductToCart.named(SauceDemo.PRODUCT_RED_TSHIRT),
         BeginCheckout(),
         ProvideCheckoutInformation.as_customer("John", "Doe", "12345"),
         CompleteCheckout(),

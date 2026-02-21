@@ -29,6 +29,19 @@ def add_to_cart_red_tshirt_locator(page):
     return page.locator('[data-test="add-to-cart-test.allthethings()-t-shirt-(red)"]')
 
 
+def add_to_cart_button_for_product_locator(product_name: str):
+    """Build a locator function for the add-to-cart button of a named product."""
+
+    def locator(page):
+        # Find the inventory card by its visible product name, then pick its add button.
+        product_card = page.locator('[data-test="inventory-item"]').filter(
+            has=page.locator('[data-test="inventory-item-name"]', has_text=product_name)
+        )
+        return product_card.locator('button[data-test^="add-to-cart"]').first
+
+    return locator
+
+
 def shopping_cart_link_locator(page):
     return page.locator('[data-test="shopping-cart-link"]')
 
@@ -66,6 +79,8 @@ def back_to_products_locator(page):
 
 
 class SauceDemo:
+    PRODUCT_RED_TSHIRT = "Test.allTheThings() T-Shirt (Red)"
+
     MENU_BUTTON = Target("Open Menu button", menu_button_locator)
     LOGOUT_LINK = Target("Logout link", logout_link_locator)
     LOGIN_BUTTON = Target("Login button", login_button_locator)
@@ -85,3 +100,10 @@ class SauceDemo:
     CHECKOUT_COMPLETE_TITLE = Target("Checkout complete title", checkout_complete_title_locator)
     BACK_TO_PRODUCTS = Target("Back to products button", back_to_products_locator)
     URL = "https://www.saucedemo.com/"
+
+    @staticmethod
+    def add_to_cart_button_for(product_name: str) -> Target:
+        return Target(
+            f"Add '{product_name}' to cart button",
+            add_to_cart_button_for_product_locator(product_name),
+        )
