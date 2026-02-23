@@ -1,9 +1,45 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "playwright-pytest-screenplay-framework"
+version = "0.1.0"
+description = "Playwright + pytest Screenplay framework with pytest-bdd behavior layer."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "playwright>=1.56,<2",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=8.4,<9",
+    "pytest-bdd>=8.1,<9",
+    "pytest-playwright>=0.7,<1",
+]
+tooling = [
+    "black>=24.10,<26",
+    "ruff>=0.9,<1",
+]
+dev = [
+    "pytest>=8.4,<9",
+    "pytest-bdd>=8.1,<9",
+    "pytest-playwright>=0.7,<1",
+    "black>=24.10,<26",
+    "ruff>=0.9,<1",
+]
+
+[tool.setuptools.packages.find]
+include = ["screenplay*"]
+
 [tool.black]
 line-length = 100
 target-version = ["py311"]
 exclude = '''
 /(
     \.venv
+  | venv
   | build
   | dist
 )/
@@ -13,6 +49,7 @@ exclude = '''
 line-length = 100
 target-version = "py311"
 exclude = [".venv", "build", "dist"]
+extend-exclude = ["venv"]
 
 [tool.ruff.lint]
 select = [

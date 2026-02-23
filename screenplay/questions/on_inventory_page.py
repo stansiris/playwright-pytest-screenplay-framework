@@ -1,0 +1,12 @@
+from screenplay.abilities.browse_the_web import BrowseTheWeb
+from screenplay.core.question import Question
+
+
+class OnInventoryPage(Question):
+    """Question: whether the browser is currently on the inventory page."""
+
+    def answered_by(self, actor) -> bool:
+        return "inventory.html" in actor.ability_to(BrowseTheWeb).page.url
+
+    def __repr__(self) -> str:
+        return "OnInventoryPage()"

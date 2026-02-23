@@ -10,6 +10,7 @@ from screenplay.interactions.fill import Fill
 from screenplay.interactions.focus import Focus
 from screenplay.interactions.navigate_to import NavigateTo
 from screenplay.interactions.press_key import PressKey
+from screenplay.interactions.refresh_page import RefreshPage
 from screenplay.interactions.scroll_into_view import ScrollIntoView
 from screenplay.interactions.select_by_value import SelectByValue
 from screenplay.interactions.wait_until_hidden import WaitUntilHidden
@@ -22,6 +23,7 @@ __all__ = [
     "Focus",
     "NavigateTo",
     "PressKey",
+    "RefreshPage",
     "ScrollIntoView",
     "SelectByValue",
     "WaitUntilHidden",

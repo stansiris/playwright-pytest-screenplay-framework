@@ -31,7 +31,7 @@ Feature: Golden Path Purchase (SauceDemo)
     When I proceed to checkout
     And I enter checkout information:
       | first_name | last_name | postal_code |
-      | Stan       | Siris     | 08873       |
+      | John       | Doe       | 08873       |
     And I continue checkout
 
     Then the overview should contain the following items:

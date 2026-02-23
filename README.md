@@ -6,6 +6,19 @@ This project demonstrates disciplined domain modeling, reusable Tasks and Questi
 
 ---
 
+# Setup
+
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -e ".[dev]"
+python -m playwright install
+pytest -q
+```
+
+---
+
 # Architecture Philosophy
 
 This framework follows these principles:
