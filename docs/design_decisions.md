@@ -1,16 +1,21 @@
 # Design Decisions
 
-## Why Step One Has No Page-Specific Questions
+## Why checkout step one has no page-specific Questions
 
-Step One only performs validation. Generic Questions
-(ValueOf, TextOf, IsVisible) are sufficient.
+Checkout step one is an input form without business calculations.
+Generic Questions (`TextOf`, `AttributeOf`, `IsVisible`) are enough.
 
-## Why TotalsMatchComputedSum Exists
+## Why `TotalsMatchComputedSum` exists
 
-Overview page contains business logic (math).
-Encapsulating total validation prevents duplication.
+Checkout overview contains business logic (subtotal + tax = total).
+A dedicated Question keeps that calculation in one place and avoids duplicated assertions.
 
-## Why AddItem Is Context-Aware
+## Why `AddProductToCart` is context-aware
 
-Tests should not expose page location.
-Task resolves locator internally.
+Tests should pass product names, not selector details.
+`AddProductToCart.named(product_name)` resolves the right button from centralized targets.
+
+## Why runtime settings are environment-driven
+
+Portfolio and CI runs need consistent, reproducible defaults without code edits.
+`BASE_URL`, `BROWSER`, `HEADED`, `SLOW_MO_MS`, and `DEFAULT_TIMEOUT_MS` are read once from `screenplay/config/runtime.py`.

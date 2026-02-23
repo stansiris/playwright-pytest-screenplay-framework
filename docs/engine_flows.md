@@ -1,170 +1,72 @@
-# Engine-Layer Business Flows (Composed from Tasks + Questions)
+# Engine Flows (Composed from Implemented Tasks and Questions)
 
-> Engine flows are higher-level compositions of Screenplay Tasks.
-> They should NOT introduce new locators.
-> They may include lightweight verification using existing Questions.
+Engine flows are higher-level compositions of existing Screenplay Tasks and Questions.
+They do not add new selectors.
 
----
+## 1) Login successfully
 
-## Auth Flows
-
-### 1) `LoginSuccessfully(username, password)`
-**Compose**
+Compose:
+- `OpenSauceDemo.app()`
 - `Login.with_credentials(username, password)`
-**Verify (optional)**
+
+Verify:
 - `OnInventoryPage()`
 
-### 2) `LoginExpectingFailure(username, password, expected_error)`
-**Compose**
-- `Login.with_credentials(username, password)`
-**Verify**
-- `LoginErrorMessage.equals(expected_error)`
+## 2) Login expecting failure
 
----
+Compose:
+- `OpenSauceDemo.app()`
+- `EnterUsername.as_(username)` (optional for missing-user case)
+- `EnterPassword.as_(password)` (optional for missing-pass case)
+- `ClickLogin()`
 
-## Inventory Flows
+Verify:
+- `TextOf(SauceDemo.LOGIN_ERROR_MESSAGE)`
+- `OnLoginPage()`
 
-### 3) `AddItemsFromInventory(item_names)`
-**Compose**
-- `AddItem.named(item)` for each item in `item_names`
-**Verify (optional)**
-- `CartBadgeCountIs(len(item_names))`
+## 3) Add multiple items and verify cart badge
 
-### 4) `RemoveItemsFromInventory(item_names)`
-**Compose**
-- `RemoveItem.named(item)` for each item in `item_names`
-**Verify (optional)**
-- `CartBadgeCountIs(0)` *(or expected count)*
+Compose:
+- `SortInventory.by(option)` (optional)
+- `AddProductToCart.named(item_name)` for each item
 
-### 5) `SortInventoryAndVerify(option)`
-**Compose**
-- `SortInventory.by(option)`
-**Verify**
-- `InventorySortedBy(option)`
+Verify:
+- `CartBadgeCount() == expected_count`
 
-### 6) `OpenItemAndValidateDetails(item_name, expected_name=None, expected_price=None, description_contains=None)`
-**Compose**
-- `OpenItemDetails.named(item_name)`
-**Verify (optional, any combination)**
-- `ItemName.is(expected_name)`
-- `ItemPrice.is(expected_price)`
-- `ItemDescription.contains(description_contains)`
-**Compose**
+## 4) Checkout multiple items
+
+Compose:
+- `GoToCart()`
+- `ProceedToCheckout()`
+- `EnterCheckoutInformation.as_customer(first_name, last_name, postal_code)`
+- `ContinueCheckout()`
+- `CompleteCheckout()`
+
+Verify:
+- `TextsOf(SauceDemo.CHECKOUT_OVERVIEW_ITEM_NAMES)`
+- `TextOf(SauceDemo.CHECKOUT_PAYMENT_INFO)`
+- `TextOf(SauceDemo.CHECKOUT_SHIPPING_INFO)`
+- `TotalsMatchComputedSum()`
+
+## 5) Return to inventory after checkout
+
+Compose:
 - `ReturnToProducts()`
 
----
-
-## Cart Flows
-
-### 7) `GoToCartAndVerifyItems(item_names)`
-**Compose**
-- `GoToCart()`
-**Verify**
-- `CartContains.items(item_names)`
-- `CartItemCountIs(len(item_names))`
-
-### 8) `RemoveItemsInCartAndVerifyRemaining(remove_names, remaining_names)`
-**Compose**
-- `GoToCart()`
-- `RemoveItems.named(remove_names)`
-**Verify**
-- `CartContains.items(remaining_names)`
-- `CartItemCountIs(len(remaining_names))`
-
-### 9) `EmptyCartFromCartPage()`
-**Compose**
-- `GoToCart()`
-- `RemoveItems.named(all_item_names)` *(provided by test data)*
-**Verify**
-- `CartIsEmpty()`
-
-*(Note: Engine layer can accept `all_item_names` as input; cart page itself doesn’t need to “discover” items.)*
-
----
-
-## Checkout Flows (End-to-End)
-
-### 10) `CheckoutSingleItem(item_name, first, last, zip)`
-**Compose**
-- `AddItem.named(item_name)`
-- `GoToCart()`
-- `ProceedToCheckout()`
-- `EnterCheckoutInformation(first, last, zip)`
-- `ContinueCheckout()`
-**Verify (Step Two)**
-- `OverviewContains.items([item_name])`
-- `TotalsMatchComputedSum()`
-**Compose**
-- `FinishCheckout()`
-
-### 11) `CheckoutMultipleItems(item_names, first, last, zip)`
-**Compose**
-- `AddItem.named(item)` for each in `item_names`
-- `GoToCart()`
-- `ProceedToCheckout()`
-- `EnterCheckoutInformation(first, last, zip)`
-- `ContinueCheckout()`
-**Verify**
-- `OverviewContains.items(item_names)`
-- `TotalsMatchComputedSum()`
-**Compose**
-- `FinishCheckout()`
-
-### 12) `CheckoutThenReturnHome(item_names, first, last, zip)`
-**Compose**
-- Use `CheckoutMultipleItems(...)`
-- `ReturnHomeToInventory()`
-**Verify (optional)**
+Verify:
 - `OnInventoryPage()`
-- `CartBadgeCountIs(0)`
+- `CartBadgeCount() == 0`
 
----
+## 6) POC end-to-end with logout
 
-## Checkout Negative / Abort Flows
+Compose:
+- `Login.with_credentials(...)`
+- `AddProductToCart.named(...)`
+- `BeginCheckout()`
+- `ProvideCheckoutInformation.as_customer(...)`
+- `CompleteCheckout()`
+- `ReturnToProducts()`
+- `Logout()`
 
-### 13) `CancelCheckoutAtStepOne(item_names)`
-**Compose**
-- Add items (inventory)
-- `GoToCart()`
-- `ProceedToCheckout()`
-- `CancelCheckout()`
-**Verify (optional)**
-- `CartItemCountIs(len(item_names))` *(still in cart)*
-
-### 14) `CancelCheckoutAtStepTwo(item_names, first, last, zip)`
-**Compose**
-- Go through Step One:
-  - `GoToCart()`
-  - `ProceedToCheckout()`
-  - `EnterCheckoutInformation(first, last, zip)`
-  - `ContinueCheckout()`
-- `CancelCheckout()`
-**Verify (optional)**
-- `OnInventoryPage()` *(SauceDemo cancel returns to inventory)*
-
----
-
-## Post-Checkout Confirmation Flows
-
-### 15) `VerifyOverviewMeta(payment_text, shipping_text)`
-**Verify**
-- `PaymentInformationIs(payment_text)`
-- `ShippingInformationIs(shipping_text)`
-
-### 16) `VerifyOrderTotalsAreCorrect(item_names)`
-**Verify**
-- `OverviewContains.items(item_names)`
-- `TotalsMatchComputedSum()`
-
----
-
-## Suggested “Golden Path” Engine Flow
-
-### 17) `GoldenPathPurchase(item_names, first, last, zip)`
-**Compose**
-- `LoginSuccessfully(...)`
-- `CheckoutMultipleItems(item_names, first, last, zip)`
-- `ReturnHomeToInventory()`
-**Verify**
-- `CartBadgeCountIs(0)`
-- `OnInventoryPage()`
+Verify:
+- `TextOf(SauceDemo.LOGIN_BUTTON) == "Login"`

@@ -1,12 +1,15 @@
 # Playwright + Pytest Screenplay Framework
 
-A Python UI automation framework using **Playwright**, **pytest**, and the **Screenplay pattern**, with `pytest-bdd` as the primary behavior layer.
+A Python UI automation framework using Playwright, pytest, and the Screenplay pattern,
+with `pytest-bdd` as the primary behavior layer.
 
-This project demonstrates disciplined domain modeling, reusable Tasks and Questions, and clean separation between business intent and UI mechanics.
+The repository demonstrates:
+- business-readable BDD scenarios
+- thin step definitions
+- reusable Screenplay Tasks, Questions, and Interactions
+- centralized locators and runtime configuration
 
----
-
-# Setup
+## Setup
 
 ```powershell
 python -m venv .venv
@@ -17,177 +20,104 @@ python -m playwright install
 pytest -q
 ```
 
----
+## Runtime Configuration
 
-# Architecture Philosophy
+Runtime settings are environment-driven through `screenplay/config/runtime.py`.
 
-This framework follows these principles:
+| Variable | Default | Description |
+| --- | --- | --- |
+| `BASE_URL` | `https://www.saucedemo.com/` | Application base URL used by `OpenSauceDemo` and `Login`. |
+| `BROWSER` | `chromium` | Default browser for pytest-playwright (`chromium`, `firefox`, `webkit`). |
+| `HEADED` | `false` | Run tests headed when true (`true/false`, `1/0`, `yes/no`). |
+| `SLOW_MO_MS` | `0` | Slow motion delay in milliseconds for browser actions. |
+| `DEFAULT_TIMEOUT_MS` | `5000` | Default timeout for wait interactions (`WaitUntilVisible`/`WaitUntilHidden`). |
 
-- **Screenplay is the core abstraction**  
-  Tests and step definitions call reusable `Task` and `Question` objects.
+Example:
 
-- **Behavior-first design with pytest-bdd**  
-  Gherkin scenarios describe behavior. Step definitions remain thin wrappers.
+```powershell
+$env:BASE_URL = "https://www.saucedemo.com"
+$env:BROWSER = "firefox"
+$env:HEADED = "true"
+$env:SLOW_MO_MS = "150"
+$env:DEFAULT_TIMEOUT_MS = "7000"
+pytest -q
+```
 
-- **Tasks represent intent**  
-  Not clicks. Not locators. Not UI mechanics.
-
-- **Questions represent state verification**  
-  Assertions are encapsulated in reusable query objects.
-
-- **Clear page responsibility separation**  
-  Each page defines only the Tasks and Questions it truly owns.
-
----
-
-# SauceDemo Domain Model
-
-The following Tasks and Questions define the complete vocabulary used to model the SauceDemo application.
-
-All tests and Gherkin steps compose from these primitives.
-
----
-
-## Login Page
+## Current Screenplay API
 
 ### Tasks
+- `OpenSauceDemo.app()`
 - `Login.with_credentials(username, password)`
-
-### Questions
-- `LoginErrorMessage.text()` *(or `LoginErrorMessage.equals(expected)`)*
-- `OnInventoryPage()`
-
----
-
-## Inventory Page
-
-### Tasks
+- `EnterUsername.as_(username)`
+- `EnterPassword.as_(password)`
+- `ClickLogin()`
+- `DismissLoginError()`
 - `SortInventory.by(option)`
-- `OpenItemDetails.named(item_name)`
-- `AddItem.named(item_name)`
-- `RemoveItem.named(item_name)`
+- `AddProductToCart.named(product_name)`
 - `GoToCart()`
-
-### Questions
-- `InventorySortedBy(option)`
-- `CartBadgeCountIs(n)`
-
----
-
-## Inventory Item / Item Details Page
-
-### Tasks
-- `ReturnToProducts()`
-- `AddItem.named(item_name)`
-- `RemoveItem.named(item_name)`
-
-### Questions
-- `ItemName.is(expected)`
-- `ItemDescription.contains(text)`
-- `ItemPrice.is(expected_price)`
-
----
-
-## Cart Page
-
-### Tasks
-- `ContinueShopping()`
 - `ProceedToCheckout()`
-- `RemoveItem.named(item_name)`
-- `RemoveItems.named(item_names)`
-
-### Questions
-- `CartContains.items(item_names)`
-- `CartItemCountIs(n)`
-- `CartIsEmpty()`
-
----
-
-## Checkout Step One (Information Page)
-
-### Tasks
-- `EnterCheckoutInformation(first_name, last_name, postal_code)`
+- `EnterCheckoutInformation.as_customer(first_name, last_name, postal_code)`
 - `ContinueCheckout()`
-- `CancelCheckout()`
-
-*(No page-specific Questions — use generic text/value/error assertions.)*
-
----
-
-## Checkout Step Two (Overview Page)
-
-### Tasks
-- `FinishCheckout()`
-- `CancelCheckout()`
+- `CompleteCheckout()`
+- `ReturnToProducts()`
+- `BeginCheckout()` (POC flow)
+- `ProvideCheckoutInformation.as_customer(first_name, last_name, postal_code)` (POC flow)
+- `Logout()` (POC flow)
 
 ### Questions
-- `OverviewContains.items(item_names)`
-- `PaymentInformationIs(text)`
-- `ShippingInformationIs(text)`
+- `OnLoginPage()`
+- `OnInventoryPage()`
+- `CartBadgeCount()`
 - `TotalsMatchComputedSum()`
+- `TextOf(target)`
+- `TextsOf(target)`
+- `IsVisible(target)`
+- `IsFocused(target)`
+- `FocusIndicatorVisible()`
+- `AttributeOf(target, attribute_name)`
+- `CurrentUrl()`
 
----
+## Project Structure
 
-## Checkout Complete Page
-
-### Tasks
-- `ReturnHomeToInventory()`
-
-*(Use generic assertions for confirmation text or visibility checks.)*
-
----
-
-# Project Structure
-```
+```text
 screenplay/
-│
-├── core/ # Actor, Task, Interaction, Question, Target
-├── abilities/ # Actor abilities (e.g., BrowseTheWeb)
-├── interactions/ # Low-level UI actions (Click, Fill, NavigateTo)
-├── tasks/ # Business-level Tasks
-├── questions/ # Reusable Questions (assertions)
-├── ui/ # Application-specific Targets/locators
-│
+|-- abilities/      # Actor abilities (BrowseTheWeb)
+|-- config/         # Runtime settings (env-driven)
+|-- core/           # Actor, Task, Interaction, Question, Target
+|-- interactions/   # Atomic UI operations
+|-- questions/      # Reusable state queries
+|-- tasks/          # Business-level actions
+`-- ui/             # SauceDemo locators/targets
+
 tests/
-├── features/ # Gherkin feature files
-├── steps/ # pytest-bdd step definitions
-├── test_*.py # Optional direct pytest + Screenplay tests
+|-- features/       # Gherkin scenarios
+|-- steps/          # pytest-bdd step definitions
+|-- conftest.py     # fixture wiring + runtime defaults
+`-- test_*.py       # scenario loaders + optional direct tests
+
+docs/
+|-- architecture.md
+|-- design_decisions.md
+|-- domain_model.md
+|-- engine_flows.md
+`-- step_vocabulary.md
 ```
 
----
+## Test Modes
 
-# Testing Modes
+### 1. pytest-bdd + Screenplay (primary)
+- Gherkin defines behavior.
+- Step definitions map phrases to Tasks/Questions.
+- Business intent stays separate from UI mechanics.
 
-## 1️⃣ pytest-bdd + Screenplay (Primary)
+### 2. Direct pytest + Screenplay (supporting)
+- Useful for focused workflow tests and refactoring safety.
+- `tests/test_golden_path_poc.py` is an example.
 
-- Feature files define behavior.
-- Step definitions call Tasks and Questions.
-- Business-readable scenarios with strong architecture.
+## Documentation
 
-Example:
-
-```py
-from pytest_bdd import when, parsers
-from screenplay.tasks.login import Login
-
-@when(parsers.parse('I log in with username "{username}" and password "{password}"'))
-def login(actor, username, password):
-    actor.attempts_to(Login.with_credentials(username, password))
-```
-## 2️⃣ Direct pytest + Screenplay
-
-Useful for:
-
-* Fast refactoring
-* Engineering feedback
-* Lower-level interaction testing
-
-Example:
-```py
-def test_successful_login(actor):
-    actor.attempts_to(
-        Login.with_credentials("standard_user", "secret_sauce")
-    )
-
-    assert actor.asks_for(OnInventoryPage())
-```
+- Domain model: `docs/domain_model.md`
+- Step vocabulary: `docs/step_vocabulary.md`
+- Architecture: `docs/architecture.md`
+- Composed engine flows: `docs/engine_flows.md`
+- Design rationale: `docs/design_decisions.md`
