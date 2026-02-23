@@ -1,73 +1,180 @@
 # Playwright + Pytest Screenplay Framework
 
-Python UI automation framework using Playwright, pytest, and the Screenplay pattern, with an optional `pytest-bdd` layer for Gherkin-driven scenarios.
+A Python UI automation framework using **Playwright**, **pytest**, and the **Screenplay pattern**, with `pytest-bdd` as the primary behavior layer.
 
-## New Direction
+This project demonstrates disciplined domain modeling, reusable Tasks and Questions, and clean separation between business intent and UI mechanics.
 
-This project is moving toward a behavior-first, architecture-driven model:
+---
 
-- Keep automation logic in reusable Screenplay `Task` and `Interaction` classes.
-- Use Gherkin as a collaboration/specification layer when needed.
-- Treat each Gherkin step phrase as a stable contract mapped by step definitions.
-- Prefer business-level steps for behavior tests, and UI-level steps only for UI mechanics.
+# Architecture Philosophy
 
-## Core Principles
+This framework follows these principles:
 
-- **Screenplay stays primary**: step definitions should be thin wrappers that call Tasks/Questions.
-- **Step contract discipline**: one step phrase should keep one meaning over time.
-- **Reuse over duplication**: compose flows from reusable Tasks rather than raw page actions in tests.
-- **Portability**: the core framework is generic; adapt to new sites by replacing app-specific Targets/Tasks.
+- **Screenplay is the core abstraction**  
+  Tests and step definitions call reusable `Task` and `Question` objects.
 
-## Project Structure
+- **Behavior-first design with pytest-bdd**  
+  Gherkin scenarios describe behavior. Step definitions remain thin wrappers.
 
-- `screenplay/core`: Actor, Task, Interaction, Question, Target abstractions.
-- `screenplay/abilities`: actor abilities (for example `BrowseTheWeb`).
-- `screenplay/interactions`: low-level browser actions (`Click`, `Fill`, `NavigateTo`, ...).
-- `screenplay/tasks`: reusable business flows (`Login`, `Logout`, checkout tasks, ...).
-- `screenplay/questions`: reusable assertions/query objects (`IsVisible`, `TextOf`).
-- `screenplay/ui`: app-specific Targets and locators (`SauceDemo`).
-- `tests`: pytest tests, fixtures, and feature files.
+- **Tasks represent intent**  
+  Not clicks. Not locators. Not UI mechanics.
 
-## Testing Modes
+- **Questions represent state verification**  
+  Assertions are encapsulated in reusable query objects.
 
-1. **Plain pytest + Screenplay (current baseline)**
-   - Example: `tests/test_golden_path_poc.py`
-   - Best for direct engineering feedback and fast refactoring.
+- **Clear page responsibility separation**  
+  Each page defines only the Tasks and Questions it truly owns.
 
-2. **pytest-bdd + Screenplay (recommended for shared behavior language)**
-   - Feature file: `tests/login_page.feature`
-   - Step definitions map Gherkin steps to Screenplay Tasks/Questions.
-   - Keeps business-readable specs without sacrificing framework design quality.
+---
 
-## Example Step Mapping (pytest-bdd)
+# SauceDemo Domain Model
 
-```python
-from pytest_bdd import parsers, when
-from screenplay.tasks.login import Login
+The following Tasks and Questions define the complete vocabulary used to model the SauceDemo application.
 
+All tests and Gherkin steps compose from these primitives.
 
-@when(parsers.parse('I log in with username "{username}" and password "{password}"'))
-def login(customer, username, password):
-    customer.attempts_to(Login.with_credentials(username, password))
+---
+
+## Login Page
+
+### Tasks
+- `Login.with_credentials(username, password)`
+
+### Questions
+- `LoginErrorMessage.text()` *(or `LoginErrorMessage.equals(expected)`)*
+- `OnInventoryPage()`
+
+---
+
+## Inventory Page
+
+### Tasks
+- `SortInventory.by(option)`
+- `OpenItemDetails.named(item_name)`
+- `AddItem.named(item_name)`
+- `RemoveItem.named(item_name)`
+- `GoToCart()`
+
+### Questions
+- `InventorySortedBy(option)`
+- `CartBadgeCountIs(n)`
+
+---
+
+## Inventory Item / Item Details Page
+
+### Tasks
+- `ReturnToProducts()`
+- `AddItem.named(item_name)`
+- `RemoveItem.named(item_name)`
+
+### Questions
+- `ItemName.is(expected)`
+- `ItemDescription.contains(text)`
+- `ItemPrice.is(expected_price)`
+
+---
+
+## Cart Page
+
+### Tasks
+- `ContinueShopping()`
+- `ProceedToCheckout()`
+- `RemoveItem.named(item_name)`
+- `RemoveItems.named(item_names)`
+
+### Questions
+- `CartContains.items(item_names)`
+- `CartItemCountIs(n)`
+- `CartIsEmpty()`
+
+---
+
+## Checkout Step One (Information Page)
+
+### Tasks
+- `EnterCheckoutInformation(first_name, last_name, postal_code)`
+- `ContinueCheckout()`
+- `CancelCheckout()`
+
+*(No page-specific Questions — use generic text/value/error assertions.)*
+
+---
+
+## Checkout Step Two (Overview Page)
+
+### Tasks
+- `FinishCheckout()`
+- `CancelCheckout()`
+
+### Questions
+- `OverviewContains.items(item_names)`
+- `PaymentInformationIs(text)`
+- `ShippingInformationIs(text)`
+- `TotalsMatchComputedSum()`
+
+---
+
+## Checkout Complete Page
+
+### Tasks
+- `ReturnHomeToInventory()`
+
+*(Use generic assertions for confirmation text or visibility checks.)*
+
+---
+
+# Project Structure
+```
+screenplay/
+│
+├── core/ # Actor, Task, Interaction, Question, Target
+├── abilities/ # Actor abilities (e.g., BrowseTheWeb)
+├── interactions/ # Low-level UI actions (Click, Fill, NavigateTo)
+├── tasks/ # Business-level Tasks
+├── questions/ # Reusable Questions (assertions)
+├── ui/ # Application-specific Targets/locators
+│
+tests/
+├── features/ # Gherkin feature files
+├── steps/ # pytest-bdd step definitions
+├── test_*.py # Optional direct pytest + Screenplay tests
 ```
 
-## Practical Guidance for Gherkin
+---
 
-- Good behavior step: `When I log in with username "<username>" and password "secret_sauce"`
-- Good UI-specific step: `When I press Tab`
-- Avoid redefining the same phrase to do different actions.
-- It is fine to scaffold step definitions with `print()` first, then replace with real Tasks/assertions.
+# Testing Modes
 
-## Getting Started
+## 1️⃣ pytest-bdd + Screenplay (Primary)
 
-1. Install dependencies (pytest, playwright, pytest-playwright, and optionally pytest-bdd).
-2. Install Playwright browser binaries:
-   - `playwright install`
-3. Run tests:
-   - `pytest -q`
+- Feature files define behavior.
+- Step definitions call Tasks and Questions.
+- Business-readable scenarios with strong architecture.
 
-## Near-Term Roadmap
+Example:
 
-- Add first-class `pytest-bdd` step-definition module for `tests/login_page.feature`.
-- Define an approved step vocabulary for login and checkout behavior.
-- Add CI execution and test reporting (HTML/JUnit) for portfolio-grade presentation.
+```py
+from pytest_bdd import when, parsers
+from screenplay.tasks.login import Login
+
+@when(parsers.parse('I log in with username "{username}" and password "{password}"'))
+def login(actor, username, password):
+    actor.attempts_to(Login.with_credentials(username, password))
+```
+## 2️⃣ Direct pytest + Screenplay
+
+Useful for:
+
+* Fast refactoring
+* Engineering feedback
+* Lower-level interaction testing
+
+Example:
+```py
+def test_successful_login(actor):
+    actor.attempts_to(
+        Login.with_credentials("standard_user", "secret_sauce")
+    )
+
+    assert actor.asks_for(OnInventoryPage())
+```
