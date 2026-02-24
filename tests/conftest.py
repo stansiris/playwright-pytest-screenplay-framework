@@ -1,6 +1,6 @@
 import pytest
 
-from screenplay.config.runtime import runtime_settings
+from saucedemo.config.runtime import runtime_settings
 from screenplay_core.abilities.browse_the_web import BrowseTheWeb
 from screenplay_core.core.actor import Actor
 
@@ -47,4 +47,5 @@ def browser_type_launch_args(pytestconfig) -> dict:
 @pytest.fixture
 def customer(page):
     return Actor("Customer").can(BrowseTheWeb.using(page))
+
 

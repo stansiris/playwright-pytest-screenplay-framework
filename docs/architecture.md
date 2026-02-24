@@ -15,23 +15,26 @@ Gherkin scenario in `tests/features/*.feature`
 
 ## Layer Responsibilities
 
-### `screenplay/core`
+### `screenplay_core/core`
 - `Actor`
 - base abstractions: `Task`, `Interaction`, `Question`, `Target`
 
-### `screenplay/abilities`
+### `screenplay_core/abilities`
 - `BrowseTheWeb` bridges Actor to Playwright `page`
 
-### `screenplay/interactions`
+### `screenplay_core/interactions`
 - atomic UI actions (`Click`, `Fill`, `PressKey`, `WaitUntilVisible`, ...)
 
-### `screenplay/tasks`
+### `screenplay_core/questions`
+- reusable generic queries (`TextOf`, `TextsOf`, `IsVisible`, ...)
+
+### `saucedemo/tasks`
 - intent-level workflows (`Login`, `AddProductToCart`, `ProceedToCheckout`, ...)
 
-### `screenplay/questions`
-- reusable state queries/assertions (`OnInventoryPage`, `TextOf`, `TotalsMatchComputedSum`, ...)
+### `saucedemo/questions`
+- SauceDemo-specific state queries/assertions (`OnInventoryPage`, `OnLoginPage`, `CartBadgeCount`, `TotalsMatchComputedSum`)
 
-### `screenplay/ui`
+### `saucedemo/ui`
 - centralized `Target` locators for SauceDemo
 
 ### `tests/features`
@@ -42,7 +45,7 @@ Gherkin scenario in `tests/features/*.feature`
 
 ## Runtime Configuration
 
-Runtime behavior is configured by environment variables in `screenplay/config/runtime.py`:
+Runtime behavior is configured by environment variables in `saucedemo/config/runtime.py`:
 - `BASE_URL`
 - `BROWSER`
 - `HEADED`
@@ -56,4 +59,6 @@ Runtime behavior is configured by environment variables in `screenplay/config/ru
 - Step functions should not contain locators.
 - Tasks should describe user intent, not DOM mechanics.
 - Questions should read state and return values for assertions.
-- Targets should be declared once in `screenplay/ui/saucedemo.py`.
+- Targets should be declared once in `saucedemo/ui/saucedemo.py`.
+
+

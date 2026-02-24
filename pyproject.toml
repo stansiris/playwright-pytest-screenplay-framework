@@ -33,7 +33,7 @@ dev = [
 ]
 
 [tool.setuptools.packages.find]
-include = ["screenplay*", "screenplay_core*"]
+include = ["screenplay_core*", "saucedemo*"]
 
 [tool.black]
 line-length = 100

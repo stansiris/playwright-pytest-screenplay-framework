@@ -7,7 +7,7 @@ The repository demonstrates:
 - business-readable BDD scenarios
 - thin step definitions
 - reusable `screenplay_core` framework components
-- SauceDemo-specific tasks/questions/locators in a separate `screenplay` layer
+- SauceDemo-specific tasks/questions/locators in a separate `saucedemo` layer
 - centralized runtime configuration for project execution
 
 ## Setup
@@ -33,7 +33,7 @@ In GitHub Actions, `test-results/` is uploaded as a workflow artifact even when 
 
 ## Runtime Configuration
 
-Runtime settings are environment-driven through `screenplay/config/runtime.py`.
+Runtime settings are environment-driven through `saucedemo/config/runtime.py`.
 
 | Variable | Default | Description |
 | --- | --- | --- |
@@ -67,7 +67,7 @@ pytest -q
 - Interactions: `Click`, `Fill`, `Focus`, `NavigateTo`, `PressKey`, `RefreshPage`, `ScrollIntoView`, `SelectByValue`, `WaitUntilVisible`, `WaitUntilHidden`
 - Questions: `TextOf`, `TextsOf`, `IsVisible`, `IsFocused`, `FocusIndicatorVisible`, `AttributeOf`, `CurrentUrl`
 
-### SauceDemo Domain (`screenplay`)
+### SauceDemo Domain (`saucedemo`)
 - Questions: `OnLoginPage`, `OnInventoryPage`, `CartBadgeCount`, `TotalsMatchComputedSum`
 - Tasks:
 - `OpenSauceDemo.app()`
@@ -97,7 +97,7 @@ screenplay_core/
 |-- interactions/   # Reusable low-level browser interactions
 `-- questions/      # Reusable generic questions
 
-screenplay/
+saucedemo/
 |-- config/         # Project runtime settings (env-driven)
 |-- tasks/          # SauceDemo business-level actions
 |-- questions/      # SauceDemo-specific queries
@@ -136,3 +136,5 @@ docs/
 - Composed engine flows: `docs/engine_flows.md`
 - Design rationale: `docs/design_decisions.md`
 - Presentation guide: `docs/project_presentation.md`
+
+

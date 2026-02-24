@@ -2,19 +2,19 @@ from collections import Counter
 
 from pytest_bdd import given, parsers, then, when
 
-from screenplay.questions.cart_badge_count import CartBadgeCount
-from screenplay.questions.totals_match_computed_sum import TotalsMatchComputedSum
-from screenplay.tasks.add_product_to_cart import AddProductToCart
-from screenplay.tasks.complete_checkout import CompleteCheckout
-from screenplay.tasks.continue_checkout import ContinueCheckout
-from screenplay.tasks.enter_checkout_information import EnterCheckoutInformation
-from screenplay.tasks.go_to_cart import GoToCart
-from screenplay.tasks.login import Login
-from screenplay.tasks.open_saucedemo import OpenSauceDemo
-from screenplay.tasks.proceed_to_checkout import ProceedToCheckout
-from screenplay.tasks.return_to_products import ReturnToProducts
-from screenplay.tasks.sort_inventory import SortInventory
-from screenplay.ui.saucedemo import SauceDemo
+from saucedemo.questions.cart_badge_count import CartBadgeCount
+from saucedemo.questions.totals_match_computed_sum import TotalsMatchComputedSum
+from saucedemo.tasks.add_product_to_cart import AddProductToCart
+from saucedemo.tasks.complete_checkout import CompleteCheckout
+from saucedemo.tasks.continue_checkout import ContinueCheckout
+from saucedemo.tasks.enter_checkout_information import EnterCheckoutInformation
+from saucedemo.tasks.go_to_cart import GoToCart
+from saucedemo.tasks.login import Login
+from saucedemo.tasks.open_saucedemo import OpenSauceDemo
+from saucedemo.tasks.proceed_to_checkout import ProceedToCheckout
+from saucedemo.tasks.return_to_products import ReturnToProducts
+from saucedemo.tasks.sort_inventory import SortInventory
+from saucedemo.ui.saucedemo import SauceDemo
 from screenplay_core.interactions.wait_until_visible import WaitUntilVisible
 from screenplay_core.questions.text_of import TextOf
 from screenplay_core.questions.texts_of import TextsOf
@@ -136,4 +136,5 @@ def return_home_to_inventory(customer) -> None:
         ReturnToProducts(),
         WaitUntilVisible.for_(SauceDemo.INVENTORY_CONTAINER),
     )
+
 

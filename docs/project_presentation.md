@@ -41,16 +41,16 @@ Use it as:
 
 - Feature files capture behavior in plain language under `tests/features/`.
 - Step definitions in `tests/steps/` remain thin adapters.
-- Screenplay layers in `screenplay/` hold reusable automation logic:
-  - `tasks/` for user intent
-  - `questions/` for state/read-model assertions
-  - `interactions/` for atomic browser operations
-  - `ui/saucedemo.py` for centralized targets/selectors
+- Screenplay layers are split between `screenplay_core/` (reusable engine) and `saucedemo/` (domain implementation):
+  - `screenplay_core/interactions/` for atomic browser operations
+  - `saucedemo/tasks/` for user intent
+  - `saucedemo/questions/` for state/read-model assertions
+  - `saucedemo/ui/saucedemo.py` for centralized targets/selectors
 
 ## 3.3 Technical Proof Points
 
-- Environment-driven runtime settings (`BASE_URL`, `BROWSER`, `HEADED`, `SLOW_MO_MS`, `DEFAULT_TIMEOUT_MS`) in `screenplay/config/runtime.py`.
-- Centralized actor execution logging and timing in `screenplay/core/actor.py`.
+- Environment-driven runtime settings (`BASE_URL`, `BROWSER`, `HEADED`, `SLOW_MO_MS`, `DEFAULT_TIMEOUT_MS`) in `saucedemo/config/runtime.py`.
+- Centralized actor execution logging and timing in `screenplay_core/core/actor.py`.
 - CI matrix runs tests on both:
   - `ubuntu-latest` and `windows-latest`
   - `chromium` and `firefox`
@@ -85,18 +85,18 @@ Use it as:
 
 ## 4.3 Screenplay Core Design (3 min)
 
-- `screenplay/core/actor.py`: orchestration, ability management, timed logging.
-- `screenplay/core/target.py`: element abstraction and locator encapsulation.
-- `screenplay/abilities/browse_the_web.py`: Playwright page boundary.
+- `screenplay_core/core/actor.py`: orchestration, ability management, timed logging.
+- `screenplay_core/core/target.py`: element abstraction and locator encapsulation.
+- `screenplay_core/abilities/browse_the_web.py`: Playwright page boundary.
 
 ## 4.4 Intent and Assertions (3 min)
 
-- `screenplay/tasks/login.py`, `screenplay/tasks/add_product_to_cart.py` as intent-level operations.
-- `screenplay/questions/totals_match_computed_sum.py` as a business-check question rather than inline arithmetic in steps.
+- `saucedemo/tasks/login.py`, `saucedemo/tasks/add_product_to_cart.py` as intent-level operations.
+- `saucedemo/questions/totals_match_computed_sum.py` as a business-check question rather than inline arithmetic in steps.
 
 ## 4.5 Runtime + CI + Operability (2 min)
 
-- `screenplay/config/runtime.py` for environment portability.
+- `saucedemo/config/runtime.py` for environment portability.
 - `.github/workflows/ci.yml` for OS/browser matrix.
 - Explain artifact strategy for diagnosis after failures.
 
@@ -168,7 +168,7 @@ BDD gives business-readable behavior specifications. The key is discipline: keep
 ## Q3. How do you control flakiness?
 
 - explicit waits via reusable interactions (`WaitUntilVisible`, `WaitUntilHidden`)
-- stable selectors centralized in one place (`screenplay/ui/saucedemo.py`)
+- stable selectors centralized in one place (`saucedemo/ui/saucedemo.py`)
 - isolated runtime settings for consistent execution
 - artifact capture for quick root-cause analysis
 
@@ -274,7 +274,7 @@ Be ready to:
 
 ## 10. Screenplay Pattern Deep Dive (Implemented Here)
 
-This section explains the pattern as implemented in this repository, using the exact class model in `screenplay/core`, `screenplay/abilities`, and `screenplay/ui`.
+This section explains the pattern as implemented in this repository, using the exact class model in `screenplay_core/core`, `screenplay_core/abilities`, and `saucedemo/ui`.
 
 ## 10.1 General Screenplay Pattern (Concept)
 
@@ -335,13 +335,13 @@ Benefits:
 - makes new activities/questions plug in without changing core orchestration
 
 In this project:
-- `screenplay/core/activity.py` defines the action contract
-- `screenplay/core/question.py` defines the query contract
-- `screenplay/core/task.py` and `screenplay/core/interaction.py` provide typed specialization
+- `screenplay_core/core/activity.py` defines the action contract
+- `screenplay_core/core/question.py` defines the query contract
+- `screenplay_core/core/task.py` and `screenplay_core/core/interaction.py` provide typed specialization
 
 ## 10.4 Actor as the Execution Orchestrator
 
-`screenplay/core/actor.py` is intentionally thin and generic:
+`screenplay_core/core/actor.py` is intentionally thin and generic:
 - stores abilities (`can`)
 - resolves abilities (`ability_to`)
 - executes any `Activity` via `attempts_to`
@@ -352,7 +352,7 @@ Notable implementation detail:
 
 ## 10.5 Ability Boundary: `BrowseTheWeb`
 
-`screenplay/abilities/browse_the_web.py` wraps Playwright `page`.
+`screenplay_core/abilities/browse_the_web.py` wraps Playwright `page`.
 
 Why this boundary is important:
 - Tasks and Questions depend on the actor's ability, not directly on fixture globals.
@@ -364,7 +364,7 @@ Fixture wiring in `tests/conftest.py`:
 
 ## 10.6 Target Model (UI Element Abstraction)
 
-`screenplay/core/target.py` defines `Target(description, locator_function)`.
+`screenplay_core/core/target.py` defines `Target(description, locator_function)`.
 
 Key behavior:
 - `Target` does not store a concrete locator instance.
@@ -372,7 +372,7 @@ Key behavior:
 - `resolve_for(actor)` retrieves `BrowseTheWeb` ability and then evaluates the locator function.
 
 Why this is strong:
-- selectors are centralized in `screenplay/ui/saucedemo.py`
+- selectors are centralized in `saucedemo/ui/saucedemo.py`
 - step definitions and tasks avoid inline selectors
 - locator changes have a single maintenance point
 
@@ -394,7 +394,7 @@ This is the core maintainability mechanism: each layer has one job.
 
 When adding new behavior:
 
-1. Add/extend target(s) in `screenplay/ui/saucedemo.py`.
+1. Add/extend target(s) in `saucedemo/ui/saucedemo.py`.
 2. Add Interaction only if it is a reusable atomic action.
 3. Add Task for intent-level behavior.
 4. Add Question for reusable state/business checks.
@@ -425,3 +425,5 @@ Why it is justified here:
 ## 11. Final Closing Statement
 
 "This project demonstrates that UI automation can be engineered as a maintainable system, not a script collection. I focused on clear architecture boundaries, executable behavior documentation, and operational reliability in CI. If this were adopted by a team, the next gains would come from adding a fast unit layer and optional API integration while preserving the same Screenplay design principles."
+
+

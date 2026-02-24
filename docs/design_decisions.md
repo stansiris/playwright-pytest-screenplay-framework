@@ -18,4 +18,5 @@ Tests should pass product names, not selector details.
 ## Why runtime settings are environment-driven
 
 Portfolio and CI runs need consistent, reproducible defaults without code edits.
-`BASE_URL`, `BROWSER`, `HEADED`, `SLOW_MO_MS`, and `DEFAULT_TIMEOUT_MS` are read once from `screenplay/config/runtime.py`.
+`BASE_URL`, `BROWSER`, `HEADED`, `SLOW_MO_MS`, and `DEFAULT_TIMEOUT_MS` are read once from `saucedemo/config/runtime.py`.
+

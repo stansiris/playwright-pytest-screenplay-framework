@@ -1,12 +1,12 @@
 from pytest_bdd import given, parsers, then, when
 
-from screenplay.questions.on_login_page import OnLoginPage
-from screenplay.tasks.click_login import ClickLogin
-from screenplay.tasks.dismiss_login_error import DismissLoginError
-from screenplay.tasks.enter_password import EnterPassword
-from screenplay.tasks.enter_username import EnterUsername
-from screenplay.tasks.open_saucedemo import OpenSauceDemo
-from screenplay.ui.saucedemo import SauceDemo
+from saucedemo.questions.on_login_page import OnLoginPage
+from saucedemo.tasks.click_login import ClickLogin
+from saucedemo.tasks.dismiss_login_error import DismissLoginError
+from saucedemo.tasks.enter_password import EnterPassword
+from saucedemo.tasks.enter_username import EnterUsername
+from saucedemo.tasks.open_saucedemo import OpenSauceDemo
+from saucedemo.ui.saucedemo import SauceDemo
 from screenplay_core.interactions.click import Click
 from screenplay_core.interactions.focus import Focus
 from screenplay_core.interactions.press_key import PressKey
@@ -146,4 +146,5 @@ def should_see_any_error_message(customer) -> None:
 @then("the focused element should have a visible focus indicator")
 def focused_element_should_have_visible_indicator(customer) -> None:
     assert customer.asks_for(FocusIndicatorVisible())
+
 

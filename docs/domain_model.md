@@ -1,7 +1,8 @@
 # SauceDemo Domain Model
 
 This document is the source of truth for the automation language implemented in this repository.
-All names below map to real classes in `screenplay/tasks` and `screenplay/questions`.
+App-specific names map to real classes in `saucedemo/tasks` and `saucedemo/questions`.
+Generic reusable questions live in `screenplay_core/questions`.
 
 ## Actor and Ability
 
@@ -67,10 +68,11 @@ All names below map to real classes in `screenplay/tasks` and `screenplay/questi
 
 ## Target Model
 
-All UI selectors are centralized in `screenplay/ui/saucedemo.py` as `Target` objects.
+All UI selectors are centralized in `saucedemo/ui/saucedemo.py` as `Target` objects.
 Tasks and Questions must reference these targets instead of inline selectors.
 
 ## Usage in BDD
 
 Feature files live under `tests/features`.
 Step definitions in `tests/steps` are thin wrappers that delegate to the Task and Question model above.
+

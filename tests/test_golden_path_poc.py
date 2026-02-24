@@ -1,11 +1,11 @@
-from screenplay.tasks.add_product_to_cart import AddProductToCart
-from screenplay.tasks.begin_checkout import BeginCheckout
-from screenplay.tasks.complete_checkout import CompleteCheckout
-from screenplay.tasks.login import Login
-from screenplay.tasks.logout import Logout
-from screenplay.tasks.provide_checkout_information import ProvideCheckoutInformation
-from screenplay.tasks.return_to_products import ReturnToProducts
-from screenplay.ui.saucedemo import SauceDemo
+from saucedemo.tasks.add_product_to_cart import AddProductToCart
+from saucedemo.tasks.begin_checkout import BeginCheckout
+from saucedemo.tasks.complete_checkout import CompleteCheckout
+from saucedemo.tasks.login import Login
+from saucedemo.tasks.logout import Logout
+from saucedemo.tasks.provide_checkout_information import ProvideCheckoutInformation
+from saucedemo.tasks.return_to_products import ReturnToProducts
+from saucedemo.ui.saucedemo import SauceDemo
 from screenplay_core.interactions.wait_until_visible import WaitUntilVisible
 from screenplay_core.questions.text_of import TextOf
 
@@ -29,4 +29,5 @@ def test_golden_path_purchase_and_logout(customer):
     )
 
     assert customer.asks_for(TextOf(SauceDemo.LOGIN_BUTTON)) == "Login"
+
 
