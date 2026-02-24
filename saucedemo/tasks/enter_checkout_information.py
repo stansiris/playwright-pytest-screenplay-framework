@@ -31,5 +31,3 @@ class EnterCheckoutInformation(Task):
         cls, first_name: str, last_name: str, postal_code: str
     ) -> "EnterCheckoutInformation":
         return cls(first_name, last_name, postal_code)
-
-

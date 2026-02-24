@@ -48,4 +48,3 @@ class WaitUntilVisible(Interaction):
             f"WaitUntilVisible(target='{self.target.description}', "
             f"timeout_ms={self.timeout_ms})"
         )
-

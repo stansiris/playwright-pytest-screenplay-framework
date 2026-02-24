@@ -10,4 +10,3 @@ class RefreshPage(Interaction):
 
     def perform_as(self, actor) -> None:
         actor.ability_to(BrowseTheWeb).page.reload()
-

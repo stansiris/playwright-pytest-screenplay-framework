@@ -14,4 +14,3 @@ class SelectByValue(Interaction):
 
     def perform_as(self, actor) -> None:
         self.target.resolve_for(actor).select_option(value=self.value)
-

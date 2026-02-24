@@ -8,5 +8,3 @@ class ProceedToCheckout(Task):
 
     def perform_as(self, actor) -> None:
         actor.attempts_to(Click(SauceDemo.CHECKOUT_BUTTON))
-
-

@@ -10,4 +10,3 @@ class OnInventoryPage(Question):
 
     def __repr__(self) -> str:
         return "OnInventoryPage()"
-

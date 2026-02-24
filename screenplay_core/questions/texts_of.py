@@ -14,4 +14,3 @@ class TextsOf(Question):
 
     def __repr__(self) -> str:
         return f"TextsOf(target='{self.target.description}')"
-

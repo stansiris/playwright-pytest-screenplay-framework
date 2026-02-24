@@ -11,5 +11,3 @@ class BeginCheckout(Task):
             GoToCart(),
             ProceedToCheckout(),
         )
-
-

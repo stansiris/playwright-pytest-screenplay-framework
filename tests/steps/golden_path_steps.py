@@ -136,5 +136,3 @@ def return_home_to_inventory(customer) -> None:
         ReturnToProducts(),
         WaitUntilVisible.for_(SauceDemo.INVENTORY_CONTAINER),
     )
-
-

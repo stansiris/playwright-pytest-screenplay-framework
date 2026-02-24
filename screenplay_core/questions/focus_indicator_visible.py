@@ -35,4 +35,3 @@ class FocusIndicatorVisible(Question):
 
     def __repr__(self) -> str:
         return "FocusIndicatorVisible()"
-

@@ -11,5 +11,3 @@ class Logout(Task):
             Click(SauceDemo.MENU_BUTTON),
             Click(SauceDemo.LOGOUT_LINK),
         )
-
-

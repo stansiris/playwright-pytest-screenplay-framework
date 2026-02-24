@@ -146,5 +146,3 @@ def should_see_any_error_message(customer) -> None:
 @then("the focused element should have a visible focus indicator")
 def focused_element_should_have_visible_indicator(customer) -> None:
     assert customer.asks_for(FocusIndicatorVisible())
-
-

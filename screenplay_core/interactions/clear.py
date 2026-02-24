@@ -14,4 +14,3 @@ class Clear(Interaction):
     def perform_as(self, actor) -> None:
         # `fill("")` is stable across Playwright versions and input types.
         self.target.resolve_for(actor).fill("")
-

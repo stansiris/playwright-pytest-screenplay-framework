@@ -8,5 +8,3 @@ class ReturnToProducts(Task):
 
     def perform_as(self, actor) -> None:
         actor.attempts_to(Click(SauceDemo.BACK_TO_PRODUCTS))
-
-

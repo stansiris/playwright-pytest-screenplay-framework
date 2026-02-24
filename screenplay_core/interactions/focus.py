@@ -13,4 +13,3 @@ class Focus(Interaction):
 
     def perform_as(self, actor) -> None:
         self.target.resolve_for(actor).focus()
-

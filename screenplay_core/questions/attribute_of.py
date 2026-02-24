@@ -18,4 +18,3 @@ class AttributeOf(Question):
             f"target='{self.target.description}', "
             f"attribute_name='{self.attribute_name}')"
         )
-

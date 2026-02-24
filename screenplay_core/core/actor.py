@@ -63,4 +63,3 @@ def _safe_repr(obj) -> str:
 
 def _elapsed_ms(start: float) -> float:
     return (time.perf_counter() - start) * 1000
-

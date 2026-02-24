@@ -18,5 +18,3 @@ class EnterPassword(Task):
     @classmethod
     def as_(cls, password: str) -> "EnterPassword":
         return cls(password)
-
-

@@ -7,4 +7,3 @@ class Question(ABC):
     @abstractmethod
     def answered_by(self, actor):
         """Return an answer computed by the given actor."""
-

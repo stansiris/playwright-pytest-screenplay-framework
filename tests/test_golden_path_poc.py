@@ -29,5 +29,3 @@ def test_golden_path_purchase_and_logout(customer):
     )
 
     assert customer.asks_for(TextOf(SauceDemo.LOGIN_BUTTON)) == "Login"
-
-

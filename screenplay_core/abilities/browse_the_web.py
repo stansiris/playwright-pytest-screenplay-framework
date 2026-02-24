@@ -10,4 +10,3 @@ class BrowseTheWeb:
     @staticmethod
     def using(page):
         return BrowseTheWeb(page)
-

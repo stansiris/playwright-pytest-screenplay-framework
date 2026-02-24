@@ -13,4 +13,3 @@ class IsVisible(Question):
 
     def __repr__(self) -> str:
         return f"IsVisible(target='{self.target.description}')"
-

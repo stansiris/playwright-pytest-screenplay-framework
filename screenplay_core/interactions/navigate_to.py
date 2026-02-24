@@ -14,4 +14,3 @@ class NavigateTo(Interaction):
     def perform_as(self, actor):
         page = actor.ability_to(BrowseTheWeb).page
         page.goto(self.url)
-

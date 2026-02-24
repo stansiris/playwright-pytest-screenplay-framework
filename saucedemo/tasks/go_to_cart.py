@@ -8,5 +8,3 @@ class GoToCart(Task):
 
     def perform_as(self, actor) -> None:
         actor.attempts_to(Click(SauceDemo.SHOPPING_CART_LINK))
-
-

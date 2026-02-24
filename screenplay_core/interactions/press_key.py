@@ -14,4 +14,3 @@ class PressKey(Interaction):
     def perform_as(self, actor) -> None:
         page = actor.ability_to(BrowseTheWeb).page
         page.keyboard.press(self.key)
-

@@ -9,5 +9,3 @@ from screenplay_core.interactions.wait_until_visible import WaitUntilVisible
 def should_be_on_inventory_page(customer) -> None:
     customer.attempts_to(WaitUntilVisible.for_(SauceDemo.INVENTORY_CONTAINER))
     assert customer.asks_for(OnInventoryPage())
-
-

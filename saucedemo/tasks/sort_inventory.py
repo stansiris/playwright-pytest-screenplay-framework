@@ -30,5 +30,3 @@ class SortInventory(Task):
     @classmethod
     def by(cls, option: str) -> "SortInventory":
         return cls(option)
-
-

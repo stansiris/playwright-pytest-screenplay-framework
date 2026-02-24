@@ -18,5 +18,3 @@ class EnterUsername(Task):
     @classmethod
     def as_(cls, username: str) -> "EnterUsername":
         return cls(username)
-
-

@@ -15,5 +15,3 @@ class CartBadgeCount(Question):
 
     def __repr__(self) -> str:
         return "CartBadgeCount()"
-
-

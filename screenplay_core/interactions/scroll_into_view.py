@@ -13,4 +13,3 @@ class ScrollIntoView(Interaction):
 
     def perform_as(self, actor) -> None:
         self.target.resolve_for(actor).scroll_into_view_if_needed()
-

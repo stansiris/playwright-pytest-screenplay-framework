@@ -45,4 +45,3 @@ class WaitUntilHidden(Interaction):
 
     def __repr__(self) -> str:
         return f"WaitUntilHidden(target='{self.target.description}', timeout_ms={self.timeout_ms})"
-

@@ -18,5 +18,3 @@ class AddProductToCart(Task):
     @classmethod
     def named(cls, product_name: str) -> "AddProductToCart":
         return cls(product_name)
-
-

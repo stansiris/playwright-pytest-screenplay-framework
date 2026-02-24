@@ -12,5 +12,3 @@ class OpenSauceDemo(Task):
     @classmethod
     def app(cls) -> "OpenSauceDemo":
         return cls()
-
-

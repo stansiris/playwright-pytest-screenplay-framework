@@ -8,5 +8,3 @@ class ClickLogin(Task):
 
     def perform_as(self, actor) -> None:
         actor.attempts_to(Click(SauceDemo.LOGIN_BUTTON))
-
-

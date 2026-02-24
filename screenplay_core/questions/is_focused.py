@@ -19,4 +19,3 @@ class IsFocused(Question):
 
     def __repr__(self) -> str:
         return f"IsFocused(target='{self.target.description}')"
-

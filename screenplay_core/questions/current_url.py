@@ -10,4 +10,3 @@ class CurrentUrl(Question):
 
     def __repr__(self) -> str:
         return "CurrentUrl()"
-

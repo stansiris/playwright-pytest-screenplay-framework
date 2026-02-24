@@ -21,4 +21,3 @@ class Fill(Interaction):
 
     def perform_as(self, actor):
         self.target.resolve_for(actor).fill(self.text)
-

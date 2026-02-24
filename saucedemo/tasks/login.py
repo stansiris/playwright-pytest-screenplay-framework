@@ -26,5 +26,3 @@ class Login(Task):
     @classmethod
     def with_credentials(cls, username: str, password: str) -> "Login":
         return cls(username, password)
-
-

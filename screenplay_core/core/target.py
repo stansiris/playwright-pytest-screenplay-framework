@@ -22,4 +22,3 @@ class Target:
 
     def __repr__(self) -> str:
         return f"Target(description='{self.description}')"
-

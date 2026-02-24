@@ -12,4 +12,3 @@ class Click(Interaction):
 
     def perform_as(self, actor):
         self.target.resolve_for(actor).click()
-

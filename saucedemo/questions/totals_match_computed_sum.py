@@ -32,5 +32,3 @@ class TotalsMatchComputedSum(Question):
 
     def __repr__(self) -> str:
         return "TotalsMatchComputedSum()"
-
-
