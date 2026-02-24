@@ -20,6 +20,14 @@ python -m playwright install
 pytest -q
 ```
 
+## Failure Screenshots
+
+Screenshots are captured automatically for failed Playwright tests via pytest defaults:
+- mode: `only-on-failure`
+- output folder: `test-results/`
+
+Each failed test writes a `.png` artifact you can open from that folder.
+
 ## Runtime Configuration
 
 Runtime settings are environment-driven through `screenplay/config/runtime.py`.
