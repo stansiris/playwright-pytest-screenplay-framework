@@ -1,7 +1,6 @@
 from screenplay.core.task import Task
-from screenplay.interactions.click import Click
-from screenplay.interactions.fill import Fill
-from screenplay.ui.saucedemo import SauceDemo
+from screenplay.tasks.continue_checkout import ContinueCheckout
+from screenplay.tasks.enter_checkout_information import EnterCheckoutInformation
 
 
 class ProvideCheckoutInformation(Task):
@@ -22,12 +21,16 @@ class ProvideCheckoutInformation(Task):
 
     def perform_as(self, actor) -> None:
         actor.attempts_to(
-            Fill(SauceDemo.CHECKOUT_FIRST_NAME, self.first_name),
-            Fill(SauceDemo.CHECKOUT_LAST_NAME, self.last_name),
-            Fill(SauceDemo.CHECKOUT_POSTAL_CODE, self.postal_code),
-            Click(SauceDemo.CHECKOUT_CONTINUE),
+            EnterCheckoutInformation.as_customer(
+                first_name=self.first_name,
+                last_name=self.last_name,
+                postal_code=self.postal_code,
+            ),
+            ContinueCheckout(),
         )
 
-    @staticmethod
-    def as_customer(first_name: str, last_name: str, postal_code: str):
-        return ProvideCheckoutInformation(first_name, last_name, postal_code)
+    @classmethod
+    def as_customer(
+        cls, first_name: str, last_name: str, postal_code: str
+    ) -> "ProvideCheckoutInformation":
+        return cls(first_name, last_name, postal_code)

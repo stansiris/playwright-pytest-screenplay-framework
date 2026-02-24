@@ -1,8 +1,8 @@
 ﻿from screenplay.core.task import Task
-from screenplay.interactions.click import Click
-from screenplay.interactions.fill import Fill
-from screenplay.interactions.navigate_to import NavigateTo
-from screenplay.ui.saucedemo import SauceDemo
+from screenplay.tasks.click_login import ClickLogin
+from screenplay.tasks.enter_password import EnterPassword
+from screenplay.tasks.enter_username import EnterUsername
+from screenplay.tasks.open_saucedemo import OpenSauceDemo
 
 
 class Login(Task):
@@ -15,14 +15,14 @@ class Login(Task):
         self.username = username
         self.password = password
 
-    def perform_as(self, actor):
+    def perform_as(self, actor) -> None:
         actor.attempts_to(
-            NavigateTo(SauceDemo.URL),
-            Fill(SauceDemo.LOGIN_USERNAME, self.username),
-            Fill(SauceDemo.LOGIN_PASSWORD, self.password),
-            Click(SauceDemo.LOGIN_BUTTON),
+            OpenSauceDemo.app(),
+            EnterUsername.as_(self.username),
+            EnterPassword.as_(self.password),
+            ClickLogin(),
         )
 
-    @staticmethod
-    def with_credentials(username: str, password: str):
-        return Login(username, password)
+    @classmethod
+    def with_credentials(cls, username: str, password: str) -> "Login":
+        return cls(username, password)

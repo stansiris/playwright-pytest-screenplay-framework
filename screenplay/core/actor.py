@@ -30,28 +30,28 @@ class Actor:
             try:
                 activity.perform_as(self)
             except Exception:
-                elapsed_ms = (time.perf_counter() - start) * 1000
-                logger.exception("%s FAILED %s after %.0f ms", self.name, activity_name, elapsed_ms)
+                logger.exception(
+                    "%s FAILED %s after %.0f ms",
+                    self.name,
+                    activity_name,
+                    _elapsed_ms(start),
+                )
                 raise
-            else:
-                elapsed_ms = (time.perf_counter() - start) * 1000
-                logger.info("%s DONE %s (%.0f ms)", self.name, activity_name, elapsed_ms)
+
+            logger.info("%s DONE %s (%.0f ms)", self.name, activity_name, _elapsed_ms(start))
 
     def asks_for(self, question: Question):
         q_name = question.__class__.__name__
         logger.info("%s asks %s %s", self.name, q_name, _safe_repr(question))
-
         start = time.perf_counter()
         try:
             answer = question.answered_by(self)
         except Exception:
-            elapsed_ms = (time.perf_counter() - start) * 1000
-            logger.exception("%s FAILED %s after %.0f ms", self.name, q_name, elapsed_ms)
+            logger.exception("%s FAILED %s after %.0f ms", self.name, q_name, _elapsed_ms(start))
             raise
-        else:
-            elapsed_ms = (time.perf_counter() - start) * 1000
-            logger.info("%s got %s -> %r (%.0f ms)", self.name, q_name, answer, elapsed_ms)
-            return answer
+
+        logger.info("%s got %s -> %r (%.0f ms)", self.name, q_name, answer, _elapsed_ms(start))
+        return answer
 
 
 def _safe_repr(obj) -> str:
@@ -59,3 +59,7 @@ def _safe_repr(obj) -> str:
         return repr(obj)
     except Exception:
         return f"<{obj.__class__.__name__}>"
+
+
+def _elapsed_ms(start: float) -> float:
+    return (time.perf_counter() - start) * 1000

@@ -15,6 +15,6 @@ class AddProductToCart(Task):
     def perform_as(self, actor) -> None:
         actor.attempts_to(Click(SauceDemo.add_to_cart_button_for(self.product_name)))
 
-    @staticmethod
-    def named(product_name: str) -> "AddProductToCart":
-        return AddProductToCart(product_name)
+    @classmethod
+    def named(cls, product_name: str) -> "AddProductToCart":
+        return cls(product_name)

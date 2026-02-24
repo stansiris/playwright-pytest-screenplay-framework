@@ -27,6 +27,6 @@ class SortInventory(Task):
             SelectByValue(SauceDemo.INVENTORY_SORT, SORT_OPTION_VALUE[self.option]),
         )
 
-    @staticmethod
-    def by(option: str) -> "SortInventory":
-        return SortInventory(option)
+    @classmethod
+    def by(cls, option: str) -> "SortInventory":
+        return cls(option)

@@ -26,8 +26,8 @@ class EnterCheckoutInformation(Task):
             Fill(SauceDemo.CHECKOUT_POSTAL_CODE, self.postal_code),
         )
 
-    @staticmethod
+    @classmethod
     def as_customer(
-        first_name: str, last_name: str, postal_code: str
+        cls, first_name: str, last_name: str, postal_code: str
     ) -> "EnterCheckoutInformation":
-        return EnterCheckoutInformation(first_name, last_name, postal_code)
+        return cls(first_name, last_name, postal_code)

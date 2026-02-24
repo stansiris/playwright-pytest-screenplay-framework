@@ -15,6 +15,6 @@ class EnterPassword(Task):
     def perform_as(self, actor) -> None:
         actor.attempts_to(Fill(SauceDemo.LOGIN_PASSWORD, self.password))
 
-    @staticmethod
-    def as_(password: str) -> "EnterPassword":
-        return EnterPassword(password)
+    @classmethod
+    def as_(cls, password: str) -> "EnterPassword":
+        return cls(password)
