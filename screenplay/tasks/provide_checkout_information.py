@@ -1,6 +1,6 @@
-from screenplay.core.task import Task
 from screenplay.tasks.continue_checkout import ContinueCheckout
 from screenplay.tasks.enter_checkout_information import EnterCheckoutInformation
+from screenplay_core.core.task import Task
 
 
 class ProvideCheckoutInformation(Task):
@@ -34,3 +34,4 @@ class ProvideCheckoutInformation(Task):
         cls, first_name: str, last_name: str, postal_code: str
     ) -> "ProvideCheckoutInformation":
         return cls(first_name, last_name, postal_code)
+

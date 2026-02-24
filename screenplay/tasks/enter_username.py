@@ -1,6 +1,6 @@
-from screenplay.core.task import Task
-from screenplay.interactions.fill import Fill
 from screenplay.ui.saucedemo import SauceDemo
+from screenplay_core.core.task import Task
+from screenplay_core.interactions.fill import Fill
 
 
 class EnterUsername(Task):
@@ -18,3 +18,4 @@ class EnterUsername(Task):
     @classmethod
     def as_(cls, username: str) -> "EnterUsername":
         return cls(username)
+

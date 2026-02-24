@@ -1,6 +1,6 @@
-from screenplay.core.task import Task
 from screenplay.tasks.go_to_cart import GoToCart
 from screenplay.tasks.proceed_to_checkout import ProceedToCheckout
+from screenplay_core.core.task import Task
 
 
 class BeginCheckout(Task):
@@ -11,3 +11,4 @@ class BeginCheckout(Task):
             GoToCart(),
             ProceedToCheckout(),
         )
+

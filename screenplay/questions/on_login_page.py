@@ -1,6 +1,6 @@
-from screenplay.abilities.browse_the_web import BrowseTheWeb
-from screenplay.core.question import Question
 from screenplay.ui.saucedemo import SauceDemo
+from screenplay_core.abilities.browse_the_web import BrowseTheWeb
+from screenplay_core.core.question import Question
 
 
 class OnLoginPage(Question):
@@ -13,3 +13,4 @@ class OnLoginPage(Question):
 
     def __repr__(self) -> str:
         return "OnLoginPage()"
+

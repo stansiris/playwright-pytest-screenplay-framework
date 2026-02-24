@@ -1,5 +1,5 @@
 from screenplay.config.runtime import runtime_settings
-from screenplay.core.target import Target
+from screenplay_core.core.target import Target
 
 
 def menu_button_locator(page):
@@ -175,3 +175,4 @@ class SauceDemo:
             f"Add '{product_name}' to cart button",
             add_to_cart_button_for_product_locator(product_name),
         )
+

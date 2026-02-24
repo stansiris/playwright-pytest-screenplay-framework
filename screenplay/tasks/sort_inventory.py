@@ -1,6 +1,6 @@
-from screenplay.core.task import Task
-from screenplay.interactions.select_by_value import SelectByValue
 from screenplay.ui.saucedemo import SauceDemo
+from screenplay_core.core.task import Task
+from screenplay_core.interactions.select_by_value import SelectByValue
 
 SORT_OPTION_VALUE = {
     "Name (A to Z)": "az",
@@ -30,3 +30,4 @@ class SortInventory(Task):
     @classmethod
     def by(cls, option: str) -> "SortInventory":
         return cls(option)
+

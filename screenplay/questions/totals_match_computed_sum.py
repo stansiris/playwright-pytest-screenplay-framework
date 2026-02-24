@@ -1,9 +1,9 @@
 import re
 
-from screenplay.core.question import Question
-from screenplay.questions.text_of import TextOf
-from screenplay.questions.texts_of import TextsOf
 from screenplay.ui.saucedemo import SauceDemo
+from screenplay_core.core.question import Question
+from screenplay_core.questions.text_of import TextOf
+from screenplay_core.questions.texts_of import TextsOf
 
 MONEY_PATTERN = re.compile(r"\$([0-9]+(?:\.[0-9]{2})?)")
 
@@ -32,3 +32,4 @@ class TotalsMatchComputedSum(Question):
 
     def __repr__(self) -> str:
         return "TotalsMatchComputedSum()"
+

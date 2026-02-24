@@ -6,8 +6,9 @@ with `pytest-bdd` as the primary behavior layer.
 The repository demonstrates:
 - business-readable BDD scenarios
 - thin step definitions
-- reusable Screenplay Tasks, Questions, and Interactions
-- centralized locators and runtime configuration
+- reusable `screenplay_core` framework components
+- SauceDemo-specific tasks/questions/locators in a separate `screenplay` layer
+- centralized runtime configuration for project execution
 
 ## Setup
 
@@ -40,7 +41,7 @@ Runtime settings are environment-driven through `screenplay/config/runtime.py`.
 | `BROWSER` | `chromium` | Default browser for pytest-playwright (`chromium`, `firefox`, `webkit`). |
 | `HEADED` | `false` | Run tests headed when true (`true/false`, `1/0`, `yes/no`). |
 | `SLOW_MO_MS` | `0` | Slow motion delay in milliseconds for browser actions. |
-| `DEFAULT_TIMEOUT_MS` | `5000` | Default timeout for wait interactions (`WaitUntilVisible`/`WaitUntilHidden`). |
+| `DEFAULT_TIMEOUT_MS` | `5000` | Default timeout for waits. Reusable core also supports `SCREENPLAY_DEFAULT_TIMEOUT_MS`. |
 
 Example:
 
@@ -50,12 +51,25 @@ $env:BROWSER = "firefox"
 $env:HEADED = "true"
 $env:SLOW_MO_MS = "150"
 $env:DEFAULT_TIMEOUT_MS = "7000"
+$env:SCREENPLAY_DEFAULT_TIMEOUT_MS = "7000"
 pytest -q
 ```
 
-## Current Screenplay API
+## Current API
 
-### Tasks
+### Reusable `screenplay_core`
+- `Actor`
+- `Task`
+- `Interaction`
+- `Question`
+- `Target`
+- `BrowseTheWeb`
+- Interactions: `Click`, `Fill`, `Focus`, `NavigateTo`, `PressKey`, `RefreshPage`, `ScrollIntoView`, `SelectByValue`, `WaitUntilVisible`, `WaitUntilHidden`
+- Questions: `TextOf`, `TextsOf`, `IsVisible`, `IsFocused`, `FocusIndicatorVisible`, `AttributeOf`, `CurrentUrl`
+
+### SauceDemo Domain (`screenplay`)
+- Questions: `OnLoginPage`, `OnInventoryPage`, `CartBadgeCount`, `TotalsMatchComputedSum`
+- Tasks:
 - `OpenSauceDemo.app()`
 - `Login.with_credentials(username, password)`
 - `EnterUsername.as_(username)`
@@ -74,29 +88,19 @@ pytest -q
 - `ProvideCheckoutInformation.as_customer(first_name, last_name, postal_code)` (POC flow)
 - `Logout()` (POC flow)
 
-### Questions
-- `OnLoginPage()`
-- `OnInventoryPage()`
-- `CartBadgeCount()`
-- `TotalsMatchComputedSum()`
-- `TextOf(target)`
-- `TextsOf(target)`
-- `IsVisible(target)`
-- `IsFocused(target)`
-- `FocusIndicatorVisible()`
-- `AttributeOf(target, attribute_name)`
-- `CurrentUrl()`
-
 ## Project Structure
 
 ```text
-screenplay/
-|-- abilities/      # Actor abilities (BrowseTheWeb)
-|-- config/         # Runtime settings (env-driven)
+screenplay_core/
+|-- abilities/      # Reusable abilities (BrowseTheWeb)
 |-- core/           # Actor, Task, Interaction, Question, Target
-|-- interactions/   # Atomic UI operations
-|-- questions/      # Reusable state queries
-|-- tasks/          # Business-level actions
+|-- interactions/   # Reusable low-level browser interactions
+`-- questions/      # Reusable generic questions
+
+screenplay/
+|-- config/         # Project runtime settings (env-driven)
+|-- tasks/          # SauceDemo business-level actions
+|-- questions/      # SauceDemo-specific queries
 `-- ui/             # SauceDemo locators/targets
 
 tests/

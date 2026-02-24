@@ -1,8 +1,8 @@
 import pytest
 
-from screenplay.abilities.browse_the_web import BrowseTheWeb
 from screenplay.config.runtime import runtime_settings
-from screenplay.core.actor import Actor
+from screenplay_core.abilities.browse_the_web import BrowseTheWeb
+from screenplay_core.core.actor import Actor
 
 pytest_plugins = [
     "tests.steps.common_steps",
@@ -47,3 +47,4 @@ def browser_type_launch_args(pytestconfig) -> dict:
 @pytest.fixture
 def customer(page):
     return Actor("Customer").can(BrowseTheWeb.using(page))
+

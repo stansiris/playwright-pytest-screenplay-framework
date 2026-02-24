@@ -1,6 +1,6 @@
-from screenplay.core.task import Task
-from screenplay.interactions.click import Click
 from screenplay.ui.saucedemo import SauceDemo
+from screenplay_core.core.task import Task
+from screenplay_core.interactions.click import Click
 
 
 class AddProductToCart(Task):
@@ -18,3 +18,4 @@ class AddProductToCart(Task):
     @classmethod
     def named(cls, product_name: str) -> "AddProductToCart":
         return cls(product_name)
+

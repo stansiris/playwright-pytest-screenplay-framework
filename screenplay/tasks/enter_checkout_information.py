@@ -1,6 +1,6 @@
-from screenplay.core.task import Task
-from screenplay.interactions.fill import Fill
 from screenplay.ui.saucedemo import SauceDemo
+from screenplay_core.core.task import Task
+from screenplay_core.interactions.fill import Fill
 
 
 class EnterCheckoutInformation(Task):
@@ -31,3 +31,4 @@ class EnterCheckoutInformation(Task):
         cls, first_name: str, last_name: str, postal_code: str
     ) -> "EnterCheckoutInformation":
         return cls(first_name, last_name, postal_code)
+

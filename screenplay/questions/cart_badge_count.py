@@ -1,5 +1,5 @@
-from screenplay.core.question import Question
 from screenplay.ui.saucedemo import SauceDemo
+from screenplay_core.core.question import Question
 
 
 class CartBadgeCount(Question):
@@ -15,3 +15,4 @@ class CartBadgeCount(Question):
 
     def __repr__(self) -> str:
         return "CartBadgeCount()"
+

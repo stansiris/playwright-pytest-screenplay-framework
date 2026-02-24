@@ -1,6 +1,6 @@
-from screenplay.core.task import Task
-from screenplay.interactions.navigate_to import NavigateTo
 from screenplay.ui.saucedemo import SauceDemo
+from screenplay_core.core.task import Task
+from screenplay_core.interactions.navigate_to import NavigateTo
 
 
 class OpenSauceDemo(Task):
@@ -12,3 +12,4 @@ class OpenSauceDemo(Task):
     @classmethod
     def app(cls) -> "OpenSauceDemo":
         return cls()
+

@@ -1,8 +1,8 @@
-﻿from screenplay.core.task import Task
 from screenplay.tasks.click_login import ClickLogin
 from screenplay.tasks.enter_password import EnterPassword
 from screenplay.tasks.enter_username import EnterUsername
 from screenplay.tasks.open_saucedemo import OpenSauceDemo
+from screenplay_core.core.task import Task
 
 
 class Login(Task):
@@ -26,3 +26,4 @@ class Login(Task):
     @classmethod
     def with_credentials(cls, username: str, password: str) -> "Login":
         return cls(username, password)
+

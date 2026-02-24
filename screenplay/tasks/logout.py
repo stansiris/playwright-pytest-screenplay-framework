@@ -1,6 +1,6 @@
-﻿from screenplay.core.task import Task
-from screenplay.interactions.click import Click
 from screenplay.ui.saucedemo import SauceDemo
+from screenplay_core.core.task import Task
+from screenplay_core.interactions.click import Click
 
 
 class Logout(Task):
@@ -11,3 +11,4 @@ class Logout(Task):
             Click(SauceDemo.MENU_BUTTON),
             Click(SauceDemo.LOGOUT_LINK),
         )
+

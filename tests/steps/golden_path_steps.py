@@ -2,10 +2,7 @@ from collections import Counter
 
 from pytest_bdd import given, parsers, then, when
 
-from screenplay.interactions.wait_until_visible import WaitUntilVisible
 from screenplay.questions.cart_badge_count import CartBadgeCount
-from screenplay.questions.text_of import TextOf
-from screenplay.questions.texts_of import TextsOf
 from screenplay.questions.totals_match_computed_sum import TotalsMatchComputedSum
 from screenplay.tasks.add_product_to_cart import AddProductToCart
 from screenplay.tasks.complete_checkout import CompleteCheckout
@@ -18,6 +15,9 @@ from screenplay.tasks.proceed_to_checkout import ProceedToCheckout
 from screenplay.tasks.return_to_products import ReturnToProducts
 from screenplay.tasks.sort_inventory import SortInventory
 from screenplay.ui.saucedemo import SauceDemo
+from screenplay_core.interactions.wait_until_visible import WaitUntilVisible
+from screenplay_core.questions.text_of import TextOf
+from screenplay_core.questions.texts_of import TextsOf
 from tests.steps.table_utils import as_row_dicts
 
 
@@ -136,3 +136,4 @@ def return_home_to_inventory(customer) -> None:
         ReturnToProducts(),
         WaitUntilVisible.for_(SauceDemo.INVENTORY_CONTAINER),
     )
+

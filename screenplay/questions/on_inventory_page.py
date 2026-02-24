@@ -1,5 +1,5 @@
-from screenplay.abilities.browse_the_web import BrowseTheWeb
-from screenplay.core.question import Question
+from screenplay_core.abilities.browse_the_web import BrowseTheWeb
+from screenplay_core.core.question import Question
 
 
 class OnInventoryPage(Question):
@@ -10,3 +10,4 @@ class OnInventoryPage(Question):
 
     def __repr__(self) -> str:
         return "OnInventoryPage()"
+

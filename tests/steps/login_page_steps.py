@@ -1,22 +1,22 @@
 from pytest_bdd import given, parsers, then, when
 
-from screenplay.interactions.click import Click
-from screenplay.interactions.focus import Focus
-from screenplay.interactions.press_key import PressKey
-from screenplay.interactions.refresh_page import RefreshPage
-from screenplay.interactions.wait_until_visible import WaitUntilVisible
-from screenplay.questions.attribute_of import AttributeOf
-from screenplay.questions.focus_indicator_visible import FocusIndicatorVisible
-from screenplay.questions.is_focused import IsFocused
-from screenplay.questions.is_visible import IsVisible
 from screenplay.questions.on_login_page import OnLoginPage
-from screenplay.questions.text_of import TextOf
 from screenplay.tasks.click_login import ClickLogin
 from screenplay.tasks.dismiss_login_error import DismissLoginError
 from screenplay.tasks.enter_password import EnterPassword
 from screenplay.tasks.enter_username import EnterUsername
 from screenplay.tasks.open_saucedemo import OpenSauceDemo
 from screenplay.ui.saucedemo import SauceDemo
+from screenplay_core.interactions.click import Click
+from screenplay_core.interactions.focus import Focus
+from screenplay_core.interactions.press_key import PressKey
+from screenplay_core.interactions.refresh_page import RefreshPage
+from screenplay_core.interactions.wait_until_visible import WaitUntilVisible
+from screenplay_core.questions.attribute_of import AttributeOf
+from screenplay_core.questions.focus_indicator_visible import FocusIndicatorVisible
+from screenplay_core.questions.is_focused import IsFocused
+from screenplay_core.questions.is_visible import IsVisible
+from screenplay_core.questions.text_of import TextOf
 
 
 @given("I am on the SauceDemo login page")
@@ -146,3 +146,4 @@ def should_see_any_error_message(customer) -> None:
 @then("the focused element should have a visible focus indicator")
 def focused_element_should_have_visible_indicator(customer) -> None:
     assert customer.asks_for(FocusIndicatorVisible())
+
