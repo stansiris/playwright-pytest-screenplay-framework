@@ -74,5 +74,5 @@ Tasks and Questions must reference these targets instead of inline selectors.
 ## Usage in BDD
 
 Feature files live under `tests/features`.
-Step definitions in `tests/steps` are thin wrappers that delegate to the Task and Question model above.
+Step definitions in `tests/test_*.py` are thin wrappers that delegate to the Task and Question model above.
 

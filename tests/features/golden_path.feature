@@ -5,10 +5,8 @@ Feature: Golden Path Purchase (SauceDemo)
   - Questions for verification (cart contents, totals math)
   - Thin pytest-bdd steps that delegate to Tasks/Questions
 
-  Background:
-    Given I open the SauceDemo application
-
   Scenario: Successful purchase of multiple items and cart resets after checkout
+    Given I open the SauceDemo application
     When I log in with username "standard_user" and password "secret_sauce"
     Then I should be on the inventory page
 

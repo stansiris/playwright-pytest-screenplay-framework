@@ -8,7 +8,7 @@ This repository combines:
 ## Execution Flow
 
 Gherkin scenario in `tests/features/*.feature`
--> step function in `tests/steps/*.py`
+-> step function in `tests/test_*.py`
 -> Screenplay `Task` or `Question`
 -> low-level `Interaction`
 -> Playwright API via `BrowseTheWeb`
@@ -40,8 +40,8 @@ Gherkin scenario in `tests/features/*.feature`
 ### `tests/features`
 - business-readable scenarios
 
-### `tests/steps`
-- thin adapters from natural language to Screenplay calls
+### `tests/test_*.py`
+- one file per feature with scenario loader and thin step adapters
 
 ## Runtime Configuration
 

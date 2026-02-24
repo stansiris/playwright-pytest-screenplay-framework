@@ -4,12 +4,6 @@ from saucedemo.config.runtime import runtime_settings
 from screenplay_core.abilities.browse_the_web import BrowseTheWeb
 from screenplay_core.core.actor import Actor
 
-pytest_plugins = [
-    "tests.steps.common_steps",
-    "tests.steps.golden_path_steps",
-    "tests.steps.login_page_steps",
-]
-
 
 def pytest_configure(config) -> None:
     if hasattr(config.option, "browser") and not config.option.browser:

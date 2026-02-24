@@ -5,7 +5,7 @@ with `pytest-bdd` as the primary behavior layer.
 
 The repository demonstrates:
 - business-readable BDD scenarios
-- thin step definitions
+- concise step definitions colocated with each feature test file
 - reusable `screenplay_core` framework components
 - SauceDemo-specific tasks/questions/locators in a separate `saucedemo` layer
 - centralized runtime configuration for project execution
@@ -105,9 +105,8 @@ saucedemo/
 
 tests/
 |-- features/       # Gherkin scenarios
-|-- steps/          # pytest-bdd step definitions
 |-- conftest.py     # fixture wiring + runtime defaults
-`-- test_*.py       # scenario loaders + optional direct tests
+`-- test_*.py       # one file per feature: scenario loader + step definitions
 
 docs/
 |-- architecture.md
@@ -121,7 +120,7 @@ docs/
 
 ### 1. pytest-bdd + Screenplay (primary)
 - Gherkin defines behavior.
-- Step definitions map phrases to Tasks/Questions.
+- Step definitions (in `test_*.py`) map phrases to Tasks/Questions.
 - Business intent stays separate from UI mechanics.
 
 ### 2. Direct pytest + Screenplay (supporting)

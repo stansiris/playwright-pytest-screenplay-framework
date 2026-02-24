@@ -40,7 +40,7 @@ Use it as:
 ## 3.2 Solution
 
 - Feature files capture behavior in plain language under `tests/features/`.
-- Step definitions in `tests/steps/` remain thin adapters.
+- Step definitions in `tests/test_*.py` remain thin adapters.
 - Screenplay layers are split between `screenplay_core/` (reusable engine) and `saucedemo/` (domain implementation):
   - `screenplay_core/interactions/` for atomic browser operations
   - `saucedemo/tasks/` for user intent
@@ -80,7 +80,7 @@ Use it as:
 
 ## 4.2 Step Thinness and Delegation (2 min)
 
-- Show `tests/steps/login_page_steps.py` and `tests/steps/golden_path_steps.py`.
+- Show `tests/test_login_page_bdd.py` and `tests/test_golden_path_bdd.py`.
 - Highlight that steps delegate to Tasks/Questions instead of direct page-level DOM manipulation.
 
 ## 4.3 Screenplay Core Design (3 min)
@@ -381,7 +381,7 @@ Why this is strong:
 Actual execution flow in this repository:
 
 1. Gherkin scenario step from `tests/features/*.feature`.
-2. Step function in `tests/steps/*.py` delegates to Task/Question.
+2. Step function in `tests/test_*.py` delegates to Task/Question.
 3. Task composes Interactions or calls lower-level operations.
 4. Interaction resolves `Target` for actor.
 5. `Target` uses actor ability (`BrowseTheWeb`) to access Playwright `page`.

@@ -1,7 +1,7 @@
 # Step Vocabulary (Current)
 
 This catalog lists every implemented pytest-bdd step phrase.
-Source of truth: `tests/steps/common_steps.py`, `tests/steps/login_page_steps.py`, and `tests/steps/golden_path_steps.py`.
+Source of truth: `tests/test_login_page_bdd.py` and `tests/test_golden_path_bdd.py`.
 
 ## Given Steps
 
