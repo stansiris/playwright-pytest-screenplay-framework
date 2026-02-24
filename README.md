@@ -20,13 +20,15 @@ python -m playwright install
 pytest -q
 ```
 
-## Failure Screenshots
+## Test Reporting
 
-Screenshots are captured automatically for failed Playwright tests via pytest defaults:
-- mode: `only-on-failure`
-- output folder: `test-results/`
+Pytest generates test artifacts automatically into `test-results/`:
+- `junit.xml` for CI parsing/integrations
+- `report.html` as a shareable HTML report
+- failure screenshots (`--screenshot=only-on-failure`)
+- Playwright traces on failures (`--tracing=retain-on-failure`)
 
-Each failed test writes a `.png` artifact you can open from that folder.
+In GitHub Actions, `test-results/` is uploaded as a workflow artifact even when tests fail.
 
 ## Runtime Configuration
 
