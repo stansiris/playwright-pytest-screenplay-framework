@@ -131,3 +131,4 @@ docs/
 - Architecture: `docs/architecture.md`
 - Composed engine flows: `docs/engine_flows.md`
 - Design rationale: `docs/design_decisions.md`
+- Presentation guide: `docs/project_presentation.md`
