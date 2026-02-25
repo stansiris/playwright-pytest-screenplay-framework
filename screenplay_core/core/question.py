@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from screenplay_core.core.actor import Actor
 
+
 class Question(ABC):
     """Base class for queries about the system under test."""
 
