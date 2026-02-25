@@ -1,5 +1,6 @@
 import os
 
+from screenplay_core.core.actor import Actor
 from screenplay_core.core.interaction import Interaction
 from screenplay_core.core.target import Target
 
@@ -35,7 +36,7 @@ class WaitUntilVisible(Interaction):
         self.target = target
         self.timeout_ms = _default_timeout_ms_from_env() if timeout_ms is None else timeout_ms
 
-    def perform_as(self, actor) -> None:
+    def perform_as(self, actor: Actor) -> None:
         self.target.resolve_for(actor).wait_for(state="visible", timeout=self.timeout_ms)
 
     @staticmethod

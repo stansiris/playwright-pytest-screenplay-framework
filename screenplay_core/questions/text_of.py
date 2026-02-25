@@ -1,3 +1,4 @@
+from screenplay_core.core.actor import Actor
 from screenplay_core.core.question import Question
 from screenplay_core.core.target import Target
 
@@ -8,7 +9,7 @@ class TextOf(Question):
     def __init__(self, target: Target):
         self.target = target
 
-    def answered_by(self, actor) -> str:
+    def answered_by(self, actor: Actor) -> str:
         locator = self.target.resolve_for(actor)
 
         txt = locator.text_content()

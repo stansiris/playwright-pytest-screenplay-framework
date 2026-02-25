@@ -1,6 +1,7 @@
 import re
 
 from saucedemo.ui.saucedemo import SauceDemo
+from screenplay_core.core.actor import Actor
 from screenplay_core.core.question import Question
 from screenplay_core.questions.text_of import TextOf
 from screenplay_core.questions.texts_of import TextsOf
@@ -18,7 +19,7 @@ def _parse_money(text: str) -> float:
 class TotalsMatchComputedSum(Question):
     """Question: whether overview totals are internally consistent."""
 
-    def answered_by(self, actor) -> bool:
+    def answered_by(self, actor: Actor) -> bool:
         item_prices = [
             _parse_money(text) for text in actor.asks_for(TextsOf(SauceDemo.INVENTORY_ITEM_PRICES))
         ]

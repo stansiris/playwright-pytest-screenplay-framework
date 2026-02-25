@@ -1,11 +1,12 @@
 from screenplay_core.abilities.browse_the_web import BrowseTheWeb
+from screenplay_core.core.actor import Actor
 from screenplay_core.core.question import Question
 
 
 class FocusIndicatorVisible(Question):
     """Question: whether the active element has a visible focus indicator."""
 
-    def answered_by(self, actor) -> bool:
+    def answered_by(self, actor: Actor) -> bool:
         page = actor.ability_to(BrowseTheWeb).page
         return bool(
             page.evaluate(

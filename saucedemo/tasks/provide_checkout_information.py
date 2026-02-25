@@ -1,5 +1,6 @@
 from saucedemo.tasks.continue_checkout import ContinueCheckout
 from saucedemo.tasks.enter_checkout_information import EnterCheckoutInformation
+from screenplay_core.core.actor import Actor
 from screenplay_core.core.task import Task
 
 
@@ -19,7 +20,7 @@ class ProvideCheckoutInformation(Task):
             f"postal_code='{self.postal_code}')"
         )
 
-    def perform_as(self, actor) -> None:
+    def perform_as(self, actor: Actor) -> None:
         actor.attempts_to(
             EnterCheckoutInformation.as_customer(
                 first_name=self.first_name,

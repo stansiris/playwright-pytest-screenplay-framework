@@ -1,5 +1,6 @@
 from screenplay_core.core.interaction import Interaction
 from screenplay_core.core.target import Target
+from screenplay_core.core.actor import Actor
 
 
 class Fill(Interaction):
@@ -19,5 +20,5 @@ class Fill(Interaction):
             return "*" * len(self.text)
         return self.text
 
-    def perform_as(self, actor):
+    def perform_as(self, actor: Actor):
         self.target.resolve_for(actor).fill(self.text)

@@ -1,4 +1,5 @@
 from saucedemo.ui.saucedemo import SauceDemo
+from screenplay_core.core.actor import Actor
 from screenplay_core.core.task import Task
 from screenplay_core.interactions.click import Click
 
@@ -12,7 +13,7 @@ class AddProductToCart(Task):
     def __repr__(self) -> str:
         return f"AddProductToCart(product_name='{self.product_name}')"
 
-    def perform_as(self, actor) -> None:
+    def perform_as(self, actor: Actor) -> None:
         actor.attempts_to(Click(SauceDemo.add_to_cart_button_for(self.product_name)))
 
     @classmethod

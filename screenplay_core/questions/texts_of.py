@@ -1,3 +1,4 @@
+from screenplay_core.core.actor import Actor
 from screenplay_core.core.question import Question
 from screenplay_core.core.target import Target
 
@@ -8,7 +9,7 @@ class TextsOf(Question):
     def __init__(self, target: Target):
         self.target = target
 
-    def answered_by(self, actor) -> list[str]:
+    def answered_by(self, actor: Actor) -> list[str]:
         texts = self.target.resolve_for(actor).all_inner_texts()
         return [text.strip() for text in texts if text and text.strip()]
 

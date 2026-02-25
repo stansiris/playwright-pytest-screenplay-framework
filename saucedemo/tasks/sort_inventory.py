@@ -1,4 +1,5 @@
 from saucedemo.ui.saucedemo import SauceDemo
+from screenplay_core.core.actor import Actor
 from screenplay_core.core.task import Task
 from screenplay_core.interactions.select_by_value import SelectByValue
 
@@ -22,7 +23,7 @@ class SortInventory(Task):
     def __repr__(self) -> str:
         return f"SortInventory(option='{self.option}')"
 
-    def perform_as(self, actor) -> None:
+    def perform_as(self, actor: Actor) -> None:
         actor.attempts_to(
             SelectByValue(SauceDemo.INVENTORY_SORT, SORT_OPTION_VALUE[self.option]),
         )

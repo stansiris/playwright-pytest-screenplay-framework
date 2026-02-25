@@ -17,6 +17,7 @@ from saucedemo.tasks.proceed_to_checkout import ProceedToCheckout
 from saucedemo.tasks.return_to_products import ReturnToProducts
 from saucedemo.tasks.sort_inventory import SortInventory
 from saucedemo.ui.saucedemo import SauceDemo
+from screenplay_core.core.actor import Actor
 from screenplay_core.interactions.wait_until_visible import WaitUntilVisible
 from screenplay_core.questions.text_of import TextOf
 from screenplay_core.questions.texts_of import TextsOf
@@ -49,7 +50,7 @@ def _expected_items(datatable) -> list[str]:
 
 
 @given("I open the SauceDemo application")
-def open_saucedemo(customer) -> None:
+def open_saucedemo(customer: Actor) -> None:
     customer.attempts_to(
         OpenSauceDemo.app(),
         WaitUntilVisible.for_(SauceDemo.LOGIN_BUTTON),
@@ -57,56 +58,56 @@ def open_saucedemo(customer) -> None:
 
 
 @when(parsers.parse('I log in with username "{username}" and password "{password}"'))
-def login_with_credentials(customer, username: str, password: str) -> None:
+def login_with_credentials(customer: Actor, username: str, password: str) -> None:
     customer.attempts_to(Login.with_credentials(username, password))
 
 
 @then("I should be on the inventory page")
-def should_be_on_inventory_page(customer) -> None:
+def should_be_on_inventory_page(customer: Actor) -> None:
     customer.attempts_to(WaitUntilVisible.for_(SauceDemo.INVENTORY_CONTAINER))
     assert customer.asks_for(OnInventoryPage())
 
 
 @when(parsers.parse('I sort inventory by "{option}"'))
-def sort_inventory(customer, option: str) -> None:
+def sort_inventory(customer: Actor, option: str) -> None:
     customer.attempts_to(SortInventory.by(option))
 
 
 @when("I add the following items to the cart:")
-def add_items_to_cart(customer, datatable) -> None:
+def add_items_to_cart(customer: Actor, datatable) -> None:
     for item_name in _expected_items(datatable):
         customer.attempts_to(AddProductToCart.named(item_name))
 
 
 @then(parsers.parse("the cart badge count should be {count:d}"))
-def cart_badge_count_should_be(customer, count: int) -> None:
+def cart_badge_count_should_be(customer: Actor, count: int) -> None:
     assert customer.asks_for(CartBadgeCount()) == count
 
 
 @when("I go to the cart")
-def go_to_cart(customer) -> None:
+def go_to_cart(customer: Actor) -> None:
     customer.attempts_to(GoToCart())
 
 
 @then("the cart should contain the following items:")
-def cart_should_contain_items(customer, datatable) -> None:
+def cart_should_contain_items(customer: Actor, datatable) -> None:
     expected_items = _expected_items(datatable)
     actual_items = customer.asks_for(TextsOf(SauceDemo.CART_ITEM_NAMES))
     assert Counter(actual_items) == Counter(expected_items)
 
 
 @then(parsers.parse("the cart item count should be {count:d}"))
-def cart_item_count_should_be(customer, count: int) -> None:
+def cart_item_count_should_be(customer: Actor, count: int) -> None:
     assert len(customer.asks_for(TextsOf(SauceDemo.CART_ITEM_NAMES))) == count
 
 
 @when("I proceed to checkout")
-def proceed_to_checkout(customer) -> None:
+def proceed_to_checkout(customer: Actor) -> None:
     customer.attempts_to(ProceedToCheckout())
 
 
 @when("I enter checkout information:")
-def enter_checkout_information(customer, datatable) -> None:
+def enter_checkout_information(customer: Actor, datatable) -> None:
     rows = as_row_dicts(datatable)
     if len(rows) != 1:
         raise ValueError("Checkout information table must contain exactly one data row.")
@@ -122,45 +123,45 @@ def enter_checkout_information(customer, datatable) -> None:
 
 
 @when("I continue checkout")
-def continue_checkout(customer) -> None:
+def continue_checkout(customer: Actor) -> None:
     customer.attempts_to(ContinueCheckout())
 
 
 @then("the overview should contain the following items:")
-def overview_should_contain_items(customer, datatable) -> None:
+def overview_should_contain_items(customer: Actor, datatable) -> None:
     expected_items = _expected_items(datatable)
     actual_items = customer.asks_for(TextsOf(SauceDemo.CHECKOUT_OVERVIEW_ITEM_NAMES))
     assert Counter(actual_items) == Counter(expected_items)
 
 
 @then(parsers.parse('the payment information should be "{text}"'))
-def payment_information_should_be(customer, text: str) -> None:
+def payment_information_should_be(customer: Actor, text: str) -> None:
     assert customer.asks_for(TextOf(SauceDemo.CHECKOUT_PAYMENT_INFO)) == text
 
 
 @then(parsers.parse('the shipping information should be "{text}"'))
-def shipping_information_should_be(customer, text: str) -> None:
+def shipping_information_should_be(customer: Actor, text: str) -> None:
     assert customer.asks_for(TextOf(SauceDemo.CHECKOUT_SHIPPING_INFO)) == text
 
 
 @then("totals should match the computed sum")
-def totals_should_match(customer) -> None:
+def totals_should_match(customer: Actor) -> None:
     assert customer.asks_for(TotalsMatchComputedSum())
 
 
 @when("I finish checkout")
-def finish_checkout(customer) -> None:
+def finish_checkout(customer: Actor) -> None:
     customer.attempts_to(CompleteCheckout())
 
 
 @then("I should see a checkout complete confirmation")
-def should_see_checkout_complete_confirmation(customer) -> None:
+def should_see_checkout_complete_confirmation(customer: Actor) -> None:
     customer.attempts_to(WaitUntilVisible.for_(SauceDemo.CHECKOUT_COMPLETE_TITLE))
     assert customer.asks_for(TextOf(SauceDemo.CHECKOUT_COMPLETE_TITLE)) == "Checkout: Complete!"
 
 
 @when("I return home to the inventory")
-def return_home_to_inventory(customer) -> None:
+def return_home_to_inventory(customer: Actor) -> None:
     customer.attempts_to(
         ReturnToProducts(),
         WaitUntilVisible.for_(SauceDemo.INVENTORY_CONTAINER),

@@ -1,4 +1,5 @@
 from screenplay_core.abilities.browse_the_web import BrowseTheWeb
+from screenplay_core.core.actor import Actor
 from screenplay_core.core.interaction import Interaction
 
 
@@ -11,6 +12,6 @@ class PressKey(Interaction):
     def __repr__(self) -> str:
         return f"PressKey(key='{self.key}')"
 
-    def perform_as(self, actor) -> None:
+    def perform_as(self, actor: Actor) -> None:
         page = actor.ability_to(BrowseTheWeb).page
         page.keyboard.press(self.key)

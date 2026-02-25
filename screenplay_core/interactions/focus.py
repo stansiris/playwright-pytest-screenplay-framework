@@ -1,3 +1,4 @@
+from screenplay_core.core.actor import Actor
 from screenplay_core.core.interaction import Interaction
 from screenplay_core.core.target import Target
 
@@ -11,5 +12,5 @@ class Focus(Interaction):
     def __repr__(self) -> str:
         return f"Focus(target='{self.target.description}')"
 
-    def perform_as(self, actor) -> None:
+    def perform_as(self, actor: Actor) -> None:
         self.target.resolve_for(actor).focus()

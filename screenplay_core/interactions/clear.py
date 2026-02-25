@@ -1,3 +1,4 @@
+from screenplay_core.core.actor import Actor
 from screenplay_core.core.interaction import Interaction
 from screenplay_core.core.target import Target
 
@@ -11,6 +12,6 @@ class Clear(Interaction):
     def __repr__(self) -> str:
         return f"Clear(target='{self.target.description}')"
 
-    def perform_as(self, actor) -> None:
+    def perform_as(self, actor: Actor) -> None:
         # `fill("")` is stable across Playwright versions and input types.
         self.target.resolve_for(actor).fill("")

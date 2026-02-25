@@ -1,4 +1,5 @@
 from screenplay_core.abilities.browse_the_web import BrowseTheWeb
+from screenplay_core.core.actor import Actor
 from screenplay_core.core.question import Question
 from screenplay_core.core.target import Target
 
@@ -9,7 +10,7 @@ class IsFocused(Question):
     def __init__(self, target: Target):
         self.target = target
 
-    def answered_by(self, actor) -> bool:
+    def answered_by(self, actor: Actor) -> bool:
         page = actor.ability_to(BrowseTheWeb).page
         locator = self.target.resolve_for(actor).first
         element = locator.element_handle()
