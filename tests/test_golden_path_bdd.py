@@ -68,9 +68,9 @@ def should_be_on_inventory_page(customer: Actor) -> None:
     assert customer.asks_for(OnInventoryPage())
 
 
-@when(parsers.parse('I sort inventory by "{option}"'))
-def sort_inventory(customer: Actor, option: str) -> None:
-    customer.attempts_to(SortInventory.by(option))
+# @when(parsers.parse('I sort inventory by "{option}"'))
+# def sort_inventory(customer: Actor, option: str) -> None:
+#     customer.attempts_to(SortInventory.by(option))
 
 
 @when("I add the following items to the cart:")

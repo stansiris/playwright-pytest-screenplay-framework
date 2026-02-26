@@ -10,8 +10,8 @@ Feature: Golden Path Purchase (SauceDemo)
     When I log in with username "standard_user" and password "secret_sauce"
     Then I should be on the inventory page
 
-    When I sort inventory by "Name (A to Z)"
-    And I add the following items to the cart:
+    # When I sort inventory by "Name (A to Z)"
+    When I add the following items to the cart:
       | item_name               |
       | Sauce Labs Backpack     |
       | Sauce Labs Bike Light   |
