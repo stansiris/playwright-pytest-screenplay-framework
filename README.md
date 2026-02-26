@@ -10,6 +10,21 @@ The repository demonstrates:
 - SauceDemo-specific tasks/questions/locators in a separate `saucedemo` layer
 - centralized runtime configuration for project execution
 
+## Current Test Coverage
+
+The checked-in automated behavior currently centers on one end-to-end BDD scenario:
+- feature: `tests/features/golden_path.feature`
+- test module: `tests/test_golden_path_bdd.py`
+- scenario: `Successful purchase of multiple items and cart resets after checkout`
+
+The scenario covers:
+- opening SauceDemo
+- logging in with valid credentials
+- adding multiple items from a datatable
+- verifying cart contents and badge count
+- completing checkout and validating overview totals
+- returning to inventory and confirming the cart badge resets
+
 ## Setup
 
 ```powershell
@@ -19,6 +34,26 @@ python -m pip install --upgrade pip
 python -m pip install -e ".[dev]"
 python -m playwright install
 pytest -q
+```
+
+## CI-Ready Formatting
+
+CI validates code style before running tests:
+- `python -m ruff check .`
+- `python -m black --check .`
+
+Use these locally before pushing:
+
+```powershell
+python -m ruff check .
+python -m black .
+```
+
+If you want the same validation behavior as CI without modifying files:
+
+```powershell
+python -m ruff check .
+python -m black --check .
 ```
 
 ## Test Reporting
@@ -84,9 +119,9 @@ pytest -q
 - `ContinueCheckout()`
 - `CompleteCheckout()`
 - `ReturnToProducts()`
-- `BeginCheckout()` (POC flow)
-- `ProvideCheckoutInformation.as_customer(first_name, last_name, postal_code)` (POC flow)
-- `Logout()` (POC flow)
+- `BeginCheckout()`
+- `ProvideCheckoutInformation.as_customer(first_name, last_name, postal_code)`
+- `Logout()`
 
 ## Project Structure
 
@@ -106,7 +141,7 @@ saucedemo/
 tests/
 |-- features/       # Gherkin scenarios
 |-- conftest.py     # fixture wiring + runtime defaults
-`-- test_*.py       # one file per feature: scenario loader + step definitions
+`-- test_*.py       # BDD scenario loader + thin step definitions
 
 docs/
 |-- architecture.md
@@ -123,9 +158,9 @@ docs/
 - Step definitions (in `test_*.py`) map phrases to Tasks/Questions.
 - Business intent stays separate from UI mechanics.
 
-### 2. Direct pytest + Screenplay (supporting)
+### 2. Direct pytest + Screenplay (supported)
 - Useful for focused workflow tests and refactoring safety.
-- `tests/test_golden_path_poc.py` is an example.
+- The current repository does not include a standalone non-BDD example test file, but the task/question APIs support that style directly.
 
 ## Documentation
 

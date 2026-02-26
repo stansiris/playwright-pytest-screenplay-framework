@@ -3,6 +3,10 @@
 Engine flows are higher-level compositions of existing Screenplay Tasks and Questions.
 They do not add new selectors.
 
+The current checked-in BDD automation covers the golden-path purchase flow.
+The additional flows below document supported compositions from the available
+task/question API, even when they are not yet represented by a dedicated feature file.
+
 ## 1) Login successfully
 
 Compose:
@@ -57,7 +61,7 @@ Verify:
 - `OnInventoryPage()`
 - `CartBadgeCount() == 0`
 
-## 6) POC end-to-end with logout
+## 6) Alternative end-to-end with logout
 
 Compose:
 - `Login.with_credentials(...)`

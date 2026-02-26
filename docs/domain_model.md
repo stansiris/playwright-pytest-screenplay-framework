@@ -4,6 +4,10 @@ This document is the source of truth for the automation language implemented in 
 App-specific names map to real classes in `saucedemo/tasks` and `saucedemo/questions`.
 Generic reusable questions live in `screenplay_core/questions`.
 
+Current automated feature coverage is the golden-path purchase scenario in
+`tests/features/golden_path.feature`. Some tasks and questions listed below are
+available for future coverage even if they are not exercised by that scenario today.
+
 ## Actor and Ability
 
 - Actor: `Actor("Customer")` in `tests/conftest.py`
@@ -40,7 +44,7 @@ Generic reusable questions live in `screenplay_core/questions`.
 ### Checkout Complete
 - `ReturnToProducts()`
 
-### Supporting/POC Flows
+### Additional Supporting Flows
 - `BeginCheckout()`
 - `ProvideCheckoutInformation.as_customer(first_name, last_name, postal_code)`
 - `Logout()`

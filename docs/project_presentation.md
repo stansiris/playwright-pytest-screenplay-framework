@@ -74,14 +74,15 @@ Use it as:
 ## 4.1 Domain and Behavior Layer (3 min)
 
 - Walk through:
-  - `tests/features/login_page.feature`
   - `tests/features/golden_path.feature`
 - Explain how business language maps to automation capabilities.
+- Note that the current checked-in behavior coverage is centered on this single golden-path feature, while the domain/task layer is broader and ready for additional scenarios.
 
 ## 4.2 Step Thinness and Delegation (2 min)
 
-- Show `tests/test_login_page_bdd.py` and `tests/test_golden_path_bdd.py`.
+- Show `tests/test_golden_path_bdd.py`.
 - Highlight that steps delegate to Tasks/Questions instead of direct page-level DOM manipulation.
+- Use the datatable helper and `AddProductToCart.named(...)` loop as the clearest example of keeping BDD glue thin.
 
 ## 4.3 Screenplay Core Design (3 min)
 
@@ -149,7 +150,7 @@ Get-ChildItem test-results
 ## 5.4 Fallback Plan
 
 If external app/network is unstable:
-- open feature files and step files to explain executable behavior mapping
+- open `tests/features/golden_path.feature` and `tests/test_golden_path_bdd.py` to explain executable behavior mapping
 - open CI workflow to prove environment and browser coverage
 - open a trace/screenshot artifact from a prior run to explain failure diagnostics
 

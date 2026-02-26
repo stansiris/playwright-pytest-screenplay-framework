@@ -1,28 +1,15 @@
 # Step Vocabulary (Current)
 
-This catalog lists every implemented pytest-bdd step phrase.
-Source of truth: `tests/test_login_page_bdd.py` and `tests/test_golden_path_bdd.py`.
+This catalog lists every currently wired `pytest-bdd` step phrase.
+Source of truth: `tests/test_golden_path_bdd.py`.
 
 ## Given Steps
 
-- `Given I am on the SauceDemo login page`
 - `Given I open the SauceDemo application`
-- `Given I focus the Login button`
 
 ## When Steps
 
-- `When I enter username "{username}"`
-- `When I enter password "{password}"`
-- `When I click the Login button`
-- `When I press Enter`
-- `When I dismiss the error message`
-- `When I refresh the page`
-- `When I click on the username field`
-- `When I click on the password field`
-- `When I press Tab`
-- `When I press Shift+Tab`
 - `When I log in with username "{username}" and password "{password}"`
-- `When I sort inventory by "{option}"`
 - `When I add the following items to the cart:`
 
 ```gherkin
@@ -49,18 +36,6 @@ When I enter checkout information:
 ## Then Steps
 
 - `Then I should be on the inventory page`
-- `Then I should see the inventory container`
-- `Then the password field should be of type "{field_type}"`
-- `Then I should see an error message "{error_message}"`
-- `Then I should see an error message`
-- `Then I should remain on the login page`
-- `Then I should not see the error message`
-- `Then the username field should be empty`
-- `Then the password field should be empty`
-- `Then the username field should be focused`
-- `Then the password field should be focused`
-- `Then the Login button should be focused`
-- `Then the focused element should have a visible focus indicator`
 - `Then the cart badge count should be {count:d}`
 - `Then the cart should contain the following items:`
 

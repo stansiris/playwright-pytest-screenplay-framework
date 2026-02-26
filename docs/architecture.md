@@ -5,6 +5,13 @@ This repository combines:
 - pytest-bdd for behavior specifications
 - Playwright for browser execution
 
+## Current Automated Coverage
+
+The current checked-in test coverage is one end-to-end BDD flow:
+- feature: `tests/features/golden_path.feature`
+- step module: `tests/test_golden_path_bdd.py`
+- scenario: purchase multiple items, complete checkout, and verify the cart resets after returning to inventory
+
 ## Execution Flow
 
 Gherkin scenario in `tests/features/*.feature`

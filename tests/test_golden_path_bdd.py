@@ -15,7 +15,6 @@ from saucedemo.tasks.login import Login
 from saucedemo.tasks.open_saucedemo import OpenSauceDemo
 from saucedemo.tasks.proceed_to_checkout import ProceedToCheckout
 from saucedemo.tasks.return_to_products import ReturnToProducts
-from saucedemo.tasks.sort_inventory import SortInventory
 from saucedemo.ui.saucedemo import SauceDemo
 from screenplay_core.core.actor import Actor
 from screenplay_core.interactions.wait_until_visible import WaitUntilVisible
@@ -66,11 +65,6 @@ def login_with_credentials(customer: Actor, username: str, password: str) -> Non
 def should_be_on_inventory_page(customer: Actor) -> None:
     customer.attempts_to(WaitUntilVisible.for_(SauceDemo.INVENTORY_CONTAINER))
     assert customer.asks_for(OnInventoryPage())
-
-
-# @when(parsers.parse('I sort inventory by "{option}"'))
-# def sort_inventory(customer: Actor, option: str) -> None:
-#     customer.attempts_to(SortInventory.by(option))
 
 
 @when("I add the following items to the cart:")
