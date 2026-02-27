@@ -1,8 +1,11 @@
 import logging
 import time
 
+from playwright.sync_api import LocatorAssertions, expect
+
 from screenplay_core.core.activity import Activity
 from screenplay_core.core.question import Question
+from screenplay_core.core.target import Target
 
 logger = logging.getLogger(__name__)
 
@@ -52,6 +55,9 @@ class Actor:
 
         logger.info("%s got %s -> %r (%.0f ms)", self.name, q_name, answer, _elapsed_ms(start))
         return answer
+
+    def expect(self, target: Target) -> LocatorAssertions:
+        return expect(target.resolve_for(self))
 
 
 def _safe_repr(obj) -> str:
