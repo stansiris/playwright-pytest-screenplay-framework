@@ -24,16 +24,12 @@ from screenplay_core.consequences.playwright import expect_target
         ),  # invalid password
     ],
 )
-
-
 def test_login(customer, username, password, expected_error_message) -> None:
     customer.attempts_to(Login.with_credentials(username=username, password=password))
 
     if expected_error_message:
         customer.should_see(
-            expect_target(
-                SauceDemo.LOGIN_ERROR_MESSAGE, "to_contain_text", expected_error_message
-            )
+            expect_target(SauceDemo.LOGIN_ERROR_MESSAGE, "to_contain_text", expected_error_message)
         )
     else:
         assert customer.asks_for(OnInventoryPage())
