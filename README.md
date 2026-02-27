@@ -107,8 +107,8 @@ pytest -q
 - Tasks:
 - `OpenSauceDemo.app()`
 - `Login.with_credentials(username, password)`
-- `EnterUsername.as_(username)`
-- `EnterPassword.as_(password)`
+- `Login.with_username_only(username)`
+- `Login.with_password_only(password)`
 - `ClickLogin()`
 - `DismissLoginError()`
 - `SortInventory.by(option)`

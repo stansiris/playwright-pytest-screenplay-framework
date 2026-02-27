@@ -20,8 +20,8 @@ available for future coverage even if they are not exercised by that scenario to
 
 ### Login
 - `Login.with_credentials(username, password)`
-- `EnterUsername.as_(username)`
-- `EnterPassword.as_(password)`
+- `Login.with_username_only(username)`
+- `Login.with_password_only(password)`
 - `ClickLogin()`
 - `DismissLoginError()`
 

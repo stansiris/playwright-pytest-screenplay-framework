@@ -20,9 +20,7 @@ Verify:
 
 Compose:
 - `OpenSauceDemo.app()`
-- `EnterUsername.as_(username)` (optional for missing-user case)
-- `EnterPassword.as_(password)` (optional for missing-pass case)
-- `ClickLogin()`
+- `Login.with_username_only(username)` or `Login.with_password_only(password)`
 
 Verify:
 - `TextOf(SauceDemo.LOGIN_ERROR_MESSAGE)`

@@ -7,8 +7,6 @@ from saucedemo.tasks.complete_checkout import CompleteCheckout
 from saucedemo.tasks.continue_checkout import ContinueCheckout
 from saucedemo.tasks.dismiss_login_error import DismissLoginError
 from saucedemo.tasks.enter_checkout_information import EnterCheckoutInformation
-from saucedemo.tasks.enter_password import EnterPassword
-from saucedemo.tasks.enter_username import EnterUsername
 from saucedemo.tasks.go_to_cart import GoToCart
 from saucedemo.tasks.login import Login
 from saucedemo.tasks.logout import Logout
@@ -26,8 +24,6 @@ __all__ = [
     "ContinueCheckout",
     "DismissLoginError",
     "EnterCheckoutInformation",
-    "EnterPassword",
-    "EnterUsername",
     "GoToCart",
     "Login",
     "Logout",
