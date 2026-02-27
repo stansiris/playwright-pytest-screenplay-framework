@@ -2,7 +2,6 @@ import logging
 import time
 
 from screenplay_core.core.activity import Activity
-from screenplay_core.core.consequence import Consequence
 from screenplay_core.core.question import Question
 
 logger = logging.getLogger(__name__)
@@ -53,24 +52,6 @@ class Actor:
 
         logger.info("%s got %s -> %r (%.0f ms)", self.name, q_name, answer, _elapsed_ms(start))
         return answer
-
-    def should_see(self, *consequences: Consequence) -> None:
-        for consequence in consequences:
-            c_name = consequence.__class__.__name__
-            logger.info("%s expects %s %s", self.name, c_name, _safe_repr(consequence))
-            start = time.perf_counter()
-            try:
-                consequence.check_as(self)
-            except Exception:
-                logger.exception(
-                    "%s FAILED %s after %.0f ms",
-                    self.name,
-                    c_name,
-                    _elapsed_ms(start),
-                )
-                raise
-
-            logger.info("%s DONE %s (%.0f ms)", self.name, c_name, _elapsed_ms(start))
 
 
 def _safe_repr(obj) -> str:
