@@ -39,5 +39,5 @@ def browser_type_launch_args(pytestconfig) -> dict:
 
 
 @pytest.fixture
-def customer(page):
-    return Actor("Customer").can(BrowseTheWeb.using(page))
+def customer(page, base_url):
+    return Actor("Customer").can(BrowseTheWeb.using(page, base_url=base_url))

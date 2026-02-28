@@ -1,4 +1,3 @@
-from saucedemo.config.runtime import runtime_settings
 from screenplay_core.core.target import Target
 
 
@@ -167,7 +166,6 @@ class SauceDemo:
     CHECKOUT_TOTAL = Target("Checkout total", checkout_total_locator)
     CHECKOUT_COMPLETE_TITLE = Target("Checkout complete title", checkout_complete_title_locator)
     BACK_TO_PRODUCTS = Target("Back to products button", back_to_products_locator)
-    URL = runtime_settings.base_url
 
     @staticmethod
     def add_to_cart_button_for(product_name: str) -> Target:

@@ -8,8 +8,12 @@ class OnLoginPage(Question):
     """Question: whether the browser is on the SauceDemo login page."""
 
     def answered_by(self, actor: Actor) -> bool:
-        url = actor.ability_to(BrowseTheWeb).page.url.rstrip("/")
-        login_url = SauceDemo.URL.rstrip("/")
+        browse = actor.ability_to(BrowseTheWeb)
+        if not browse.base_url:
+            return False
+
+        url = browse.page.url.rstrip("/")
+        login_url = browse.base_url.rstrip("/")
         return url == login_url and SauceDemo.LOGIN_BUTTON.resolve_for(actor).is_visible()
 
     def __repr__(self) -> str:

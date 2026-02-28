@@ -3,17 +3,19 @@ from dataclasses import dataclass
 
 DEFAULT_BASE_URL = "https://www.saucedemo.com/"
 VALID_BROWSERS = {"chromium", "firefox", "webkit"}
+TRUE_VALUES = {"1", "true", "yes", "on"}
+FALSE_VALUES = {"0", "false", "no", "off"}
 
 
-def _parse_bool_env(name: str, default: bool) -> bool:
+def _env_bool(name: str, default: bool) -> bool:
     raw = os.getenv(name)
     if raw is None:
         return default
 
-    normalized = raw.strip().lower()
-    if normalized in {"1", "true", "yes", "on"}:
+    value = raw.strip().lower()
+    if value in TRUE_VALUES:
         return True
-    if normalized in {"0", "false", "no", "off"}:
+    if value in FALSE_VALUES:
         return False
 
     raise ValueError(
@@ -22,7 +24,7 @@ def _parse_bool_env(name: str, default: bool) -> bool:
     )
 
 
-def _parse_int_env(name: str, default: int, minimum: int) -> int:
+def _env_int(name: str, default: int, minimum: int) -> int:
     raw = os.getenv(name)
     if raw is None:
         return default
@@ -38,7 +40,16 @@ def _parse_int_env(name: str, default: int, minimum: int) -> int:
     return value
 
 
-@dataclass(frozen=True)
+def _env_base_url() -> str:
+    base_url = (os.getenv("BASE_URL") or DEFAULT_BASE_URL).strip() or DEFAULT_BASE_URL
+    if not base_url.startswith(("http://", "https://")):
+        raise ValueError("BASE_URL must start with http:// or https://.")
+    if not base_url.endswith("/"):
+        base_url = f"{base_url}/"
+    return base_url
+
+
+@dataclass(frozen=True, slots=True)
 class RuntimeSettings:
     base_url: str
     browser: str
@@ -46,26 +57,20 @@ class RuntimeSettings:
     slow_mo_ms: int
     default_timeout_ms: int
 
-    @staticmethod
-    def from_env() -> "RuntimeSettings":
-        base_url = (os.getenv("BASE_URL") or DEFAULT_BASE_URL).strip() or DEFAULT_BASE_URL
-        if not base_url.startswith(("http://", "https://")):
-            raise ValueError("BASE_URL must start with http:// or https://.")
-        if not base_url.endswith("/"):
-            base_url = f"{base_url}/"
 
-        browser = (os.getenv("BROWSER") or "chromium").strip().lower()
-        if browser not in VALID_BROWSERS:
-            supported = ", ".join(sorted(VALID_BROWSERS))
-            raise ValueError(f"Unsupported BROWSER '{browser}'. Supported values: {supported}.")
+def load_runtime_settings() -> RuntimeSettings:
+    browser = (os.getenv("BROWSER") or "chromium").strip().lower()
+    if browser not in VALID_BROWSERS:
+        supported = ", ".join(sorted(VALID_BROWSERS))
+        raise ValueError(f"Unsupported BROWSER '{browser}'. Supported values: {supported}.")
 
-        return RuntimeSettings(
-            base_url=base_url,
-            browser=browser,
-            headed=_parse_bool_env("HEADED", default=False),
-            slow_mo_ms=_parse_int_env("SLOW_MO_MS", default=0, minimum=0),
-            default_timeout_ms=_parse_int_env("DEFAULT_TIMEOUT_MS", default=5000, minimum=1),
-        )
+    return RuntimeSettings(
+        base_url=_env_base_url(),
+        browser=browser,
+        headed=_env_bool("HEADED", default=False),
+        slow_mo_ms=_env_int("SLOW_MO_MS", default=0, minimum=0),
+        default_timeout_ms=_env_int("DEFAULT_TIMEOUT_MS", default=5000, minimum=1),
+    )
 
 
-runtime_settings = RuntimeSettings.from_env()
+runtime_settings = load_runtime_settings()
