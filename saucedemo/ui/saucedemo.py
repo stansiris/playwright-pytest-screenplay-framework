@@ -1,3 +1,5 @@
+import re
+
 from screenplay_core.core.target import Target
 
 
@@ -56,8 +58,6 @@ def add_to_cart_button_for_product_locator(product_name: str):
         # Find the inventory card by its visible product name, then pick its add button.
         # Use an exact match for the product name to avoid accidentally matching
         # a different product with a similar name.
-        import re
-
         exact_name = re.compile(rf"^{re.escape(product_name)}$")
         product_card = page.locator('[data-test="inventory-item"]').filter(
             has=page.locator('[data-test="inventory-item-name"]', has_text=exact_name)
@@ -105,6 +105,10 @@ def checkout_finish_locator(page):
 
 def checkout_overview_item_names_locator(page):
     return page.locator('[data-test="inventory-item-name"]')
+
+
+def checkout_overview_item_prices_locator(page):
+    return page.locator('[data-test="inventory-item-price"]')
 
 
 def checkout_payment_info_locator(page):
@@ -163,6 +167,9 @@ class SauceDemo:
     CHECKOUT_FINISH = Target("Checkout finish button", checkout_finish_locator)
     CHECKOUT_OVERVIEW_ITEM_NAMES = Target(
         "Checkout overview item names", checkout_overview_item_names_locator
+    )
+    CHECKOUT_OVERVIEW_ITEM_PRICES = Target(
+        "Checkout overview item prices", checkout_overview_item_prices_locator
     )
     CHECKOUT_PAYMENT_INFO = Target("Checkout payment info", checkout_payment_info_locator)
     CHECKOUT_SHIPPING_INFO = Target("Checkout shipping info", checkout_shipping_info_locator)

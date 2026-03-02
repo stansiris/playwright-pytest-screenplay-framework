@@ -1,4 +1,5 @@
 import re
+from decimal import Decimal
 
 from saucedemo.ui.saucedemo import SauceDemo
 from screenplay_core.core.actor import Actor
@@ -7,13 +8,14 @@ from screenplay_core.questions.text_of import TextOf
 from screenplay_core.questions.texts_of import TextsOf
 
 MONEY_PATTERN = re.compile(r"\$([0-9]+(?:\.[0-9]{2})?)")
+TWO_DECIMAL_PLACES = Decimal("0.01")
 
 
-def _parse_money(text: str) -> float:
+def _parse_money(text: str) -> Decimal:
     match = MONEY_PATTERN.search(text)
     if not match:
         raise ValueError(f"Could not parse money value from '{text}'.")
-    return float(match.group(1))
+    return Decimal(match.group(1))
 
 
 class TotalsMatchComputedSum(Question):
@@ -21,15 +23,19 @@ class TotalsMatchComputedSum(Question):
 
     def answered_by(self, actor: Actor) -> bool:
         item_prices = [
-            _parse_money(text) for text in actor.asks_for(TextsOf(SauceDemo.INVENTORY_ITEM_PRICES))
+            _parse_money(text)
+            for text in actor.asks_for(TextsOf(SauceDemo.CHECKOUT_OVERVIEW_ITEM_PRICES))
         ]
         subtotal = _parse_money(actor.asks_for(TextOf(SauceDemo.CHECKOUT_SUBTOTAL)))
         tax = _parse_money(actor.asks_for(TextOf(SauceDemo.CHECKOUT_TAX)))
         total = _parse_money(actor.asks_for(TextOf(SauceDemo.CHECKOUT_TOTAL)))
 
-        computed_subtotal = round(sum(item_prices), 2)
-        computed_total = round(subtotal + tax, 2)
-        return computed_subtotal == round(subtotal, 2) and computed_total == round(total, 2)
+        computed_subtotal = sum(item_prices, start=Decimal("0"))
+        computed_total = computed_subtotal + tax
+
+        return computed_subtotal.quantize(TWO_DECIMAL_PLACES) == subtotal.quantize(
+            TWO_DECIMAL_PLACES
+        ) and computed_total.quantize(TWO_DECIMAL_PLACES) == total.quantize(TWO_DECIMAL_PLACES)
 
     def __repr__(self) -> str:
         return "TotalsMatchComputedSum()"
