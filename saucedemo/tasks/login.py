@@ -1,8 +1,7 @@
 from saucedemo.tasks.click_login import ClickLogin
-from saucedemo.tasks.open_saucedemo import OpenSauceDemo
 from saucedemo.ui.saucedemo import SauceDemo
 from screenplay_core.core.task import Task
-from screenplay_core.interactions import Fill
+from screenplay_core.interactions.fill import Fill
 
 
 class Login(Task):
@@ -17,7 +16,6 @@ class Login(Task):
 
     def perform_as(self, actor) -> None:
         actor.attempts_to(
-            OpenSauceDemo.app(),
             Fill(SauceDemo.LOGIN_USERNAME, self.username),
             Fill(SauceDemo.LOGIN_PASSWORD, self.password),
             ClickLogin(),

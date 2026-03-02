@@ -54,10 +54,15 @@ def add_to_cart_button_for_product_locator(product_name: str):
 
     def locator(page):
         # Find the inventory card by its visible product name, then pick its add button.
+        # Use an exact match for the product name to avoid accidentally matching
+        # a different product with a similar name.
+        import re
+
+        exact_name = re.compile(rf"^{re.escape(product_name)}$")
         product_card = page.locator('[data-test="inventory-item"]').filter(
-            has=page.locator('[data-test="inventory-item-name"]', has_text=product_name)
+            has=page.locator('[data-test="inventory-item-name"]', has_text=exact_name)
         )
-        return product_card.locator('button[data-test^="add-to-cart"]').first
+        return product_card.locator('button[data-test^="add-to-cart"]')
 
     return locator
 

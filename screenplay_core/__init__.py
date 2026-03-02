@@ -1,1 +1,0 @@
-"""Reusable Screenplay core package."""

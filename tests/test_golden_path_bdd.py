@@ -12,7 +12,7 @@ from saucedemo.tasks.continue_checkout import ContinueCheckout
 from saucedemo.tasks.enter_checkout_information import EnterCheckoutInformation
 from saucedemo.tasks.go_to_cart import GoToCart
 from saucedemo.tasks.login import Login
-from saucedemo.tasks.open_saucedemo import OpenSauceDemo
+from saucedemo.tasks.open_login_page import OpenLoginPage
 from saucedemo.tasks.proceed_to_checkout import ProceedToCheckout
 from saucedemo.tasks.return_to_products import ReturnToProducts
 from saucedemo.ui.saucedemo import SauceDemo
@@ -51,8 +51,7 @@ def _expected_items(datatable) -> list[str]:
 @given("I open the SauceDemo application")
 def open_saucedemo(customer: Actor) -> None:
     customer.attempts_to(
-        OpenSauceDemo.app(),
-        WaitUntilVisible.for_(SauceDemo.LOGIN_BUTTON),
+        OpenLoginPage(),
     )
 
 

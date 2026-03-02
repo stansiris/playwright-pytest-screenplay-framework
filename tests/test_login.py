@@ -2,6 +2,7 @@ import pytest
 
 from saucedemo.questions.on_inventory_page import OnInventoryPage
 from saucedemo.tasks.login import Login
+from saucedemo.tasks.open_login_page import OpenLoginPage
 from saucedemo.ui.saucedemo import SauceDemo
 
 
@@ -24,6 +25,7 @@ from saucedemo.ui.saucedemo import SauceDemo
     ],
 )
 def test_login(customer, username, password, expected_error_message) -> None:
+    customer.attempts_to(OpenLoginPage())
     customer.attempts_to(Login.with_credentials(username=username, password=password))
 
     if expected_error_message:
