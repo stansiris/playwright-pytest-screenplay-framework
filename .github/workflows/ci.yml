@@ -1,17 +1,26 @@
 name: CI
 
+# Trigger strategy:
+# - push/pull_request: fast validation for active development
+# - schedule: unattended confidence runs
+# - workflow_dispatch: manual rerun/debug
 on:
   push:
     branches: [main, master]
   pull_request:
     branches: [main, master]
+  schedule:
+    - cron: "0 2 * * 1-5" # Weekday nightly (02:00 UTC)
+    - cron: "0 3 * * 0" # Weekly full run (Sunday 03:00 UTC)
   workflow_dispatch:
 
+# Avoid duplicate runs for the same ref when new commits arrive.
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  # Static quality gate: fail fast on style/lint before browser tests.
   lint:
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -41,10 +50,144 @@ jobs:
       - name: Format check (black)
         run: python -m black --check .
 
-  test:
+  # Fast functional gate for PRs/pushes:
+  # critical smoke checks plus the tagged end-to-end flow.
+  smoke_e2e:
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    needs: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    env:
+      BROWSER: chromium
+      PYTHONDONTWRITEBYTECODE: "1"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Install Playwright browser and Linux dependencies
+        run: python -m playwright install --with-deps chromium
+
+      - name: Test smoke and e2e markers (pytest)
+        # Keep this minimal and fast for quick feedback.
+        run: pytest -q -m "smoke or e2e"
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-smoke-e2e-ubuntu-chromium
+          path: test-results
+          if-no-files-found: warn
+          # Short retention for high-frequency CI runs.
+          retention-days: 14
+
+  # Broader integration suite (excluding smoke/ui to avoid duplicate coverage).
+  integration_core:
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    needs: [lint, smoke_e2e]
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+
+    env:
+      BROWSER: chromium
+      PYTHONDONTWRITEBYTECODE: "1"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Install Playwright browser and Linux dependencies
+        run: python -m playwright install --with-deps chromium
+
+      - name: Test integration core markers (pytest)
+        # Runs integration behavior checks that are not part of smoke or UI-only jobs.
+        run: pytest -q -m "integration and not smoke and not ui"
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-integration-core-ubuntu-chromium
+          path: test-results
+          if-no-files-found: warn
+          retention-days: 14
+
+  # UI-focused checks on mainline pushes (post-merge confidence).
+  ui:
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    needs: [lint, smoke_e2e]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    env:
+      BROWSER: chromium
+      PYTHONDONTWRITEBYTECODE: "1"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Install Playwright browser and Linux dependencies
+        run: python -m playwright install --with-deps chromium
+
+      - name: Test ui marker (pytest)
+        # Presentation and page-structure assertions.
+        run: pytest -q -m "ui"
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-ui-ubuntu-chromium
+          path: test-results
+          if-no-files-found: warn
+          retention-days: 14
+
+  # Full cross-platform/browser regression.
+  # Intended for scheduled and manual runs due to runtime cost.
+  full_matrix_regression:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     needs: lint
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 40
+    timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:
@@ -79,13 +222,16 @@ jobs:
         if: runner.os != 'Linux'
         run: python -m playwright install ${{ matrix.browser }}
 
-      - name: Test (pytest)
-        run: pytest -q
+      - name: Test full regression markers (pytest)
+        # Marker-union run so smoke-only/e2e-only tests are not missed.
+        run: pytest -q -m "smoke or integration or e2e"
 
       - name: Upload test artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-results-${{ matrix.os }}-${{ matrix.browser }}
+          name: test-results-full-regression-${{ matrix.os }}-${{ matrix.browser }}
           path: test-results
           if-no-files-found: warn
+          # Keep scheduled/manual artifacts longer for diagnosis/history.
+          retention-days: 30

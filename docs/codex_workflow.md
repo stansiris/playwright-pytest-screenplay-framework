@@ -38,6 +38,14 @@ python -m black --check tests
 pytest -q tests/test_login.py tests/test_login_bdd.py
 ```
 
+## CI Marker Commands
+
+The CI workflow executes marker-specific suites:
+- `pytest -q -m "smoke or e2e"`
+- `pytest -q -m "integration and not smoke and not ui"`
+- `pytest -q -m "ui"`
+- `pytest -q -m "smoke or integration or e2e"` (scheduled/manual full regression)
+
 ## Portfolio Talking Point
 
 Both styles are thin orchestration layers over the same `saucedemo/tasks`, `saucedemo/questions`, and `saucedemo/ui` model, which demonstrates framework consistency instead of duplicated automation logic.

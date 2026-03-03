@@ -17,6 +17,19 @@ The current checked-in coverage includes:
 - direct pytest + Screenplay integration suites for login, inventory, product details, checkout info, and checkout complete
 - direct pytest + Screenplay UI suites for all core pages (`tests/test_ui_pages.py`)
 
+## CI Strategy
+
+CI is marker-driven to balance feedback speed and confidence:
+- `lint` runs first on all CI triggers.
+- `smoke_e2e` (push/PR): `pytest -m "smoke or e2e"` on Ubuntu + Chromium.
+- `integration_core` (push/PR): `pytest -m "integration and not smoke and not ui"` on Ubuntu + Chromium.
+- `ui` (main/master push): `pytest -m "ui"` on Ubuntu + Chromium.
+- `full_matrix_regression` (schedule/manual): `pytest -m "smoke or integration or e2e"` on Ubuntu/Windows and Chromium/Firefox.
+
+Artifact retention in CI:
+- push/PR jobs: 14 days
+- scheduled/manual matrix job: 30 days
+
 ## Execution Flow
 
 Gherkin scenario in `tests/features/*.feature`

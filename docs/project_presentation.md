@@ -27,6 +27,21 @@ Use it as:
 
 "I built a Python test automation framework around Screenplay + BDD to solve the maintainability problems that happen when UI tests grow. Instead of putting selectors and click logic in step definitions, I keep behavior in feature files, intent in Tasks, state checks in Questions, and low-level browser operations in Interactions. I also added runtime configuration and CI coverage across Linux/Windows and Chromium/Firefox, with artifacts for failure debugging. The main value is that the framework supports readable business scenarios without sacrificing engineering rigor."
 
+## 2.1 AI-Assisted Development Transparency
+
+Most implementation artifacts in this repository were generated with Codex through iterative, conversational prompting by the project author, including both automation code and BDD feature files.
+
+Workflow summary:
+- define requirements, constraints, and expected behavior in natural language
+- have Codex generate or refactor implementation artifacts (BDD feature files, test code, task/question wiring, docs, CI updates)
+- review outputs and request targeted revisions
+- validate with `ruff`, `black`, and `pytest`
+- accept/reject changes and keep final ownership of architecture and quality decisions
+
+Presentation framing:
+- This project demonstrates both test automation architecture and practical AI-assisted engineering workflow.
+- Human accountability remains explicit: Codex accelerates implementation, while design and quality ownership stays with the author.
+
 ---
 
 ## 3. 5-Minute Presentation Script
@@ -51,9 +66,9 @@ Use it as:
 
 - Environment-driven runtime settings (`BASE_URL`, `BROWSER`, `HEADED`, `SLOW_MO_MS`, `DEFAULT_TIMEOUT_MS`) in `saucedemo/config/runtime.py`.
 - Centralized actor execution logging and timing in `screenplay_core/core/actor.py`.
-- CI matrix runs tests on both:
-  - `ubuntu-latest` and `windows-latest`
-  - `chromium` and `firefox`
+- CI uses marker-based lanes for fast feedback:
+  - PR/push: `smoke_e2e`, `integration_core` (and `ui` on main push)
+  - schedule/manual: full OS/browser matrix regression
 - Failure artifacts are retained (`junit.xml`, HTML report, screenshots, traces).
 
 ## 3.4 Why This Matters
@@ -98,7 +113,7 @@ Use it as:
 ## 4.5 Runtime + CI + Operability (2 min)
 
 - `saucedemo/config/runtime.py` for environment portability.
-- `.github/workflows/ci.yml` for OS/browser matrix.
+- `.github/workflows/ci.yml` for marker-based fast lanes plus scheduled full-matrix runs.
 - Explain artifact strategy for diagnosis after failures.
 
 ## 4.6 Tradeoffs and Future Work (2 min)

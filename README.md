@@ -10,6 +10,12 @@ The repository demonstrates:
 - SauceDemo-specific tasks/questions/locators in a separate `saucedemo` layer
 - centralized runtime configuration for project execution
 
+## AI-Assisted Development
+
+Most implementation artifacts in this repository were generated with Codex through iterative, conversational prompting by the project author, including both automation code and BDD feature files.
+
+Final architecture, review decisions, and quality gates (lint/format/tests) were performed by the project author.
+
 ## Current Test Coverage
 
 Current coverage includes both BDD and direct pytest modules:
@@ -56,6 +62,26 @@ python -m ruff check .
 python -m black --check .
 ```
 
+## CI Pipeline
+
+GitHub Actions workflow: `.github/workflows/ci.yml`
+
+Trigger model:
+- `push`/`pull_request`: fast developer feedback
+- `schedule`: unattended confidence runs
+- `workflow_dispatch`: manual run
+
+Current CI jobs:
+- `lint`: `ruff` + `black --check`
+- `smoke_e2e` (PR/push): `pytest -q -m "smoke or e2e"` on `ubuntu-latest` + `chromium`
+- `integration_core` (PR/push): `pytest -q -m "integration and not smoke and not ui"` on `ubuntu-latest` + `chromium`
+- `ui` (push to `main`/`master`): `pytest -q -m "ui"` on `ubuntu-latest` + `chromium`
+- `full_matrix_regression` (schedule/manual): `pytest -q -m "smoke or integration or e2e"` on `ubuntu/windows` x `chromium/firefox`
+
+Scheduled runs (UTC):
+- Weekday nightly: `0 2 * * 1-5`
+- Weekly full run: `0 3 * * 0`
+
 ## Test Reporting
 
 Pytest generates test artifacts automatically into `test-results/`:
@@ -65,6 +91,9 @@ Pytest generates test artifacts automatically into `test-results/`:
 - Playwright traces on failures (`--tracing=retain-on-failure`)
 
 In GitHub Actions, `test-results/` is uploaded as a workflow artifact even when tests fail.
+Retention policy:
+- PR/push jobs: 14 days
+- scheduled/manual full regression: 30 days
 
 ## Runtime Configuration
 
