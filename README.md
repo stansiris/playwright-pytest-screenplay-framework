@@ -1,13 +1,23 @@
 # Playwright + Pytest Screenplay Framework
 
+[![CI](https://github.com/stansiris/playwright-pytest-screenplay-framework/actions/workflows/ci.yml/badge.svg)](https://github.com/stansiris/playwright-pytest-screenplay-framework/actions/workflows/ci.yml)
+[![Python](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+
 A Python UI automation framework using Playwright, pytest, and the Screenplay pattern,
 with `pytest-bdd` as the primary behavior layer.
 
-The repository demonstrates:
-- business-readable BDD scenarios
-- concise step definitions colocated with each feature test file
-- reusable `screenplay_core` framework components
-- SauceDemo-specific tasks/questions/locators in a separate `saucedemo` layer
+## Portfolio Project
+
+**This repository is a public portfolio showcase project.**
+It is intentionally designed to demonstrate end-to-end test automation engineering for recruiters and hiring teams.
+
+This project highlights:
+- a maintainable Screenplay-based architecture for UI testing
+- reusable `screenplay_core` components with a separate `saucedemo` domain layer
+- Codex-assisted implementation with human review and quality ownership
+- business-readable BDD scenarios with concise step definitions
+- support for both BDD and direct pytest styles on the same model
+- marker-driven CI lanes (`smoke`, `integration`, `ui`, `e2e`) with artifacts
 - centralized runtime configuration for project execution
 
 ## AI-Assisted Development
@@ -33,6 +43,10 @@ Current coverage includes both BDD and direct pytest modules:
 
 ## Setup
 
+Use the shell block that matches your environment.
+
+### PowerShell (Windows)
+
 ```powershell
 python -m venv .venv
 .venv\Scripts\Activate.ps1
@@ -40,6 +54,44 @@ python -m pip install --upgrade pip
 python -m pip install -e ".[dev]"
 python -m playwright install
 pytest -q
+```
+
+### Bash (macOS/Linux)
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -e ".[dev]"
+python -m playwright install
+pytest -q
+```
+
+## Quick Run Commands
+
+```powershell
+# smoke + e2e happy path
+pytest -q -m "smoke or e2e"
+
+# integration core (excluding smoke and ui overlap)
+pytest -q -m "integration and not smoke and not ui"
+
+# ui-focused page checks
+pytest -q -m "ui"
+
+# full regression marker union (keep `ui` explicit for future marker strategy changes)
+pytest -q -m "smoke or integration or e2e or ui"
+```
+
+## Architecture At A Glance
+
+```mermaid
+flowchart LR
+  A[BDD features<br/>tests/features/*.feature] --> B[BDD step adapters<br/>tests/test_*_bdd.py]
+  C[Direct pytest suites<br/>tests/test_*.py] --> D[Domain tasks + questions<br/>saucedemo/]
+  B --> D
+  D --> E[Reusable Screenplay core<br/>screenplay_core/]
+  E --> F[Playwright browser]
 ```
 
 ## CI-Ready Formatting
@@ -73,10 +125,10 @@ Trigger model:
 
 Current CI jobs:
 - `lint`: `ruff` + `black --check`
-- `smoke_e2e` (PR/push): `pytest -q -m "smoke or e2e"` on `ubuntu-latest` + `chromium`
-- `integration_core` (PR/push): `pytest -q -m "integration and not smoke and not ui"` on `ubuntu-latest` + `chromium`
-- `ui` (push to `main`/`master`): `pytest -q -m "ui"` on `ubuntu-latest` + `chromium`
-- `full_matrix_regression` (schedule/manual): `pytest -q -m "smoke or integration or e2e"` on `ubuntu/windows` x `chromium/firefox`
+- `tests_fast` (PR/push): `pytest -q -m "smoke or integration or e2e or ui"` on `ubuntu-latest` + `chromium`
+- `full_matrix_regression` (schedule/manual): `pytest -q -m "smoke or integration or e2e or ui"` on `ubuntu/windows` x `chromium/firefox`
+
+Marker-based pytest commands are shell-agnostic; only environment variable syntax differs by shell.
 
 Scheduled runs (UTC):
 - Weekday nightly: `0 2 * * 1-5`
@@ -107,7 +159,7 @@ Runtime settings are environment-driven through `saucedemo/config/runtime.py`.
 | `SLOW_MO_MS` | `0` | Slow motion delay in milliseconds for browser actions. |
 | `DEFAULT_TIMEOUT_MS` | `5000` | Default timeout for waits. Reusable core also supports `SCREENPLAY_DEFAULT_TIMEOUT_MS`. |
 
-Example:
+### Runtime Example (PowerShell)
 
 ```powershell
 $env:BASE_URL = "https://www.saucedemo.com"
@@ -119,39 +171,24 @@ $env:SCREENPLAY_DEFAULT_TIMEOUT_MS = "7000"
 pytest -q
 ```
 
-## Current API
+### Runtime Example (Bash)
 
-### Reusable `screenplay_core`
-- `Actor`
-- `Task`
-- `Interaction`
-- `Question`
-- `Target`
-- `BrowseTheWeb`
-- Interactions: `Click`, `Fill`, `Focus`, `NavigateTo`, `PressKey`, `RefreshPage`, `ScrollIntoView`, `SelectByValue`, `WaitUntilVisible`, `WaitUntilHidden`
-- Questions: `TextOf`, `TextsOf`, `IsVisible`, `IsFocused`, `FocusIndicatorVisible`, `AttributeOf`, `CurrentUrl`
+```bash
+export BASE_URL="https://www.saucedemo.com"
+export BROWSER="firefox"
+export HEADED="true"
+export SLOW_MO_MS="150"
+export DEFAULT_TIMEOUT_MS="7000"
+export SCREENPLAY_DEFAULT_TIMEOUT_MS="7000"
+pytest -q
+```
 
-### SauceDemo Domain (`saucedemo`)
-- Questions: `OnLoginPage`, `OnInventoryPage`, `CartBadgeCount`, `TotalsMatchComputedSum`
-- Tasks:
-- `OpenSauceDemo.app()`
-- `OpenLoginPage()`
-- `Login.with_credentials(username, password)`
-- `Login.with_username_only(username)`
-- `Login.with_password_only(password)`
-- `ClickLogin()`
-- `DismissLoginError()`
-- `SortInventory.by(option)`
-- `AddProductToCart.named(product_name)`
-- `GoToCart()`
-- `ProceedToCheckout()`
-- `EnterCheckoutInformation.as_customer(first_name, last_name, postal_code)`
-- `ContinueCheckout()`
-- `CompleteCheckout()`
-- `ReturnToProducts()`
-- `BeginCheckout()`
-- `ProvideCheckoutInformation.as_customer(first_name, last_name, postal_code)`
-- `Logout()`
+## API and Design References
+
+Detailed component model, task/question vocabulary, and architecture decisions are documented in:
+- `docs/domain_model.md`
+- `docs/architecture.md`
+- `docs/design_decisions.md`
 
 ## Project Structure
 
@@ -178,9 +215,7 @@ docs/
 |-- codex_workflow.md
 |-- design_decisions.md
 |-- domain_model.md
-|-- engine_flows.md
-|-- project_presentation.md
-`-- step_vocabulary.md
+`-- engine_flows.md
 ```
 
 ## Test Modes
@@ -197,11 +232,7 @@ docs/
 ## Documentation
 
 - Domain model: `docs/domain_model.md`
-- Step vocabulary: `docs/step_vocabulary.md`
 - Architecture: `docs/architecture.md`
 - Composed engine flows: `docs/engine_flows.md`
 - Design rationale: `docs/design_decisions.md`
 - Codex generation workflow: `docs/codex_workflow.md`
-- Presentation guide: `docs/project_presentation.md`
-
-

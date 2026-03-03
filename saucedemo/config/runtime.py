@@ -64,12 +64,18 @@ def load_runtime_settings() -> RuntimeSettings:
         supported = ", ".join(sorted(VALID_BROWSERS))
         raise ValueError(f"Unsupported BROWSER '{browser}'. Supported values: {supported}.")
 
+    timeout_env_name = (
+        "SCREENPLAY_DEFAULT_TIMEOUT_MS"
+        if os.getenv("SCREENPLAY_DEFAULT_TIMEOUT_MS") is not None
+        else "DEFAULT_TIMEOUT_MS"
+    )
+
     return RuntimeSettings(
         base_url=_env_base_url(),
         browser=browser,
         headed=_env_bool("HEADED", default=False),
         slow_mo_ms=_env_int("SLOW_MO_MS", default=0, minimum=0),
-        default_timeout_ms=_env_int("DEFAULT_TIMEOUT_MS", default=5000, minimum=1),
+        default_timeout_ms=_env_int(timeout_env_name, default=5000, minimum=1),
     )
 
 

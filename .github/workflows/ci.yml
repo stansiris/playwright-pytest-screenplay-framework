@@ -50,13 +50,13 @@ jobs:
       - name: Format check (black)
         run: python -m black --check .
 
-  # Fast functional gate for PRs/pushes:
-  # critical smoke checks plus the tagged end-to-end flow.
-  smoke_e2e:
+  # Fast validation lane for PRs/pushes.
+  # Consolidates smoke, integration, e2e, and ui markers into one job.
+  tests_fast:
     if: github.event_name == 'push' || github.event_name == 'pull_request'
     needs: lint
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 40
 
     env:
       BROWSER: chromium
@@ -81,102 +81,15 @@ jobs:
       - name: Install Playwright browser and Linux dependencies
         run: python -m playwright install --with-deps chromium
 
-      - name: Test smoke and e2e markers (pytest)
-        # Keep this minimal and fast for quick feedback.
-        run: pytest -q -m "smoke or e2e"
+      - name: Test fast marker union (pytest)
+        # Unified pre-merge lane: smoke + integration + e2e + ui.
+        run: pytest -q -m "smoke or integration or e2e or ui"
 
       - name: Upload test artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-results-smoke-e2e-ubuntu-chromium
-          path: test-results
-          if-no-files-found: warn
-          # Short retention for high-frequency CI runs.
-          retention-days: 14
-
-  # Broader integration suite (excluding smoke/ui to avoid duplicate coverage).
-  integration_core:
-    if: github.event_name == 'push' || github.event_name == 'pull_request'
-    needs: [lint, smoke_e2e]
-    runs-on: ubuntu-latest
-    timeout-minutes: 35
-
-    env:
-      BROWSER: chromium
-      PYTHONDONTWRITEBYTECODE: "1"
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-          cache: pip
-          cache-dependency-path: pyproject.toml
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install -e ".[dev]"
-
-      - name: Install Playwright browser and Linux dependencies
-        run: python -m playwright install --with-deps chromium
-
-      - name: Test integration core markers (pytest)
-        # Runs integration behavior checks that are not part of smoke or UI-only jobs.
-        run: pytest -q -m "integration and not smoke and not ui"
-
-      - name: Upload test artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results-integration-core-ubuntu-chromium
-          path: test-results
-          if-no-files-found: warn
-          retention-days: 14
-
-  # UI-focused checks on mainline pushes (post-merge confidence).
-  ui:
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
-    needs: [lint, smoke_e2e]
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-
-    env:
-      BROWSER: chromium
-      PYTHONDONTWRITEBYTECODE: "1"
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-          cache: pip
-          cache-dependency-path: pyproject.toml
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install -e ".[dev]"
-
-      - name: Install Playwright browser and Linux dependencies
-        run: python -m playwright install --with-deps chromium
-
-      - name: Test ui marker (pytest)
-        # Presentation and page-structure assertions.
-        run: pytest -q -m "ui"
-
-      - name: Upload test artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results-ui-ubuntu-chromium
+          name: test-results-fast-ubuntu-chromium
           path: test-results
           if-no-files-found: warn
           retention-days: 14
@@ -223,8 +136,9 @@ jobs:
         run: python -m playwright install ${{ matrix.browser }}
 
       - name: Test full regression markers (pytest)
-        # Marker-union run so smoke-only/e2e-only tests are not missed.
-        run: pytest -q -m "smoke or integration or e2e"
+        # Marker-union run; keep ui explicit to avoid accidental coverage gaps
+        # if marker overlap changes later.
+        run: pytest -q -m "smoke or integration or e2e or ui"
 
       - name: Upload test artifacts
         if: always()

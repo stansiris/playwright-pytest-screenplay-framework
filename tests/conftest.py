@@ -40,4 +40,10 @@ def browser_type_launch_args(pytestconfig) -> dict:
 
 @pytest.fixture
 def customer(page, base_url):
-    return Actor("Customer").can(BrowseTheWeb.using(page, base_url=base_url))
+    return Actor("Customer").can(
+        BrowseTheWeb.using(
+            page,
+            base_url=base_url,
+            default_timeout_ms=runtime_settings.default_timeout_ms,
+        )
+    )

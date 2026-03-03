@@ -21,10 +21,8 @@ The current checked-in coverage includes:
 
 CI is marker-driven to balance feedback speed and confidence:
 - `lint` runs first on all CI triggers.
-- `smoke_e2e` (push/PR): `pytest -m "smoke or e2e"` on Ubuntu + Chromium.
-- `integration_core` (push/PR): `pytest -m "integration and not smoke and not ui"` on Ubuntu + Chromium.
-- `ui` (main/master push): `pytest -m "ui"` on Ubuntu + Chromium.
-- `full_matrix_regression` (schedule/manual): `pytest -m "smoke or integration or e2e"` on Ubuntu/Windows and Chromium/Firefox.
+- `tests_fast` (push/PR): `pytest -m "smoke or integration or e2e or ui"` on Ubuntu + Chromium.
+- `full_matrix_regression` (schedule/manual): `pytest -m "smoke or integration or e2e or ui"` on Ubuntu/Windows and Chromium/Firefox.
 
 Artifact retention in CI:
 - push/PR jobs: 14 days

@@ -40,11 +40,9 @@ pytest -q tests/test_login.py tests/test_login_bdd.py
 
 ## CI Marker Commands
 
-The CI workflow executes marker-specific suites:
-- `pytest -q -m "smoke or e2e"`
-- `pytest -q -m "integration and not smoke and not ui"`
-- `pytest -q -m "ui"`
-- `pytest -q -m "smoke or integration or e2e"` (scheduled/manual full regression)
+The CI workflow executes:
+- `pytest -q -m "smoke or integration or e2e or ui"` (push/PR fast lane)
+- `pytest -q -m "smoke or integration or e2e or ui"` (scheduled/manual full regression, matrix-expanded)
 
 ## Portfolio Talking Point
 
