@@ -8,9 +8,34 @@ version = "0.1.0"
 description = "Playwright + pytest Screenplay framework with pytest-bdd behavior layer."
 readme = "README.md"
 requires-python = ">=3.11"
+authors = [{ name = "Stanislav Siris" }]
+license = { file = "LICENSE" }
+keywords = [
+    "playwright",
+    "pytest",
+    "pytest-bdd",
+    "screenplay",
+    "test-automation",
+    "ui-testing",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Framework :: Pytest",
+    "Topic :: Software Development :: Testing",
+]
 dependencies = [
     "playwright>=1.56,<2",
 ]
+
+[project.urls]
+Homepage = "https://github.com/stansiris/playwright-pytest-screenplay-framework"
+Repository = "https://github.com/stansiris/playwright-pytest-screenplay-framework"
+Issues = "https://github.com/stansiris/playwright-pytest-screenplay-framework/issues"
 
 [project.optional-dependencies]
 test = [
