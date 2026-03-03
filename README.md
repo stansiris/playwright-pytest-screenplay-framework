@@ -157,7 +157,7 @@ Runtime settings are environment-driven through `saucedemo/config/runtime.py`.
 | `BROWSER` | `chromium` | Default browser for pytest-playwright (`chromium`, `firefox`, `webkit`). |
 | `HEADED` | `false` | Run tests headed when true (`true/false`, `1/0`, `yes/no`). |
 | `SLOW_MO_MS` | `0` | Slow motion delay in milliseconds for browser actions. |
-| `DEFAULT_TIMEOUT_MS` | `5000` | Default timeout for waits. Reusable core also supports `SCREENPLAY_DEFAULT_TIMEOUT_MS`. |
+| `DEFAULT_TIMEOUT_MS` | `5000` | Default timeout for waits and Playwright `expect(...)` assertions. Reusable core also supports `SCREENPLAY_DEFAULT_TIMEOUT_MS` (takes precedence if set). |
 
 ### Runtime Example (PowerShell)
 
@@ -182,6 +182,25 @@ export DEFAULT_TIMEOUT_MS="7000"
 export SCREENPLAY_DEFAULT_TIMEOUT_MS="7000"
 pytest -q
 ```
+
+## Hybrid Assertion Model
+
+The framework intentionally supports a hybrid style:
+- Playwright-native locator assertions through `Actor.expect(Target)` for strong UI synchronization and readable assertions.
+- Screenplay Questions through `Actor.asks_for(...)` for domain/state assertions and reusable business checks.
+
+Example:
+
+```python
+customer.expect(SauceDemo.LOGIN_BUTTON).to_be_visible()
+customer.expect(SauceDemo.CHECKOUT_TOTAL).to_contain_text("Total:")
+customer.expect(SauceDemo.CHECKOUT_TOTAL).to_have_text("Total: $60.45", timeout=3000)
+assert customer.asks_for(OnInventoryPage())
+```
+
+Timeout behavior:
+- default `expect(...)` timeout is set from runtime in `tests/conftest.py`
+- pass `timeout=...` on any Playwright assertion call to override per assertion
 
 ## API and Design References
 

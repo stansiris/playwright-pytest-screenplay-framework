@@ -1,4 +1,5 @@
 import pytest
+from playwright.sync_api import expect
 
 from saucedemo.config.runtime import runtime_settings
 from screenplay_core.abilities.browse_the_web import BrowseTheWeb
@@ -8,6 +9,9 @@ from screenplay_core.core.actor import Actor
 def pytest_configure(config) -> None:
     if hasattr(config.option, "browser") and not config.option.browser:
         config.option.browser = [runtime_settings.browser]
+
+    # Keep Playwright locator assertions aligned with project runtime timeout.
+    expect.set_options(timeout=runtime_settings.default_timeout_ms)
 
 
 @pytest.fixture(scope="session")
