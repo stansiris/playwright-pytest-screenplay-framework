@@ -4,12 +4,12 @@ from saucedemo.questions.on_inventory_page import OnInventoryPage
 from saucedemo.tasks.login import Login
 from saucedemo.tasks.open_login_page import OpenLoginPage
 from saucedemo.ui.saucedemo import SauceDemo
+from screenplay_core.interactions.click import Click
 
 
 @pytest.mark.parametrize(
     "username,password,expected_error_message",
     [
-        ("standard_user", "secret_sauce", None),  # valid credentials
         ("", "secret_sauce", "Username is required"),  # missing username
         ("standard_user", "", "Password is required"),  # missing password
         (
@@ -22,13 +22,35 @@ from saucedemo.ui.saucedemo import SauceDemo
             "wrong_password",
             "Username and password do not match any user in this service",
         ),  # invalid password
+        (
+            "locked_out_user",
+            "secret_sauce",
+            "Sorry, this user has been locked out.",
+        ),  # locked out user
     ],
 )
-def test_login(customer, username, password, expected_error_message) -> None:
-    customer.attempts_to(OpenLoginPage())
-    customer.attempts_to(Login.with_credentials(username=username, password=password))
+def test_failed_login(customer, username, password, expected_error_message) -> None:
+    customer.attempts_to(
+        OpenLoginPage(), Login.with_credentials(username=username, password=password)
+    )
 
-    if expected_error_message:
-        customer.expect(SauceDemo.LOGIN_ERROR_MESSAGE).to_contain_text(expected_error_message)
-    else:
-        assert customer.asks_for(OnInventoryPage())
+    customer.expect(SauceDemo.LOGIN_ERROR_MESSAGE).to_contain_text(expected_error_message)
+    customer.attempts_to(Click(SauceDemo.LOGIN_ERROR_CLOSE_BUTTON))
+    customer.expect(SauceDemo.LOGIN_ERROR_MESSAGE).to_be_hidden()
+
+
+@pytest.mark.parametrize(
+    "username,password",
+    [
+        ("standard_user", "secret_sauce"),
+        ("problem_user", "secret_sauce"),
+        ("performance_glitch_user", "secret_sauce"),
+    ],
+)
+def test_successful_login(customer, username, password) -> None:
+    customer.attempts_to(
+        OpenLoginPage(), Login.with_credentials(username=username, password=password)
+    )
+    assert customer.asks_for(OnInventoryPage())
+    customer.attempts_to(Click(SauceDemo.MENU_BUTTON), Click(SauceDemo.LOGOUT_LINK))
+    customer.expect(SauceDemo.LOGIN_BUTTON).to_be_visible()
