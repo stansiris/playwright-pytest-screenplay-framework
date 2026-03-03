@@ -1,4 +1,4 @@
-@golden_path @checkout @ui
+@e2e
 Feature: Golden Path Purchase (SauceDemo)
   A business-readable end-to-end purchase flow that demonstrates the framework design:
   - Screenplay Tasks for intent (login, add items, checkout)

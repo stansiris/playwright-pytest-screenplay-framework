@@ -46,7 +46,7 @@
 
 ## Checkout Complete Page (`/checkout-complete.html`)
 
-- [smoke] Checkout confirmation is visible after finish.
+- [integration] Checkout confirmation is visible after finish.
 - [integration] Cart is reset after returning to inventory.
 - [integration] Refresh/back behavior does not recreate stale checkout state.
 

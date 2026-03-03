@@ -29,6 +29,7 @@ from screenplay_core.interactions.click import Click
         ),  # locked out user
     ],
 )
+@pytest.mark.integration
 def test_failed_login(customer, username, password, expected_error_message) -> None:
     customer.attempts_to(
         OpenLoginPage(), Login.with_credentials(username=username, password=password)
@@ -47,6 +48,7 @@ def test_failed_login(customer, username, password, expected_error_message) -> N
         ("performance_glitch_user", "secret_sauce"),
     ],
 )
+@pytest.mark.smoke
 def test_successful_login(customer, username, password) -> None:
     customer.attempts_to(
         OpenLoginPage(), Login.with_credentials(username=username, password=password)
