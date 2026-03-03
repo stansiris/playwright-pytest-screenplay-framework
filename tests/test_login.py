@@ -31,6 +31,7 @@ from screenplay_core.interactions.click import Click
 )
 @pytest.mark.integration
 def test_failed_login(customer, username, password, expected_error_message) -> None:
+    """Verify invalid login inputs show the expected error and that the error can be dismissed."""
     customer.attempts_to(
         OpenLoginPage(), Login.with_credentials(username=username, password=password)
     )
@@ -50,6 +51,7 @@ def test_failed_login(customer, username, password, expected_error_message) -> N
 )
 @pytest.mark.smoke
 def test_successful_login(customer, username, password) -> None:
+    """Verify valid users can log in, reach inventory, and then log out back to login page."""
     customer.attempts_to(
         OpenLoginPage(), Login.with_credentials(username=username, password=password)
     )

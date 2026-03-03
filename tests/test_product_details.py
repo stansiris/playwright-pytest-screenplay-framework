@@ -104,6 +104,7 @@ def open_product_details(customer: Actor, product_name: str) -> None:
 @pytest.mark.smoke
 @pytest.mark.integration
 def test_product_details_open_from_inventory(customer_on_inventory: Actor) -> None:
+    """Verify a product details page opens from inventory with expected primary elements."""
     customer = customer_on_inventory
     open_product_details(customer, PRODUCT_NAME)
 
@@ -114,6 +115,7 @@ def test_product_details_open_from_inventory(customer_on_inventory: Actor) -> No
 
 @pytest.mark.integration
 def test_product_details_content_matches_inventory_card(customer_on_inventory: Actor) -> None:
+    """Verify name, price, and description on details page match the inventory card."""
     customer = customer_on_inventory
     expected_name = customer.asks_for(TextOf(inventory_item_name_target(PRODUCT_NAME)))
     expected_price = customer.asks_for(TextOf(inventory_item_price_target(PRODUCT_NAME)))
@@ -130,6 +132,7 @@ def test_product_details_content_matches_inventory_card(customer_on_inventory: A
 
 @pytest.mark.integration
 def test_product_details_add_to_cart_updates_badge(customer_on_inventory: Actor) -> None:
+    """Verify adding item from details increments cart badge and toggles button to Remove."""
     customer = customer_on_inventory
     open_product_details(customer, PRODUCT_NAME)
 
@@ -140,6 +143,7 @@ def test_product_details_add_to_cart_updates_badge(customer_on_inventory: Actor)
 
 @pytest.mark.integration
 def test_product_details_remove_from_cart_updates_badge(customer_on_inventory: Actor) -> None:
+    """Verify removing item from details clears cart badge and restores Add to cart button."""
     customer = customer_on_inventory
     open_product_details(customer, PRODUCT_NAME)
 
@@ -151,6 +155,7 @@ def test_product_details_remove_from_cart_updates_badge(customer_on_inventory: A
 
 @pytest.mark.integration
 def test_product_details_back_to_products_preserves_cart(customer_on_inventory: Actor) -> None:
+    """Verify back-to-products returns to inventory while preserving cart state."""
     customer = customer_on_inventory
     open_product_details(customer, PRODUCT_NAME)
     customer.attempts_to(Click(PRODUCT_DETAILS_ACTION_BUTTON))
@@ -166,6 +171,7 @@ def test_product_details_back_to_products_preserves_cart(customer_on_inventory: 
 
 @pytest.mark.integration
 def test_product_details_reflect_inventory_cart_state(customer_on_inventory: Actor) -> None:
+    """Verify details action button reflects cart state set from inventory page."""
     customer = customer_on_inventory
     customer.attempts_to(AddProductToCart.named(PRODUCT_NAME))
     assert customer.asks_for(CartBadgeCount()) == 1
@@ -176,6 +182,7 @@ def test_product_details_reflect_inventory_cart_state(customer_on_inventory: Act
 
 @pytest.mark.integration
 def test_product_details_add_then_cart_contains_item(customer_on_inventory: Actor) -> None:
+    """Verify item added from details appears in the cart."""
     customer = customer_on_inventory
     open_product_details(customer, PRODUCT_NAME)
     customer.attempts_to(Click(PRODUCT_DETAILS_ACTION_BUTTON), Click(SauceDemo.SHOPPING_CART_LINK))
@@ -188,6 +195,7 @@ def test_product_details_add_then_cart_contains_item(customer_on_inventory: Acto
 def test_product_details_direct_url_when_logged_in(
     customer_on_inventory: Actor, base_url: str
 ) -> None:
+    """Verify logged-in user can open product details directly by URL."""
     customer = customer_on_inventory
     customer.attempts_to(NavigateTo(f"{base_url}inventory-item.html?id={PRODUCT_ID}"))
 
@@ -199,5 +207,6 @@ def test_product_details_direct_url_when_logged_in(
 def test_product_details_direct_url_redirects_to_login_when_logged_out(
     customer: Actor, base_url: str
 ) -> None:
+    """Verify logged-out access to details URL redirects to login page."""
     customer.attempts_to(NavigateTo(f"{base_url}inventory-item.html?id={PRODUCT_ID}"))
     assert customer.asks_for(OnLoginPage())

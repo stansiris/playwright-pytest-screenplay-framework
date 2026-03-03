@@ -1,7 +1,9 @@
 # Step Vocabulary (Current)
 
-This catalog lists every currently wired `pytest-bdd` step phrase.
-Source of truth: `tests/test_golden_path_bdd.py`.
+This catalog lists the currently wired `pytest-bdd` step phrases.
+Sources of truth:
+- `tests/test_golden_path_bdd.py`
+- `tests/test_login_bdd.py`
 
 ## Given Steps
 
@@ -60,3 +62,21 @@ Then the overview should contain the following items:
 - `Then the shipping information should be "{text}"`
 - `Then totals should match the computed sum`
 - `Then I should see a checkout complete confirmation`
+
+## Login Mirror Steps (`tests/test_login_bdd.py`)
+
+### Given Steps
+
+- `Given I open the login page for login scenarios`
+
+### When Steps
+
+- `When I submit login credentials username "{username}" and password "{password}"`
+- `When I log out from the inventory menu`
+
+### Then Steps
+
+- `Then I should be on the inventory page for login scenarios`
+- `Then I should be back on the login page for login scenarios`
+- `Then I should see login error message "{error_message}" for login scenarios`
+- `Then I can dismiss the login error message`

@@ -65,6 +65,7 @@ def customer_on_checkout_complete(customer: Actor) -> Actor:
 @pytest.mark.smoke
 @pytest.mark.integration
 def test_checkout_complete_confirmation_is_visible(customer_on_checkout_complete: Actor) -> None:
+    """Verify checkout completion page shows confirmation text and image."""
     customer = customer_on_checkout_complete
     customer.expect(SauceDemo.CHECKOUT_COMPLETE_TITLE).to_have_text("Checkout: Complete!")
     customer.expect(CHECKOUT_COMPLETE_HEADER).to_have_text("Thank you for your order!")
@@ -74,6 +75,7 @@ def test_checkout_complete_confirmation_is_visible(customer_on_checkout_complete
 
 @pytest.mark.integration
 def test_checkout_complete_has_empty_cart_badge(customer_on_checkout_complete: Actor) -> None:
+    """Verify cart badge is empty after checkout is completed."""
     customer = customer_on_checkout_complete
     assert customer.asks_for(CartBadgeCount()) == 0
 
@@ -82,6 +84,7 @@ def test_checkout_complete_has_empty_cart_badge(customer_on_checkout_complete: A
 def test_checkout_complete_return_to_products_keeps_cart_empty(
     customer_on_checkout_complete: Actor,
 ) -> None:
+    """Verify returning to inventory from complete page keeps cart empty."""
     customer = customer_on_checkout_complete
     customer.attempts_to(
         ReturnToProducts(),
@@ -96,6 +99,7 @@ def test_checkout_complete_return_to_products_keeps_cart_empty(
 def test_checkout_complete_return_to_inventory_then_cart_is_empty(
     customer_on_checkout_complete: Actor,
 ) -> None:
+    """Verify cart remains empty after returning to inventory and reopening cart."""
     customer = customer_on_checkout_complete
     customer.attempts_to(
         ReturnToProducts(),
@@ -112,6 +116,7 @@ def test_checkout_complete_return_to_inventory_then_cart_is_empty(
 def test_checkout_complete_refresh_keeps_confirmation_visible(
     customer_on_checkout_complete: Actor,
 ) -> None:
+    """Verify browser refresh on complete page preserves completion state."""
     customer = customer_on_checkout_complete
     customer.attempts_to(RefreshPage(), WaitUntilVisible.for_(SauceDemo.CHECKOUT_COMPLETE_TITLE))
 
@@ -123,5 +128,6 @@ def test_checkout_complete_refresh_keeps_confirmation_visible(
 def test_checkout_complete_direct_url_redirects_to_login_when_logged_out(
     customer: Actor, base_url: str
 ) -> None:
+    """Verify logged-out access to complete page URL redirects to login page."""
     customer.attempts_to(NavigateTo(f"{base_url}checkout-complete.html"))
     assert customer.asks_for(OnLoginPage())

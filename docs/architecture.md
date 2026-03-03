@@ -7,10 +7,15 @@ This repository combines:
 
 ## Current Automated Coverage
 
-The current checked-in test coverage is one end-to-end BDD flow:
-- feature: `tests/features/golden_path.feature`
-- step module: `tests/test_golden_path_bdd.py`
-- scenario: purchase multiple items, complete checkout, and verify the cart resets after returning to inventory
+The current checked-in coverage includes:
+- one end-to-end BDD flow:
+  - feature: `tests/features/golden_path.feature`
+  - step module: `tests/test_golden_path_bdd.py`
+- one focused BDD login mirror flow:
+  - feature: `tests/features/login.feature`
+  - step module: `tests/test_login_bdd.py`
+- direct pytest + Screenplay integration suites for login, inventory, product details, checkout info, and checkout complete
+- direct pytest + Screenplay UI suites for all core pages (`tests/test_ui_pages.py`)
 
 ## Execution Flow
 
@@ -48,7 +53,7 @@ Gherkin scenario in `tests/features/*.feature`
 - business-readable scenarios
 
 ### `tests/test_*.py`
-- one file per feature with scenario loader and thin step adapters
+- mixed suite files: thin BDD step adapters plus direct pytest + Screenplay tests
 
 ## Runtime Configuration
 

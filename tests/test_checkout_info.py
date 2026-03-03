@@ -51,6 +51,7 @@ def customer_on_checkout_info(customer: Actor) -> Actor:
 @pytest.mark.smoke
 @pytest.mark.integration
 def test_checkout_info_page_loads(customer_on_checkout_info: Actor) -> None:
+    """Verify checkout step-one page loads with required form controls visible."""
     customer = customer_on_checkout_info
     customer.expect(SauceDemo.CHECKOUT_FIRST_NAME).to_be_visible()
     customer.expect(SauceDemo.CHECKOUT_LAST_NAME).to_be_visible()
@@ -75,6 +76,7 @@ def test_checkout_info_required_fields_validation(
     postal_code: str,
     expected_error_message: str,
 ) -> None:
+    """Verify required-field validation errors appear for missing checkout inputs."""
     customer = customer_on_checkout_info
     customer.attempts_to(
         EnterCheckoutInformation.as_customer(first_name, last_name, postal_code),
@@ -92,6 +94,7 @@ def test_checkout_info_required_fields_validation(
 def test_checkout_info_valid_information_proceeds_to_overview(
     customer_on_checkout_info: Actor,
 ) -> None:
+    """Verify valid checkout info submission proceeds to checkout overview."""
     customer = customer_on_checkout_info
     customer.attempts_to(
         EnterCheckoutInformation.as_customer(FIRST_NAME, LAST_NAME, POSTAL_CODE),
@@ -106,6 +109,7 @@ def test_checkout_info_valid_information_proceeds_to_overview(
 def test_checkout_info_provide_checkout_information_task_proceeds_to_overview(
     customer_on_checkout_info: Actor,
 ) -> None:
+    """Verify composite ProvideCheckoutInformation task navigates to overview."""
     customer = customer_on_checkout_info
     customer.attempts_to(
         ProvideCheckoutInformation.as_customer(FIRST_NAME, LAST_NAME, POSTAL_CODE),
@@ -117,6 +121,7 @@ def test_checkout_info_provide_checkout_information_task_proceeds_to_overview(
 
 @pytest.mark.integration
 def test_checkout_info_cancel_returns_to_cart(customer_on_checkout_info: Actor) -> None:
+    """Verify cancel on checkout step one returns the user to cart page."""
     customer = customer_on_checkout_info
     customer.attempts_to(Click(CHECKOUT_INFO_CANCEL_BUTTON))
 

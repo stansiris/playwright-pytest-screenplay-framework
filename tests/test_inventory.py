@@ -67,6 +67,7 @@ def parse_price(text: str) -> Decimal:
 @pytest.mark.smoke
 @pytest.mark.integration
 def test_inventory_page_loads_after_successful_login(customer_on_inventory: Actor) -> None:
+    """Verify login lands on inventory and key page shell elements are visible."""
     customer = customer_on_inventory
     customer.expect(SauceDemo.INVENTORY_CONTAINER).to_be_visible()
     customer.expect(SauceDemo.SHOPPING_CART_LINK).to_be_visible()
@@ -75,6 +76,7 @@ def test_inventory_page_loads_after_successful_login(customer_on_inventory: Acto
 
 @pytest.mark.integration
 def test_inventory_displays_expected_products_and_controls(customer_on_inventory: Actor) -> None:
+    """Verify inventory renders expected item counts and add-to-cart controls."""
     customer = customer_on_inventory
     customer.expect(SauceDemo.INVENTORY_ITEM_NAMES).to_have_count(INVENTORY_ITEM_COUNT)
     customer.expect(SauceDemo.INVENTORY_ITEM_PRICES).to_have_count(INVENTORY_ITEM_COUNT)
@@ -83,6 +85,7 @@ def test_inventory_displays_expected_products_and_controls(customer_on_inventory
 
 @pytest.mark.integration
 def test_inventory_add_and_remove_single_item_updates_badge(customer_on_inventory: Actor) -> None:
+    """Verify adding then removing one item updates cart badge and button state."""
     customer = customer_on_inventory
     product_name = "Sauce Labs Backpack"
     product_button = inventory_item_button_target(product_name)
@@ -114,6 +117,7 @@ def test_inventory_add_and_remove_single_item_updates_badge(customer_on_inventor
 def test_inventory_add_multiple_items_updates_badge_count(
     customer_on_inventory: Actor, product_names: list[str], expected_badge_count: int
 ) -> None:
+    """Verify adding multiple items sets cart badge to the expected count."""
     customer = customer_on_inventory
     for product_name in product_names:
         customer.attempts_to(AddProductToCart.named(product_name))
@@ -123,6 +127,7 @@ def test_inventory_add_multiple_items_updates_badge_count(
 
 @pytest.mark.integration
 def test_inventory_sorting_by_name_and_price(customer_on_inventory: Actor) -> None:
+    """Verify name and price sorting options order inventory items correctly."""
     customer = customer_on_inventory
 
     customer.attempts_to(SortInventory.by("Name (Z to A)"))
@@ -142,6 +147,7 @@ def test_inventory_sorting_by_name_and_price(customer_on_inventory: Actor) -> No
 
 @pytest.mark.integration
 def test_inventory_product_details_and_back_preserves_cart(customer_on_inventory: Actor) -> None:
+    """Verify navigating to details and back keeps inventory state and cart contents."""
     customer = customer_on_inventory
     product_name = "Sauce Labs Bike Light"
     product_name_link = inventory_item_name_target(product_name)
@@ -162,6 +168,7 @@ def test_inventory_product_details_and_back_preserves_cart(customer_on_inventory
 
 @pytest.mark.integration
 def test_inventory_logout_returns_to_login_page(customer_on_inventory: Actor) -> None:
+    """Verify logout from inventory returns the user to the login page."""
     customer = customer_on_inventory
     customer.attempts_to(Logout())
     assert customer.asks_for(OnLoginPage())

@@ -4,9 +4,10 @@ This document is the source of truth for the automation language implemented in 
 App-specific names map to real classes in `saucedemo/tasks` and `saucedemo/questions`.
 Generic reusable questions live in `screenplay_core/questions`.
 
-Current automated feature coverage is the golden-path purchase scenario in
-`tests/features/golden_path.feature`. Some tasks and questions listed below are
-available for future coverage even if they are not exercised by that scenario today.
+Current automated coverage includes:
+- golden-path purchase scenario in `tests/features/golden_path.feature`
+- login behavior BDD mirror scenarios in `tests/features/login.feature`
+- direct pytest + Screenplay suites covering login, inventory, product details, checkout info, checkout complete, and page-level UI checks
 
 ## Actor and Ability
 
@@ -17,6 +18,7 @@ available for future coverage even if they are not exercised by that scenario to
 
 ### Entry
 - `OpenSauceDemo.app()`
+- `OpenLoginPage()`
 
 ### Login
 - `Login.with_credentials(username, password)`
@@ -78,5 +80,5 @@ Tasks and Questions must reference these targets instead of inline selectors.
 ## Usage in BDD
 
 Feature files live under `tests/features`.
-Step definitions in `tests/test_*.py` are thin wrappers that delegate to the Task and Question model above.
+BDD step definitions in `tests/test_golden_path_bdd.py` and `tests/test_login_bdd.py` are thin wrappers that delegate to the Task and Question model above.
 

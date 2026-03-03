@@ -12,18 +12,18 @@ The repository demonstrates:
 
 ## Current Test Coverage
 
-The checked-in automated behavior currently centers on one end-to-end BDD scenario:
-- feature: `tests/features/golden_path.feature`
-- test module: `tests/test_golden_path_bdd.py`
-- scenario: `Successful purchase of multiple items and cart resets after checkout`
-
-The scenario covers:
-- opening SauceDemo
-- logging in with valid credentials
-- adding multiple items from a datatable
-- verifying cart contents and badge count
-- completing checkout and validating overview totals
-- returning to inventory and confirming the cart badge resets
+Current coverage includes both BDD and direct pytest modules:
+- BDD flows:
+  - end-to-end smoke flow: `tests/features/golden_path.feature` -> `tests/test_golden_path_bdd.py`
+  - login behavior mirror flow: `tests/features/login.feature` -> `tests/test_login_bdd.py`
+- direct pytest + Screenplay integration tests:
+  - `tests/test_login.py`
+  - `tests/test_inventory.py`
+  - `tests/test_product_details.py`
+  - `tests/test_checkout_info.py`
+  - `tests/test_checkout_complete.py`
+- UI presentation checks for each core page:
+  - `tests/test_ui_pages.py`
 
 ## Setup
 
@@ -72,7 +72,7 @@ Runtime settings are environment-driven through `saucedemo/config/runtime.py`.
 
 | Variable | Default | Description |
 | --- | --- | --- |
-| `BASE_URL` | `https://www.saucedemo.com/` | Application base URL used by `OpenSauceDemo` and `Login`. |
+| `BASE_URL` | `https://www.saucedemo.com/` | Application base URL used by `OpenSauceDemo`/`OpenLoginPage` navigation tasks. |
 | `BROWSER` | `chromium` | Default browser for pytest-playwright (`chromium`, `firefox`, `webkit`). |
 | `HEADED` | `false` | Run tests headed when true (`true/false`, `1/0`, `yes/no`). |
 | `SLOW_MO_MS` | `0` | Slow motion delay in milliseconds for browser actions. |
@@ -106,6 +106,7 @@ pytest -q
 - Questions: `OnLoginPage`, `OnInventoryPage`, `CartBadgeCount`, `TotalsMatchComputedSum`
 - Tasks:
 - `OpenSauceDemo.app()`
+- `OpenLoginPage()`
 - `Login.with_credentials(username, password)`
 - `Login.with_username_only(username)`
 - `Login.with_password_only(password)`
@@ -141,13 +142,15 @@ saucedemo/
 tests/
 |-- features/       # Gherkin scenarios
 |-- conftest.py     # fixture wiring + runtime defaults
-`-- test_*.py       # BDD scenario loader + thin step definitions
+`-- test_*.py       # BDD step adapters and direct pytest + Screenplay tests
 
 docs/
 |-- architecture.md
+|-- codex_workflow.md
 |-- design_decisions.md
 |-- domain_model.md
 |-- engine_flows.md
+|-- project_presentation.md
 `-- step_vocabulary.md
 ```
 
@@ -155,12 +158,12 @@ docs/
 
 ### 1. pytest-bdd + Screenplay (primary)
 - Gherkin defines behavior.
-- Step definitions (in `test_*.py`) map phrases to Tasks/Questions.
+- Step definitions (in `tests/test_golden_path_bdd.py` and `tests/test_login_bdd.py`) map phrases to Tasks/Questions.
 - Business intent stays separate from UI mechanics.
 
 ### 2. Direct pytest + Screenplay (supported)
 - Useful for focused workflow tests and refactoring safety.
-- The current repository does not include a standalone non-BDD example test file, but the task/question APIs support that style directly.
+- Current examples: `tests/test_login.py`, `tests/test_inventory.py`, `tests/test_product_details.py`, `tests/test_checkout_info.py`, `tests/test_checkout_complete.py`, and `tests/test_ui_pages.py`.
 
 ## Documentation
 
@@ -169,6 +172,7 @@ docs/
 - Architecture: `docs/architecture.md`
 - Composed engine flows: `docs/engine_flows.md`
 - Design rationale: `docs/design_decisions.md`
+- Codex generation workflow: `docs/codex_workflow.md`
 - Presentation guide: `docs/project_presentation.md`
 
 

@@ -1,56 +1,32 @@
 # ToDo
 
-## Existing
+## Coverage Snapshot (Implemented)
 
-- [smoke] Keep the current golden path E2E as the build smoke test.
+- [done] BDD flows for golden path and login mirror.
+- [done] Direct pytest integration suites for login, inventory, product details, checkout info, and checkout complete.
+- [done] UI page suites for login, inventory, product details, cart, checkout info, checkout overview, and checkout complete.
 
-## Login Page (`https://www.saucedemo.com/`)
+## Remaining High-Value Gaps
 
-- [smoke] Valid login reaches inventory page.
-- [integration] Invalid credentials show expected error message.
-- [integration] Missing username/password validation cases.
-- [integration] Dismiss login error behavior (`DismissLoginError`).
+### Inventory Page
 
-## Inventory Page (`/inventory.html`)
-
-- [integration] Add/remove item updates cart badge correctly.
-- [integration] Sort behavior checks (`SortInventory.by(...)`) including invalid option handling.
-- [integration] Overlapping product-name locator test (`"Sauce Labs Bike"` vs `"Sauce Labs Bike Light"`).
+- [integration] Add invalid sort-option handling test (`SortInventory.by(...)` negative path).
+- [integration] Add explicit overlapping product-name locator regression test (`"Sauce Labs Bike"` vs `"Sauce Labs Bike Light"`).
 - [integration] Harden `OnInventoryPage` to require exact path plus visible inventory container.
 - [integration] Add negative-path `OnInventoryPage` tests (query contains `inventory.html` but page is not inventory).
 
-## Product Details Page (`/inventory-item.html?id=<id>`)
+### Cart Page
 
-- [integration] Navigate from inventory to details and verify name/price/description consistency.
-- [integration] Add/remove from details page updates cart badge.
-- [integration] Back-to-products returns to inventory list state.
-
-## Cart Page (`/cart.html`)
-
-- [integration] Cart contains expected items and count.
-- [integration] Remove item from cart updates list and badge.
+- [integration] Remove item from cart updates both list and badge.
 - [integration] Cart contents persist across refresh/navigation.
+- [ui] Empty cart state coverage for expected controls and layout.
 
-## Checkout Info Page (`/checkout-step-one.html`)
+### Checkout Overview Page
 
-- [integration] Required-field validation for first/last/postal code.
-- [integration] Valid checkout information proceeds to overview.
-- [integration] `EnterCheckoutInformation` and `ProvideCheckoutInformation` task coverage.
+- [integration] Add dedicated non-BDD checkout-overview totals test using `TotalsMatchComputedSum`.
+- [integration] Add totals precision edge-case coverage (`0.10 + 0.20`) for parser/rounding safety.
 
-## Checkout Overview Page (`/checkout-step-two.html`)
-
-- [integration] Overview items match cart items.
-- [integration] Payment/shipping info assertions.
-- [integration] Totals math consistency with Decimal parser.
-- [integration] Totals edge-case test (`0.10 + 0.20`) for precision safety.
-
-## Checkout Complete Page (`/checkout-complete.html`)
-
-- [integration] Checkout confirmation is visible after finish.
-- [integration] Cart is reset after returning to inventory.
-- [integration] Refresh/back behavior does not recreate stale checkout state.
-
-## Cross-Cutting Framework Coverage
+### Cross-Cutting Framework Coverage
 
 - [integration] Use `WaitUntilVisible.for_(SauceDemo.LOGIN_BUTTON)` in `OpenLoginPage` for timeout consistency.
-- [integration] Add explicit tests for `Logout()`, `BeginCheckout()`, and other currently untested task compositions.
+- [integration] Add explicit task-level test for `DismissLoginError()`.

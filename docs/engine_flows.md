@@ -3,14 +3,16 @@
 Engine flows are higher-level compositions of existing Screenplay Tasks and Questions.
 They do not add new selectors.
 
-The current checked-in BDD automation covers the golden-path purchase flow.
+The current checked-in BDD automation covers:
+- the golden-path purchase flow (`tests/features/golden_path.feature`)
+- a focused login mirror flow (`tests/features/login.feature`)
 The additional flows below document supported compositions from the available
 task/question API, even when they are not yet represented by a dedicated feature file.
 
 ## 1) Login successfully
 
 Compose:
-- `OpenSauceDemo.app()`
+- `OpenLoginPage()`
 - `Login.with_credentials(username, password)`
 
 Verify:
@@ -19,8 +21,8 @@ Verify:
 ## 2) Login expecting failure
 
 Compose:
-- `OpenSauceDemo.app()`
-- `Login.with_username_only(username)` or `Login.with_password_only(password)`
+- `OpenLoginPage()`
+- `Login.with_credentials(invalid_username, invalid_password)` or partial credentials (`with_username_only` / `with_password_only`)
 
 Verify:
 - `TextOf(SauceDemo.LOGIN_ERROR_MESSAGE)`

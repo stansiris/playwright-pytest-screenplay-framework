@@ -27,6 +27,7 @@ from screenplay_core.questions.texts_of import TextsOf
     "Successful purchase of multiple items and cart resets after checkout",
 )
 def test_successful_purchase_of_multiple_items_and_cart_resets_after_checkout() -> None:
+    """Run the golden-path BDD scenario for multi-item purchase through completion."""
     pass
 
 
