@@ -206,7 +206,7 @@ Timeout behavior:
 
 Detailed component model, task/question vocabulary, and architecture decisions are documented in:
 - `docs/domain_model.md`
-- `docs/architecture.md`
+- `docs/architecture.md` (layered architecture, class hierarchy diagrams, dependency graphs, runtime sequence diagrams)
 - `docs/design_decisions.md`
 
 ## Project Structure
