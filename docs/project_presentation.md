@@ -67,8 +67,8 @@ Presentation framing:
 - Environment-driven runtime settings (`BASE_URL`, `BROWSER`, `HEADED`, `SLOW_MO_MS`, `DEFAULT_TIMEOUT_MS`) in `saucedemo/config/runtime.py`.
 - Centralized actor execution logging and timing in `screenplay_core/core/actor.py`.
 - CI uses marker-based lanes for fast feedback:
-  - PR/push: `smoke_e2e`, `integration_core` (and `ui` on main push)
-  - schedule/manual: full OS/browser matrix regression
+  - PR/push: `tests_fast` job runs `pytest -q -m "smoke or integration or e2e or ui"` on Ubuntu + Chromium
+  - schedule/manual: `full_matrix_regression` runs the same marker union on Ubuntu/Windows and Chromium/Firefox
 - Failure artifacts are retained (`junit.xml`, HTML report, screenshots, traces).
 
 ## 3.4 Why This Matters
