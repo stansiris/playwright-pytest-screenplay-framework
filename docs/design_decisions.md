@@ -18,5 +18,5 @@ Tests should pass product names, not selector details.
 ## Why runtime settings are pytest-driven
 
 Portfolio and CI runs need consistent, reproducible defaults without code edits.
-Defaults live in `pytest.ini` (`base_url` and `--browser` via `addopts`) and can be overridden per run via CLI flags.
+Defaults live in `pytest.ini` (`base_url` and reporting/trace behavior), and browser selection can be overridden per run via CLI flags.
 

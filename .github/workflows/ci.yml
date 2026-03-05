@@ -79,17 +79,17 @@ jobs:
           python -m pip install -e ".[dev]"
 
       - name: Install Playwright browser and Linux dependencies
-        run: python -m playwright install --with-deps chromium
+        run: python -m playwright install --with-deps ${{ env.BROWSER }}
 
       - name: Test fast marker union (pytest)
         # Unified pre-merge lane: smoke + integration + e2e + ui.
-        run: pytest -q -m "smoke or integration or e2e or ui"
+        run: pytest -q --browser "${{ env.BROWSER }}" -m "smoke or integration or e2e or ui"
 
       - name: Upload test artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-results-fast-ubuntu-chromium
+          name: test-results-fast-ubuntu-${{ env.BROWSER }}
           path: test-results
           if-no-files-found: warn
           retention-days: 14
@@ -138,7 +138,7 @@ jobs:
       - name: Test full regression markers (pytest)
         # Marker-union run; keep ui explicit to avoid accidental coverage gaps
         # if marker overlap changes later.
-        run: pytest -q -m "smoke or integration or e2e or ui"
+        run: pytest -q --browser "${{ env.BROWSER }}" -m "smoke or integration or e2e or ui"
 
       - name: Upload test artifacts
         if: always()

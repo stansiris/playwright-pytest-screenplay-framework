@@ -155,7 +155,7 @@ Override them from the command line when needed.
 | Setting | Default | Description |
 | --- | --- | --- |
 | `[pytest] base_url` | `https://www.saucedemo.com/` | Base URL used by navigation tasks. Override with `--base-url=...`. |
-| `--browser` | `chromium` | Default browser for pytest-playwright (`chromium`, `firefox`, `webkit`). Set as default in `addopts`. |
+| `--browser` | `chromium` | Browser for pytest-playwright (`chromium`, `firefox`, `webkit`). Defaults to the plugin's Chromium when not provided. |
 | `--headed` | `false` | Optional CLI flag to run headed. |
 | `--slowmo` | plugin default | Optional CLI delay (ms) between browser actions. |
 
