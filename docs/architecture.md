@@ -21,7 +21,6 @@ flowchart TB
     ST[saucedemo/tasks/*]
     SQ[saucedemo/questions/*]
     SUI[saucedemo/ui/saucedemo.py]
-    SRC[saucedemo/config/runtime.py]
   end
 
   subgraph Core["Reusable Screenplay Layer: screenplay_core/"]
@@ -38,7 +37,6 @@ flowchart TB
   BDD --> SQ
   PYT --> ST
   PYT --> SQ
-  CONF --> SRC
   CONF --> CAB
   CONF --> PW
 
@@ -109,136 +107,18 @@ classDiagram
   Target --> Locator : returns
 ```
 
-## 3. Reusable Implementation Classes (screenplay_core)
+## 3. Extension Points
 
-### 3.1 Interaction Hierarchy
+For new product domains, the framework extension path is intentionally small:
 
-```mermaid
-classDiagram
-  class Interaction
-  class Click
-  class Fill
-  class Clear
-  class Focus
-  class NavigateTo
-  class PressKey
-  class RefreshPage
-  class ScrollIntoView
-  class SelectByValue
-  class WaitUntilVisible
-  class WaitUntilHidden
+- define domain targets in `yourdomain/ui/*.py`
+- implement intent-level Tasks in `yourdomain/tasks/*`
+- implement domain Questions in `yourdomain/questions/*`
+- keep test step files thin and delegate to Tasks/Questions
 
-  Interaction <|-- Click
-  Interaction <|-- Fill
-  Interaction <|-- Clear
-  Interaction <|-- Focus
-  Interaction <|-- NavigateTo
-  Interaction <|-- PressKey
-  Interaction <|-- RefreshPage
-  Interaction <|-- ScrollIntoView
-  Interaction <|-- SelectByValue
-  Interaction <|-- WaitUntilVisible
-  Interaction <|-- WaitUntilHidden
-```
+This keeps business vocabulary domain-specific while preserving the reusable Screenplay core.
 
-### 3.2 Generic Question Hierarchy
-
-```mermaid
-classDiagram
-  class Question
-  class AttributeOf
-  class CurrentUrl
-  class FocusIndicatorVisible
-  class IsFocused
-  class IsVisible
-  class TextOf
-  class TextsOf
-
-  Question <|-- AttributeOf
-  Question <|-- CurrentUrl
-  Question <|-- FocusIndicatorVisible
-  Question <|-- IsFocused
-  Question <|-- IsVisible
-  Question <|-- TextOf
-  Question <|-- TextsOf
-```
-
-## 4. Domain Class Hierarchy (saucedemo)
-
-```mermaid
-classDiagram
-  class Task
-  class Question
-  class SauceDemo
-  class Target
-  class Click
-  class Fill
-  class NavigateTo
-
-  class AddProductToCart
-  class BeginCheckout
-  class ClickLogin
-  class CompleteCheckout
-  class ContinueCheckout
-  class DismissLoginError
-  class EnterCheckoutInformation
-  class GoToCart
-  class Login
-  class Logout
-  class OpenLoginPage
-  class OpenSauceDemo
-  class ProceedToCheckout
-  class ProvideCheckoutInformation
-  class ReturnToProducts
-  class SortInventory
-
-  class CartBadgeCount
-  class OnInventoryPage
-  class OnLoginPage
-  class TotalsMatchComputedSum
-
-  Task <|-- AddProductToCart
-  Task <|-- BeginCheckout
-  Task <|-- ClickLogin
-  Task <|-- CompleteCheckout
-  Task <|-- ContinueCheckout
-  Task <|-- DismissLoginError
-  Task <|-- EnterCheckoutInformation
-  Task <|-- GoToCart
-  Task <|-- Login
-  Task <|-- Logout
-  Task <|-- OpenLoginPage
-  Task <|-- OpenSauceDemo
-  Task <|-- ProceedToCheckout
-  Task <|-- ProvideCheckoutInformation
-  Task <|-- ReturnToProducts
-  Task <|-- SortInventory
-
-  Question <|-- CartBadgeCount
-  Question <|-- OnInventoryPage
-  Question <|-- OnLoginPage
-  Question <|-- TotalsMatchComputedSum
-
-  SauceDemo --> Target : static targets
-  AddProductToCart --> Click : uses
-  ClickLogin --> Click : uses
-  ContinueCheckout --> Click : uses
-  CompleteCheckout --> Click : uses
-  DismissLoginError --> Click : uses
-  GoToCart --> Click : uses
-  Logout --> Click : uses
-  ProceedToCheckout --> Click : uses
-  ReturnToProducts --> Click : uses
-  Login --> Fill : uses
-  OpenSauceDemo --> NavigateTo : uses
-  Login --> ClickLogin : composes
-  BeginCheckout --> GoToCart : composes
-  BeginCheckout --> ProceedToCheckout : composes
-  ProvideCheckoutInformation --> EnterCheckoutInformation : composes
-  ProvideCheckoutInformation --> ContinueCheckout : composes
-```
-
-## 5. Module Dependency Graph
+## 4. Module Dependency Graph
 
 This graph focuses on import direction and responsibility boundaries.
 
@@ -251,7 +131,6 @@ flowchart LR
   end
 
   subgraph Sauce["saucedemo/"]
-    SCONF[config/runtime.py]
     STASK[tasks/*]
     SQUEST[questions/*]
     SUI[ui/saucedemo.py]
@@ -276,7 +155,6 @@ flowchart LR
   TBDD --> SQUEST
   TPY --> STASK
   TPY --> SQUEST
-  TCONF --> SCONF
   TCONF --> CABIL
   TCONF --> CACTOR
   TCONF --> PWSYNC
@@ -313,9 +191,9 @@ flowchart LR
   CABIL --> PWSYNC
 ```
 
-## 6. Runtime Sequence (How a Step Executes)
+## 5. Runtime Sequence (How a Step Executes)
 
-### 6.1 Task + Interaction Path
+### 5.1 Task + Interaction Path
 
 ```mermaid
 sequenceDiagram
@@ -341,7 +219,7 @@ sequenceDiagram
   ScreenActor-->>TestStep: done
 ```
 
-### 6.2 Question Path
+### 5.2 Question Path
 
 ```mermaid
 sequenceDiagram
@@ -363,7 +241,7 @@ sequenceDiagram
   ScreenActor-->>TestStep: answer
 ```
 
-## 7. Timeout and Assertion Architecture
+## 6. Timeout and Assertion Architecture
 
 Two wait/assertion paths are intentionally supported:
 
@@ -374,10 +252,10 @@ Two wait/assertion paths are intentionally supported:
 
 2. Playwright assertion path:
 - `Actor.expect(Target)` returns Playwright locator assertions
-- global default assertion timeout is set in `tests/conftest.py` using `expect.set_options(timeout=runtime_settings.default_timeout_ms)`
+- assertion timeout uses Playwright's default unless overridden per assertion
 - any assertion can still override timeout explicitly
 
-## 8. Architectural Rules (Current Conventions)
+## 7. Architectural Rules (Current Conventions)
 
 - Steps in `tests/test_*.py` should stay thin and delegate behavior to Tasks/Questions.
 - Tasks should express user intent and compose reusable interactions/tasks.
@@ -385,7 +263,7 @@ Two wait/assertion paths are intentionally supported:
 - Selectors live in one place: `saucedemo/ui/saucedemo.py`.
 - `Target` resolution must flow through actor ability (`BrowseTheWeb`) to keep browser access centralized.
 
-## 9. Directory-to-Responsibility Map
+## 8. Directory-to-Responsibility Map
 
 | Directory | Responsibility |
 | --- | --- |
@@ -398,6 +276,6 @@ Two wait/assertion paths are intentionally supported:
 | `saucedemo/questions` | Domain-specific assertions/state checks. |
 | `tests/features` | Business-readable behavior specs (Gherkin). |
 | `tests/test_*.py` | Thin BDD adapters plus direct pytest + Screenplay suites. |
-| `tests/conftest.py` | Runtime wiring: actor fixture, browser defaults, assertion timeout defaults. |
+| `tests/conftest.py` | Runtime wiring: actor fixture, base URL normalization, and browser launch option overrides. |
 
 

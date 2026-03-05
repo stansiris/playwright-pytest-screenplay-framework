@@ -1,39 +1,24 @@
 import pytest
-from playwright.sync_api import expect
 
-from saucedemo.config.runtime import runtime_settings
 from screenplay_core.abilities.browse_the_web import BrowseTheWeb
 from screenplay_core.core.actor import Actor
 
 
-def pytest_configure(config) -> None:
-    if hasattr(config.option, "browser") and not config.option.browser:
-        config.option.browser = [runtime_settings.browser]
-
-    # Keep Playwright locator assertions aligned with project runtime timeout.
-    expect.set_options(timeout=runtime_settings.default_timeout_ms)
-
-
 @pytest.fixture(scope="session")
 def base_url(pytestconfig) -> str:
-    cli_base_url = pytestconfig.getoption("base_url")
-    if cli_base_url:
-        return cli_base_url.rstrip("/") + "/"
-    return runtime_settings.base_url
+    return pytestconfig.getoption("base_url").rstrip("/") + "/"
 
 
 @pytest.fixture(scope="session")
 def browser_type_launch_args(pytestconfig) -> dict:
     launch_options: dict[str, int | str | bool] = {}
 
-    if pytestconfig.getoption("--headed") or runtime_settings.headed:
+    if pytestconfig.getoption("--headed"):
         launch_options["headless"] = False
 
     slowmo_cli = pytestconfig.getoption("--slowmo")
-    if slowmo_cli:
+    if slowmo_cli is not None:
         launch_options["slow_mo"] = slowmo_cli
-    elif runtime_settings.slow_mo_ms:
-        launch_options["slow_mo"] = runtime_settings.slow_mo_ms
 
     browser_channel = pytestconfig.getoption("--browser-channel")
     if browser_channel:
@@ -48,6 +33,5 @@ def customer(page, base_url):
         BrowseTheWeb.using(
             page,
             base_url=base_url,
-            default_timeout_ms=runtime_settings.default_timeout_ms,
         )
     )

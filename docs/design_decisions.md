@@ -15,8 +15,8 @@ A dedicated Question keeps that calculation in one place and avoids duplicated a
 Tests should pass product names, not selector details.
 `AddProductToCart.named(product_name)` resolves the right button from centralized targets.
 
-## Why runtime settings are environment-driven
+## Why runtime settings are pytest-driven
 
 Portfolio and CI runs need consistent, reproducible defaults without code edits.
-`BASE_URL`, `BROWSER`, `HEADED`, `SLOW_MO_MS`, and `DEFAULT_TIMEOUT_MS` are read once from `saucedemo/config/runtime.py`.
+Defaults live in `pytest.ini` (`base_url` and `--browser` via `addopts`) and can be overridden per run via CLI flags.
 

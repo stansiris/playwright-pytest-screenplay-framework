@@ -64,7 +64,7 @@ Presentation framing:
 
 ## 3.3 Technical Proof Points
 
-- Environment-driven runtime settings (`BASE_URL`, `BROWSER`, `HEADED`, `SLOW_MO_MS`, `DEFAULT_TIMEOUT_MS`) in `saucedemo/config/runtime.py`.
+- Pytest-driven runtime defaults (`base_url`, `--browser`) wired through `pytest.ini` and `tests/conftest.py`.
 - Centralized actor execution logging and timing in `screenplay_core/core/actor.py`.
 - CI uses marker-based lanes for fast feedback:
   - PR/push: `tests_fast` job runs `pytest -q -m "smoke or integration or e2e or ui"` on Ubuntu + Chromium
@@ -112,7 +112,7 @@ Presentation framing:
 
 ## 4.5 Runtime + CI + Operability (2 min)
 
-- `saucedemo/config/runtime.py` for environment portability.
+- `pytest.ini` + `tests/conftest.py` for portable runtime defaults with CLI overrides.
 - `.github/workflows/ci.yml` for marker-based fast lanes plus scheduled full-matrix runs.
 - Explain artifact strategy for diagnosis after failures.
 
@@ -145,8 +145,7 @@ pytest -q
 2. Show cross-browser local run:
 
 ```powershell
-$env:BROWSER="firefox"
-pytest -q tests/test_golden_path_bdd.py tests/test_login_bdd.py
+pytest -q --browser=firefox tests/test_golden_path_bdd.py tests/test_login_bdd.py
 ```
 
 3. Show artifact output location:
@@ -192,9 +191,9 @@ BDD gives business-readable behavior specifications. The key is discipline: keep
 
 To localize UI change impact. When selectors change, updates stay in one module rather than scattered across tests.
 
-## Q5. Why do runtime settings come from environment variables?
+## Q5. Why are runtime settings driven by pytest config and CLI?
 
-Portability and reproducibility. The same test logic runs locally and in CI with only env changes.
+Portability and reproducibility. Defaults live in `pytest.ini`, and run-specific overrides come from CLI flags like `--browser`, `--base-url`, and `--headed`.
 
 ## Q6. Why Linux and Windows in CI?
 
@@ -212,11 +211,11 @@ Cross-engine coverage reduces browser-specific blind spots and increases confide
 
 ## Q9. What would you improve first?
 
-Add targeted unit tests around parsing/util/runtime modules to tighten feedback loops and reduce dependence on full UI runs.
+Add targeted unit tests around utility modules and critical fixture wiring to tighten feedback loops and reduce dependence on full UI runs.
 
 ## Q10. How is this project "job-ready" rather than tutorial-level?
 
-Because it addresses maintainability concerns with clear architecture boundaries, environment-driven execution, CI matrix coverage, and failure operability artifacts.
+Because it addresses maintainability concerns with clear architecture boundaries, configurable pytest execution, CI matrix coverage, and failure operability artifacts.
 
 ## Q11. How do you prevent step-definition bloat?
 
@@ -247,7 +246,7 @@ Use these concise responses if challenged.
 - Add focused unit tests for:
   - money parsing and totals logic
   - datatable conversion utilities
-  - runtime env parsing and validation
+  - fixture/config wiring behavior
 - Add `pre-commit` hooks for local quality gate.
 
 ## 60 days
@@ -375,7 +374,7 @@ Why this boundary is important:
 - This keeps browser mechanism replaceable and reduces framework coupling.
 
 Fixture wiring in `tests/conftest.py`:
-- `customer` fixture creates `Actor("Customer").can(BrowseTheWeb.using(page))`
+- `customer` fixture creates `Actor("Customer").can(BrowseTheWeb.using(page, base_url=base_url))`
 - from that point onward, all Screenplay classes work through actor ability lookup.
 
 ## 10.6 Target Model (UI Element Abstraction)

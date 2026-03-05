@@ -12,7 +12,7 @@ Current automated coverage includes:
 ## Actor and Ability
 
 - Actor: `Actor("Customer")` in `tests/conftest.py`
-- Ability: `BrowseTheWeb.using(page)`
+- Ability: `BrowseTheWeb.using(page, base_url=base_url)`
 
 ## Page-Level Task Model
 

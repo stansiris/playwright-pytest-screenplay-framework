@@ -128,7 +128,7 @@ Current CI jobs:
 - `tests_fast` (PR/push): `pytest -q -m "smoke or integration or e2e or ui"` on `ubuntu-latest` + `chromium`
 - `full_matrix_regression` (schedule/manual): `pytest -q -m "smoke or integration or e2e or ui"` on `ubuntu/windows` x `chromium/firefox`
 
-Marker-based pytest commands are shell-agnostic; only environment variable syntax differs by shell.
+Marker-based pytest commands are shell-agnostic; only line-continuation syntax differs by shell.
 
 Scheduled runs (UTC):
 - Weekday nightly: `0 2 * * 1-5`
@@ -149,38 +149,34 @@ Retention policy:
 
 ## Runtime Configuration
 
-Runtime settings are environment-driven through `saucedemo/config/runtime.py`.
+Runtime defaults are defined in `pytest.ini` and consumed in `tests/conftest.py`.
+Override them from the command line when needed.
 
-| Variable | Default | Description |
+| Setting | Default | Description |
 | --- | --- | --- |
-| `BASE_URL` | `https://www.saucedemo.com/` | Application base URL used by `OpenSauceDemo`/`OpenLoginPage` navigation tasks. |
-| `BROWSER` | `chromium` | Default browser for pytest-playwright (`chromium`, `firefox`, `webkit`). |
-| `HEADED` | `false` | Run tests headed when true (`true/false`, `1/0`, `yes/no`). |
-| `SLOW_MO_MS` | `0` | Slow motion delay in milliseconds for browser actions. |
-| `DEFAULT_TIMEOUT_MS` | `5000` | Default timeout for waits and Playwright `expect(...)` assertions. Reusable core also supports `SCREENPLAY_DEFAULT_TIMEOUT_MS` (takes precedence if set). |
+| `[pytest] base_url` | `https://www.saucedemo.com/` | Base URL used by navigation tasks. Override with `--base-url=...`. |
+| `--browser` | `chromium` | Default browser for pytest-playwright (`chromium`, `firefox`, `webkit`). Set as default in `addopts`. |
+| `--headed` | `false` | Optional CLI flag to run headed. |
+| `--slowmo` | plugin default | Optional CLI delay (ms) between browser actions. |
 
-### Runtime Example (PowerShell)
+### Runtime Override Example (PowerShell)
 
 ```powershell
-$env:BASE_URL = "https://www.saucedemo.com"
-$env:BROWSER = "firefox"
-$env:HEADED = "true"
-$env:SLOW_MO_MS = "150"
-$env:DEFAULT_TIMEOUT_MS = "7000"
-$env:SCREENPLAY_DEFAULT_TIMEOUT_MS = "7000"
-pytest -q
+pytest -q `
+  --browser=firefox `
+  --headed `
+  --slowmo=150 `
+  --base-url="https://www.saucedemo.com"
 ```
 
-### Runtime Example (Bash)
+### Runtime Override Example (Bash)
 
 ```bash
-export BASE_URL="https://www.saucedemo.com"
-export BROWSER="firefox"
-export HEADED="true"
-export SLOW_MO_MS="150"
-export DEFAULT_TIMEOUT_MS="7000"
-export SCREENPLAY_DEFAULT_TIMEOUT_MS="7000"
-pytest -q
+pytest -q \
+  --browser=firefox \
+  --headed \
+  --slowmo=150 \
+  --base-url="https://www.saucedemo.com"
 ```
 
 ## Hybrid Assertion Model
@@ -199,7 +195,7 @@ assert customer.asks_for(OnInventoryPage())
 ```
 
 Timeout behavior:
-- default `expect(...)` timeout is set from runtime in `tests/conftest.py`
+- default `expect(...)` timeout is Playwright's built-in default
 - pass `timeout=...` on any Playwright assertion call to override per assertion
 
 ## API and Design References
@@ -219,7 +215,6 @@ screenplay_core/
 `-- questions/      # Reusable generic questions
 
 saucedemo/
-|-- config/         # Project runtime settings (env-driven)
 |-- tasks/          # SauceDemo business-level actions
 |-- questions/      # SauceDemo-specific queries
 `-- ui/             # SauceDemo locators/targets
