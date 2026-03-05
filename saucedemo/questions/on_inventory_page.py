@@ -1,6 +1,6 @@
 from urllib.parse import urlparse
 
-from saucedemo.ui.saucedemo import SauceDemo
+from saucedemo.ui.pages.inventory_page import InventoryPage
 from screenplay_core.abilities.browse_the_web import BrowseTheWeb
 from screenplay_core.core.actor import Actor
 from screenplay_core.core.question import Question
@@ -13,7 +13,7 @@ class OnInventoryPage(Question):
         page = actor.ability_to(BrowseTheWeb).page
         path = urlparse(page.url).path.rstrip("/")
         on_inventory_path = path.endswith("/inventory.html")
-        inventory_visible = SauceDemo.INVENTORY_CONTAINER.resolve_for(actor).is_visible()
+        inventory_visible = InventoryPage.INVENTORY_CONTAINER.resolve_for(actor).is_visible()
         return on_inventory_path and inventory_visible
 
     def __repr__(self) -> str:

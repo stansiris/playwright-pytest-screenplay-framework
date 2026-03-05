@@ -74,8 +74,12 @@ Current automated coverage includes:
 
 ## Target Model
 
-All UI selectors are centralized in `saucedemo/ui/saucedemo.py` as `Target` objects.
+UI selectors are organized as `Target` objects by page and shared component:
+- page targets in `saucedemo/ui/pages/*`
+- shared UI targets in `saucedemo/ui/components/*`
+
 Tasks, Questions, and tests/step definitions should reference these targets instead of inline selectors.
+Detailed conventions and examples: `docs/ui_target_organization.md`.
 
 ## Usage in BDD
 

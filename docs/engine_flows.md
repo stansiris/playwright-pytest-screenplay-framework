@@ -25,7 +25,7 @@ Compose:
 - `Login.with_credentials(invalid_username, invalid_password)` or partial credentials (`with_username_only` / `with_password_only`)
 
 Verify:
-- `TextOf(SauceDemo.LOGIN_ERROR_MESSAGE)`
+- `TextOf(LoginPage.LOGIN_ERROR_MESSAGE)`
 - `OnLoginPage()`
 
 ## 3) Add multiple items and verify cart badge
@@ -47,9 +47,9 @@ Compose:
 - `CompleteCheckout()`
 
 Verify:
-- `TextsOf(SauceDemo.CHECKOUT_OVERVIEW_ITEM_NAMES)`
-- `TextOf(SauceDemo.CHECKOUT_PAYMENT_INFO)`
-- `TextOf(SauceDemo.CHECKOUT_SHIPPING_INFO)`
+- `TextsOf(CheckoutOverviewPage.CHECKOUT_OVERVIEW_ITEM_NAMES)`
+- `TextOf(CheckoutOverviewPage.CHECKOUT_PAYMENT_INFO)`
+- `TextOf(CheckoutOverviewPage.CHECKOUT_SHIPPING_INFO)`
 - `TotalsMatchComputedSum()`
 
 ## 5) Return to inventory after checkout
@@ -73,4 +73,4 @@ Compose:
 - `Logout()`
 
 Verify:
-- `TextOf(SauceDemo.LOGIN_BUTTON) == "Login"`
+- `TextOf(LoginPage.LOGIN_BUTTON) == "Login"`

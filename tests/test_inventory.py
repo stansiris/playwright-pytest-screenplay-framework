@@ -10,7 +10,9 @@ from saucedemo.tasks.login import Login
 from saucedemo.tasks.logout import Logout
 from saucedemo.tasks.open_login_page import OpenLoginPage
 from saucedemo.tasks.sort_inventory import SortInventory
-from saucedemo.ui.saucedemo import SauceDemo
+from saucedemo.ui.components.app_shell import AppShell
+from saucedemo.ui.components.back_navigation import BackNavigation
+from saucedemo.ui.pages.inventory_page import InventoryPage
 from screenplay_core.core.actor import Actor
 from screenplay_core.interactions.click import Click
 from screenplay_core.interactions.wait_until_visible import WaitUntilVisible
@@ -25,7 +27,7 @@ def customer_on_inventory(customer: Actor) -> Actor:
     customer.attempts_to(
         OpenLoginPage(),
         Login.with_credentials("standard_user", "secret_sauce"),
-        WaitUntilVisible.for_(SauceDemo.INVENTORY_CONTAINER),
+        WaitUntilVisible.for_(InventoryPage.INVENTORY_CONTAINER),
     )
     assert customer.asks_for(OnInventoryPage())
     return customer
@@ -40,8 +42,8 @@ def parse_price(text: str) -> Decimal:
 def test_inventory_page_loads_after_successful_login(customer_on_inventory: Actor) -> None:
     """Verify login lands on inventory and key page shell elements are visible."""
     customer = customer_on_inventory
-    customer.expect(SauceDemo.INVENTORY_CONTAINER).to_be_visible()
-    customer.expect(SauceDemo.SHOPPING_CART_LINK).to_be_visible()
+    customer.expect(InventoryPage.INVENTORY_CONTAINER).to_be_visible()
+    customer.expect(AppShell.SHOPPING_CART_LINK).to_be_visible()
     assert customer.asks_for(CurrentUrl()).endswith("/inventory.html")
 
 
@@ -49,9 +51,9 @@ def test_inventory_page_loads_after_successful_login(customer_on_inventory: Acto
 def test_inventory_displays_expected_products_and_controls(customer_on_inventory: Actor) -> None:
     """Verify inventory renders expected item counts and add-to-cart controls."""
     customer = customer_on_inventory
-    customer.expect(SauceDemo.INVENTORY_ITEM_NAMES).to_have_count(INVENTORY_ITEM_COUNT)
-    customer.expect(SauceDemo.INVENTORY_ITEM_PRICES).to_have_count(INVENTORY_ITEM_COUNT)
-    customer.expect(SauceDemo.INVENTORY_ADD_TO_CART_BUTTONS).to_have_count(INVENTORY_ITEM_COUNT)
+    customer.expect(InventoryPage.INVENTORY_ITEM_NAMES).to_have_count(INVENTORY_ITEM_COUNT)
+    customer.expect(InventoryPage.INVENTORY_ITEM_PRICES).to_have_count(INVENTORY_ITEM_COUNT)
+    customer.expect(InventoryPage.INVENTORY_ADD_TO_CART_BUTTONS).to_have_count(INVENTORY_ITEM_COUNT)
 
 
 @pytest.mark.integration
@@ -59,7 +61,7 @@ def test_inventory_add_and_remove_single_item_updates_badge(customer_on_inventor
     """Verify adding then removing one item updates cart badge and button state."""
     customer = customer_on_inventory
     product_name = "Sauce Labs Backpack"
-    product_button = SauceDemo.inventory_item_action_button_for(product_name)
+    product_button = InventoryPage.inventory_item_action_button_for(product_name)
 
     customer.attempts_to(AddProductToCart.named(product_name))
     assert customer.asks_for(CartBadgeCount()) == 1
@@ -102,16 +104,16 @@ def test_inventory_sorting_by_name_and_price(customer_on_inventory: Actor) -> No
     customer = customer_on_inventory
 
     customer.attempts_to(SortInventory.by("Name (Z to A)"))
-    names_z_to_a = customer.asks_for(TextsOf(SauceDemo.INVENTORY_ITEM_NAMES))
+    names_z_to_a = customer.asks_for(TextsOf(InventoryPage.INVENTORY_ITEM_NAMES))
     assert names_z_to_a == sorted(names_z_to_a, reverse=True)
 
     customer.attempts_to(SortInventory.by("Price (low to high)"))
-    price_texts_low_to_high = customer.asks_for(TextsOf(SauceDemo.INVENTORY_ITEM_PRICES))
+    price_texts_low_to_high = customer.asks_for(TextsOf(InventoryPage.INVENTORY_ITEM_PRICES))
     prices_low_to_high = [parse_price(text) for text in price_texts_low_to_high]
     assert prices_low_to_high == sorted(prices_low_to_high)
 
     customer.attempts_to(SortInventory.by("Price (high to low)"))
-    price_texts_high_to_low = customer.asks_for(TextsOf(SauceDemo.INVENTORY_ITEM_PRICES))
+    price_texts_high_to_low = customer.asks_for(TextsOf(InventoryPage.INVENTORY_ITEM_PRICES))
     prices_high_to_low = [parse_price(text) for text in price_texts_high_to_low]
     assert prices_high_to_low == sorted(prices_high_to_low, reverse=True)
 
@@ -121,17 +123,18 @@ def test_inventory_product_details_and_back_preserves_cart(customer_on_inventory
     """Verify navigating to details and back keeps inventory state and cart contents."""
     customer = customer_on_inventory
     product_name = "Sauce Labs Bike Light"
-    product_name_link = SauceDemo.inventory_item_name_for(product_name)
+    product_name_link = InventoryPage.inventory_item_name_for(product_name)
 
     customer.attempts_to(
         AddProductToCart.named(product_name),
         Click(product_name_link),
     )
     assert "inventory-item.html" in customer.asks_for(CurrentUrl())
-    customer.expect(SauceDemo.BACK_TO_PRODUCTS).to_be_visible()
+    customer.expect(BackNavigation.BACK_TO_PRODUCTS).to_be_visible()
 
     customer.attempts_to(
-        Click(SauceDemo.BACK_TO_PRODUCTS), WaitUntilVisible.for_(SauceDemo.INVENTORY_CONTAINER)
+        Click(BackNavigation.BACK_TO_PRODUCTS),
+        WaitUntilVisible.for_(InventoryPage.INVENTORY_CONTAINER),
     )
     assert customer.asks_for(OnInventoryPage())
     assert customer.asks_for(CartBadgeCount()) == 1

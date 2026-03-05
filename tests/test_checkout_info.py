@@ -8,7 +8,9 @@ from saucedemo.tasks.login import Login
 from saucedemo.tasks.open_login_page import OpenLoginPage
 from saucedemo.tasks.proceed_to_checkout import ProceedToCheckout
 from saucedemo.tasks.provide_checkout_information import ProvideCheckoutInformation
-from saucedemo.ui.saucedemo import SauceDemo
+from saucedemo.ui.pages.cart_page import CartPage
+from saucedemo.ui.pages.checkout_info_page import CheckoutInfoPage
+from saucedemo.ui.pages.checkout_overview_page import CheckoutOverviewPage
 from screenplay_core.core.actor import Actor
 from screenplay_core.interactions.click import Click
 from screenplay_core.interactions.wait_until_visible import WaitUntilVisible
@@ -28,7 +30,7 @@ def customer_on_checkout_info(customer: Actor) -> Actor:
         AddProductToCart.named(PRODUCT_NAME),
         GoToCart(),
         ProceedToCheckout(),
-        WaitUntilVisible.for_(SauceDemo.CHECKOUT_FIRST_NAME),
+        WaitUntilVisible.for_(CheckoutInfoPage.CHECKOUT_FIRST_NAME),
     )
     assert customer.asks_for(CurrentUrl()).endswith("/checkout-step-one.html")
     return customer
@@ -39,10 +41,10 @@ def customer_on_checkout_info(customer: Actor) -> Actor:
 def test_checkout_info_page_loads(customer_on_checkout_info: Actor) -> None:
     """Verify checkout step-one page loads with required form controls visible."""
     customer = customer_on_checkout_info
-    customer.expect(SauceDemo.CHECKOUT_FIRST_NAME).to_be_visible()
-    customer.expect(SauceDemo.CHECKOUT_LAST_NAME).to_be_visible()
-    customer.expect(SauceDemo.CHECKOUT_POSTAL_CODE).to_be_visible()
-    customer.expect(SauceDemo.CHECKOUT_CONTINUE).to_be_visible()
+    customer.expect(CheckoutInfoPage.CHECKOUT_FIRST_NAME).to_be_visible()
+    customer.expect(CheckoutInfoPage.CHECKOUT_LAST_NAME).to_be_visible()
+    customer.expect(CheckoutInfoPage.CHECKOUT_POSTAL_CODE).to_be_visible()
+    customer.expect(CheckoutInfoPage.CHECKOUT_CONTINUE).to_be_visible()
     assert customer.asks_for(CurrentUrl()).endswith("/checkout-step-one.html")
 
 
@@ -69,11 +71,13 @@ def test_checkout_info_required_fields_validation(
         ContinueCheckout(),
     )
 
-    customer.expect(SauceDemo.CHECKOUT_INFO_ERROR_MESSAGE).to_contain_text(expected_error_message)
+    customer.expect(CheckoutInfoPage.CHECKOUT_INFO_ERROR_MESSAGE).to_contain_text(
+        expected_error_message
+    )
     assert customer.asks_for(CurrentUrl()).endswith("/checkout-step-one.html")
 
-    customer.attempts_to(Click(SauceDemo.CHECKOUT_INFO_ERROR_CLOSE_BUTTON))
-    customer.expect(SauceDemo.CHECKOUT_INFO_ERROR_MESSAGE).to_be_hidden()
+    customer.attempts_to(Click(CheckoutInfoPage.CHECKOUT_INFO_ERROR_CLOSE_BUTTON))
+    customer.expect(CheckoutInfoPage.CHECKOUT_INFO_ERROR_MESSAGE).to_be_hidden()
 
 
 @pytest.mark.integration
@@ -87,7 +91,7 @@ def test_checkout_info_valid_information_proceeds_to_overview(
         ContinueCheckout(),
     )
 
-    customer.expect(SauceDemo.CHECKOUT_FINISH).to_be_visible()
+    customer.expect(CheckoutOverviewPage.CHECKOUT_FINISH).to_be_visible()
     assert customer.asks_for(CurrentUrl()).endswith("/checkout-step-two.html")
 
 
@@ -101,7 +105,7 @@ def test_checkout_info_provide_checkout_information_task_proceeds_to_overview(
         ProvideCheckoutInformation.as_customer(FIRST_NAME, LAST_NAME, POSTAL_CODE),
     )
 
-    customer.expect(SauceDemo.CHECKOUT_FINISH).to_be_visible()
+    customer.expect(CheckoutOverviewPage.CHECKOUT_FINISH).to_be_visible()
     assert customer.asks_for(CurrentUrl()).endswith("/checkout-step-two.html")
 
 
@@ -109,7 +113,7 @@ def test_checkout_info_provide_checkout_information_task_proceeds_to_overview(
 def test_checkout_info_cancel_returns_to_cart(customer_on_checkout_info: Actor) -> None:
     """Verify cancel on checkout step one returns the user to cart page."""
     customer = customer_on_checkout_info
-    customer.attempts_to(Click(SauceDemo.CHECKOUT_INFO_CANCEL_BUTTON))
+    customer.attempts_to(Click(CheckoutInfoPage.CHECKOUT_INFO_CANCEL_BUTTON))
 
-    customer.expect(SauceDemo.CHECKOUT_BUTTON).to_be_visible()
+    customer.expect(CartPage.CHECKOUT_BUTTON).to_be_visible()
     assert customer.asks_for(CurrentUrl()).endswith("/cart.html")

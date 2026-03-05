@@ -1,5 +1,5 @@
 from saucedemo.tasks.open_saucedemo import OpenSauceDemo
-from saucedemo.ui.saucedemo import SauceDemo
+from saucedemo.ui.pages.login_page import LoginPage
 from screenplay_core.core.actor import Actor
 from screenplay_core.core.task import Task
 
@@ -12,4 +12,4 @@ class OpenLoginPage(Task):
 
     def perform_as(self, actor: Actor) -> None:
         actor.attempts_to(OpenSauceDemo.app())
-        actor.expect(SauceDemo.LOGIN_BUTTON).to_be_visible()
+        actor.expect(LoginPage.LOGIN_BUTTON).to_be_visible()

@@ -60,7 +60,7 @@ Presentation framing:
   - `screenplay_core/interactions/` for atomic browser operations
   - `saucedemo/tasks/` for user intent
   - `saucedemo/questions/` for state/read-model assertions
-  - `saucedemo/ui/saucedemo.py` for centralized targets/selectors
+  - `saucedemo/ui/pages/*` + `saucedemo/ui/components/*` for organized targets/selectors
 
 ## 3.3 Technical Proof Points
 
@@ -183,7 +183,7 @@ BDD gives business-readable behavior specifications. The key is discipline: keep
 ## Q3. How do you control flakiness?
 
 - explicit waits via reusable interactions (`WaitUntilVisible`, `WaitUntilHidden`)
-- stable selectors centralized in one place (`saucedemo/ui/saucedemo.py`)
+- stable selectors organized by page/component (`saucedemo/ui/pages/*`, `saucedemo/ui/components/*`)
 - isolated runtime settings for consistent execution
 - artifact capture for quick root-cause analysis
 
@@ -282,7 +282,7 @@ Focus on:
 
 Be ready to:
 - add a new Task + step phrase + scenario quickly
-- show where selector changes are centralized
+- show where selector changes are organized by page/component
 - explain how CI would validate the change
 
 ---
@@ -387,9 +387,9 @@ Key behavior:
 - `resolve_for(actor)` retrieves `BrowseTheWeb` ability and then evaluates the locator function.
 
 Why this is strong:
-- selectors are centralized in `saucedemo/ui/saucedemo.py`
+- selectors are organized by page/component in `saucedemo/ui/pages/*` and `saucedemo/ui/components/*`
 - step definitions and tasks avoid inline selectors
-- locator changes have a single maintenance point
+- locator changes are isolated to the owning page/component module
 
 ## 10.7 Runtime Call Flow (End-to-End)
 
@@ -409,7 +409,7 @@ This is the core maintainability mechanism: each layer has one job.
 
 When adding new behavior:
 
-1. Add/extend target(s) in `saucedemo/ui/saucedemo.py`.
+1. Add/extend target(s) in the relevant page/component module under `saucedemo/ui/pages/*` or `saucedemo/ui/components/*`.
 2. Add Interaction only if it is a reusable atomic action.
 3. Add Task for intent-level behavior.
 4. Add Question for reusable state/business checks.

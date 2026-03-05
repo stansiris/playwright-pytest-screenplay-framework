@@ -1,7 +1,7 @@
 import re
 from decimal import Decimal
 
-from saucedemo.ui.saucedemo import SauceDemo
+from saucedemo.ui.pages.checkout_overview_page import CheckoutOverviewPage
 from screenplay_core.core.actor import Actor
 from screenplay_core.core.question import Question
 from screenplay_core.questions.text_of import TextOf
@@ -24,11 +24,11 @@ class TotalsMatchComputedSum(Question):
     def answered_by(self, actor: Actor) -> bool:
         item_prices = [
             _parse_money(text)
-            for text in actor.asks_for(TextsOf(SauceDemo.CHECKOUT_OVERVIEW_ITEM_PRICES))
+            for text in actor.asks_for(TextsOf(CheckoutOverviewPage.CHECKOUT_OVERVIEW_ITEM_PRICES))
         ]
-        subtotal = _parse_money(actor.asks_for(TextOf(SauceDemo.CHECKOUT_SUBTOTAL)))
-        tax = _parse_money(actor.asks_for(TextOf(SauceDemo.CHECKOUT_TAX)))
-        total = _parse_money(actor.asks_for(TextOf(SauceDemo.CHECKOUT_TOTAL)))
+        subtotal = _parse_money(actor.asks_for(TextOf(CheckoutOverviewPage.CHECKOUT_SUBTOTAL)))
+        tax = _parse_money(actor.asks_for(TextOf(CheckoutOverviewPage.CHECKOUT_TAX)))
+        total = _parse_money(actor.asks_for(TextOf(CheckoutOverviewPage.CHECKOUT_TOTAL)))
 
         computed_subtotal = sum(item_prices, start=Decimal("0"))
         computed_total = computed_subtotal + tax

@@ -20,7 +20,7 @@ flowchart TB
   subgraph Domain["Domain Layer: saucedemo/"]
     ST[saucedemo/tasks/*]
     SQ[saucedemo/questions/*]
-    SUI[saucedemo/ui/saucedemo.py]
+    SUI[saucedemo/ui/pages/* + ui/components/*]
   end
 
   subgraph Core["Reusable Screenplay Layer: screenplay_core/"]
@@ -111,7 +111,8 @@ classDiagram
 
 For new product domains, the framework extension path is intentionally small:
 
-- define domain targets in `yourdomain/ui/*.py`
+- define page targets in `yourdomain/ui/pages/*`
+- define shared targets in `yourdomain/ui/components/*` when reused across pages
 - implement intent-level Tasks in `yourdomain/tasks/*`
 - implement domain Questions in `yourdomain/questions/*`
 - keep test step files thin and delegate to Tasks/Questions
@@ -133,7 +134,7 @@ flowchart LR
   subgraph Sauce["saucedemo/"]
     STASK[tasks/*]
     SQUEST[questions/*]
-    SUI[ui/saucedemo.py]
+    SUI[ui/pages/* + ui/components/*]
   end
 
   subgraph Core["screenplay_core/"]
@@ -260,7 +261,7 @@ Two wait/assertion paths are intentionally supported:
 - Steps in `tests/test_*.py` should stay thin and delegate behavior to Tasks/Questions.
 - Tasks should express user intent and compose reusable interactions/tasks.
 - Questions should read state or compute business checks, then return values.
-- Selectors and reusable target factories live in one place: `saucedemo/ui/saucedemo.py`.
+- Selectors and target factories are organized by page under `saucedemo/ui/pages/*`, with shared controls in `saucedemo/ui/components/*`.
 - `Target` resolution must flow through actor ability (`BrowseTheWeb`) to keep browser access centralized.
 
 ## 8. Directory-to-Responsibility Map
@@ -271,7 +272,8 @@ Two wait/assertion paths are intentionally supported:
 | `screenplay_core/abilities` | External system capability wrapper (`BrowseTheWeb`). |
 | `screenplay_core/interactions` | Reusable low-level actions against Playwright locators/pages. |
 | `screenplay_core/questions` | Generic read-model queries reusable across domains. |
-| `saucedemo/ui` | Domain target catalog and dynamic target factories. |
+| `saucedemo/ui/pages` | Page-specific target catalogs and dynamic target factories. |
+| `saucedemo/ui/components` | Reusable targets shared across multiple pages. |
 | `saucedemo/tasks` | Domain intent operations and composed workflows. |
 | `saucedemo/questions` | Domain-specific assertions/state checks. |
 | `tests/features` | Business-readable behavior specs (Gherkin). |

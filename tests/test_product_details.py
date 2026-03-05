@@ -6,7 +6,11 @@ from saucedemo.questions.on_login_page import OnLoginPage
 from saucedemo.tasks.add_product_to_cart import AddProductToCart
 from saucedemo.tasks.login import Login
 from saucedemo.tasks.open_login_page import OpenLoginPage
-from saucedemo.ui.saucedemo import SauceDemo
+from saucedemo.ui.components.app_shell import AppShell
+from saucedemo.ui.components.back_navigation import BackNavigation
+from saucedemo.ui.pages.cart_page import CartPage
+from saucedemo.ui.pages.inventory_page import InventoryPage
+from saucedemo.ui.pages.product_details_page import ProductDetailsPage
 from screenplay_core.core.actor import Actor
 from screenplay_core.interactions.click import Click
 from screenplay_core.interactions.navigate_to import NavigateTo
@@ -24,15 +28,15 @@ def customer_on_inventory(customer: Actor) -> Actor:
     customer.attempts_to(
         OpenLoginPage(),
         Login.with_credentials("standard_user", "secret_sauce"),
-        WaitUntilVisible.for_(SauceDemo.INVENTORY_CONTAINER),
+        WaitUntilVisible.for_(InventoryPage.INVENTORY_CONTAINER),
     )
     assert customer.asks_for(OnInventoryPage())
     return customer
 
 
 def open_product_details(customer: Actor, product_name: str) -> None:
-    customer.attempts_to(Click(SauceDemo.inventory_item_name_for(product_name)))
-    customer.expect(SauceDemo.BACK_TO_PRODUCTS).to_be_visible()
+    customer.attempts_to(Click(InventoryPage.inventory_item_name_for(product_name)))
+    customer.expect(BackNavigation.BACK_TO_PRODUCTS).to_be_visible()
     assert "inventory-item.html" in customer.asks_for(CurrentUrl())
 
 
@@ -43,26 +47,29 @@ def test_product_details_open_from_inventory(customer_on_inventory: Actor) -> No
     customer = customer_on_inventory
     open_product_details(customer, PRODUCT_NAME)
 
-    customer.expect(SauceDemo.PRODUCT_DETAILS_NAME).to_be_visible()
-    customer.expect(SauceDemo.PRODUCT_DETAILS_ACTION_BUTTON).to_be_visible()
-    assert customer.asks_for(TextOf(SauceDemo.PRODUCT_DETAILS_NAME)) == PRODUCT_NAME
+    customer.expect(ProductDetailsPage.PRODUCT_DETAILS_NAME).to_be_visible()
+    customer.expect(ProductDetailsPage.PRODUCT_DETAILS_ACTION_BUTTON).to_be_visible()
+    assert customer.asks_for(TextOf(ProductDetailsPage.PRODUCT_DETAILS_NAME)) == PRODUCT_NAME
 
 
 @pytest.mark.integration
 def test_product_details_content_matches_inventory_card(customer_on_inventory: Actor) -> None:
     """Verify name, price, and description on details page match the inventory card."""
     customer = customer_on_inventory
-    expected_name = customer.asks_for(TextOf(SauceDemo.inventory_item_name_for(PRODUCT_NAME)))
-    expected_price = customer.asks_for(TextOf(SauceDemo.inventory_item_price_for(PRODUCT_NAME)))
+    expected_name = customer.asks_for(TextOf(InventoryPage.inventory_item_name_for(PRODUCT_NAME)))
+    expected_price = customer.asks_for(TextOf(InventoryPage.inventory_item_price_for(PRODUCT_NAME)))
     expected_description = customer.asks_for(
-        TextOf(SauceDemo.inventory_item_description_for(PRODUCT_NAME))
+        TextOf(InventoryPage.inventory_item_description_for(PRODUCT_NAME))
     )
 
     open_product_details(customer, PRODUCT_NAME)
 
-    assert customer.asks_for(TextOf(SauceDemo.PRODUCT_DETAILS_NAME)) == expected_name
-    assert customer.asks_for(TextOf(SauceDemo.PRODUCT_DETAILS_PRICE)) == expected_price
-    assert customer.asks_for(TextOf(SauceDemo.PRODUCT_DETAILS_DESCRIPTION)) == expected_description
+    assert customer.asks_for(TextOf(ProductDetailsPage.PRODUCT_DETAILS_NAME)) == expected_name
+    assert customer.asks_for(TextOf(ProductDetailsPage.PRODUCT_DETAILS_PRICE)) == expected_price
+    assert (
+        customer.asks_for(TextOf(ProductDetailsPage.PRODUCT_DETAILS_DESCRIPTION))
+        == expected_description
+    )
 
 
 @pytest.mark.integration
@@ -71,9 +78,9 @@ def test_product_details_add_to_cart_updates_badge(customer_on_inventory: Actor)
     customer = customer_on_inventory
     open_product_details(customer, PRODUCT_NAME)
 
-    customer.attempts_to(Click(SauceDemo.PRODUCT_DETAILS_ACTION_BUTTON))
+    customer.attempts_to(Click(ProductDetailsPage.PRODUCT_DETAILS_ACTION_BUTTON))
     assert customer.asks_for(CartBadgeCount()) == 1
-    customer.expect(SauceDemo.PRODUCT_DETAILS_ACTION_BUTTON).to_have_text("Remove")
+    customer.expect(ProductDetailsPage.PRODUCT_DETAILS_ACTION_BUTTON).to_have_text("Remove")
 
 
 @pytest.mark.integration
@@ -82,10 +89,10 @@ def test_product_details_remove_from_cart_updates_badge(customer_on_inventory: A
     customer = customer_on_inventory
     open_product_details(customer, PRODUCT_NAME)
 
-    customer.attempts_to(Click(SauceDemo.PRODUCT_DETAILS_ACTION_BUTTON))
-    customer.attempts_to(Click(SauceDemo.PRODUCT_DETAILS_ACTION_BUTTON))
+    customer.attempts_to(Click(ProductDetailsPage.PRODUCT_DETAILS_ACTION_BUTTON))
+    customer.attempts_to(Click(ProductDetailsPage.PRODUCT_DETAILS_ACTION_BUTTON))
     assert customer.asks_for(CartBadgeCount()) == 0
-    customer.expect(SauceDemo.PRODUCT_DETAILS_ACTION_BUTTON).to_have_text("Add to cart")
+    customer.expect(ProductDetailsPage.PRODUCT_DETAILS_ACTION_BUTTON).to_have_text("Add to cart")
 
 
 @pytest.mark.integration
@@ -93,15 +100,17 @@ def test_product_details_back_to_products_preserves_cart(customer_on_inventory: 
     """Verify back-to-products returns to inventory while preserving cart state."""
     customer = customer_on_inventory
     open_product_details(customer, PRODUCT_NAME)
-    customer.attempts_to(Click(SauceDemo.PRODUCT_DETAILS_ACTION_BUTTON))
+    customer.attempts_to(Click(ProductDetailsPage.PRODUCT_DETAILS_ACTION_BUTTON))
 
     customer.attempts_to(
-        Click(SauceDemo.BACK_TO_PRODUCTS),
-        WaitUntilVisible.for_(SauceDemo.INVENTORY_CONTAINER),
+        Click(BackNavigation.BACK_TO_PRODUCTS),
+        WaitUntilVisible.for_(InventoryPage.INVENTORY_CONTAINER),
     )
     assert customer.asks_for(OnInventoryPage())
     assert customer.asks_for(CartBadgeCount()) == 1
-    customer.expect(SauceDemo.inventory_item_action_button_for(PRODUCT_NAME)).to_have_text("Remove")
+    customer.expect(InventoryPage.inventory_item_action_button_for(PRODUCT_NAME)).to_have_text(
+        "Remove"
+    )
 
 
 @pytest.mark.integration
@@ -112,7 +121,7 @@ def test_product_details_reflect_inventory_cart_state(customer_on_inventory: Act
     assert customer.asks_for(CartBadgeCount()) == 1
 
     open_product_details(customer, PRODUCT_NAME)
-    customer.expect(SauceDemo.PRODUCT_DETAILS_ACTION_BUTTON).to_have_text("Remove")
+    customer.expect(ProductDetailsPage.PRODUCT_DETAILS_ACTION_BUTTON).to_have_text("Remove")
 
 
 @pytest.mark.integration
@@ -121,11 +130,11 @@ def test_product_details_add_then_cart_contains_item(customer_on_inventory: Acto
     customer = customer_on_inventory
     open_product_details(customer, PRODUCT_NAME)
     customer.attempts_to(
-        Click(SauceDemo.PRODUCT_DETAILS_ACTION_BUTTON),
-        Click(SauceDemo.SHOPPING_CART_LINK),
+        Click(ProductDetailsPage.PRODUCT_DETAILS_ACTION_BUTTON),
+        Click(AppShell.SHOPPING_CART_LINK),
     )
 
-    cart_items = customer.asks_for(TextsOf(SauceDemo.CART_ITEM_NAMES))
+    cart_items = customer.asks_for(TextsOf(CartPage.CART_ITEM_NAMES))
     assert PRODUCT_NAME in cart_items
 
 
@@ -137,7 +146,7 @@ def test_product_details_direct_url_when_logged_in(
     customer = customer_on_inventory
     customer.attempts_to(NavigateTo(f"{base_url}inventory-item.html?id={PRODUCT_ID}"))
 
-    customer.expect(SauceDemo.BACK_TO_PRODUCTS).to_be_visible()
+    customer.expect(BackNavigation.BACK_TO_PRODUCTS).to_be_visible()
     assert customer.asks_for(CurrentUrl()).endswith(f"/inventory-item.html?id={PRODUCT_ID}")
 
 

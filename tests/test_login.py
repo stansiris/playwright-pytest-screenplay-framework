@@ -3,7 +3,8 @@ import pytest
 from saucedemo.questions.on_inventory_page import OnInventoryPage
 from saucedemo.tasks.login import Login
 from saucedemo.tasks.open_login_page import OpenLoginPage
-from saucedemo.ui.saucedemo import SauceDemo
+from saucedemo.ui.components.app_shell import AppShell
+from saucedemo.ui.pages.login_page import LoginPage
 from screenplay_core.interactions.click import Click
 
 
@@ -36,9 +37,9 @@ def test_failed_login(customer, username, password, expected_error_message) -> N
         OpenLoginPage(), Login.with_credentials(username=username, password=password)
     )
 
-    customer.expect(SauceDemo.LOGIN_ERROR_MESSAGE).to_contain_text(expected_error_message)
-    customer.attempts_to(Click(SauceDemo.LOGIN_ERROR_CLOSE_BUTTON))
-    customer.expect(SauceDemo.LOGIN_ERROR_MESSAGE).to_be_hidden()
+    customer.expect(LoginPage.LOGIN_ERROR_MESSAGE).to_contain_text(expected_error_message)
+    customer.attempts_to(Click(LoginPage.LOGIN_ERROR_CLOSE_BUTTON))
+    customer.expect(LoginPage.LOGIN_ERROR_MESSAGE).to_be_hidden()
 
 
 @pytest.mark.parametrize(
@@ -56,5 +57,5 @@ def test_successful_login(customer, username, password) -> None:
         OpenLoginPage(), Login.with_credentials(username=username, password=password)
     )
     assert customer.asks_for(OnInventoryPage())
-    customer.attempts_to(Click(SauceDemo.MENU_BUTTON), Click(SauceDemo.LOGOUT_LINK))
-    customer.expect(SauceDemo.LOGIN_BUTTON).to_be_visible()
+    customer.attempts_to(Click(AppShell.MENU_BUTTON), Click(AppShell.LOGOUT_LINK))
+    customer.expect(LoginPage.LOGIN_BUTTON).to_be_visible()

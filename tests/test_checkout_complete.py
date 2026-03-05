@@ -11,7 +11,9 @@ from saucedemo.tasks.login import Login
 from saucedemo.tasks.open_login_page import OpenLoginPage
 from saucedemo.tasks.provide_checkout_information import ProvideCheckoutInformation
 from saucedemo.tasks.return_to_products import ReturnToProducts
-from saucedemo.ui.saucedemo import SauceDemo
+from saucedemo.ui.pages.cart_page import CartPage
+from saucedemo.ui.pages.checkout_complete_page import CheckoutCompletePage
+from saucedemo.ui.pages.inventory_page import InventoryPage
 from screenplay_core.core.actor import Actor
 from screenplay_core.interactions.navigate_to import NavigateTo
 from screenplay_core.interactions.refresh_page import RefreshPage
@@ -39,7 +41,7 @@ def customer_on_checkout_complete(customer: Actor) -> Actor:
             BeginCheckout(),
             ProvideCheckoutInformation.as_customer(FIRST_NAME, LAST_NAME, POSTAL_CODE),
             CompleteCheckout(),
-            WaitUntilVisible.for_(SauceDemo.CHECKOUT_COMPLETE_TITLE),
+            WaitUntilVisible.for_(CheckoutCompletePage.CHECKOUT_COMPLETE_TITLE),
         ]
     )
     customer.attempts_to(*activities)
@@ -53,10 +55,14 @@ def customer_on_checkout_complete(customer: Actor) -> Actor:
 def test_checkout_complete_confirmation_is_visible(customer_on_checkout_complete: Actor) -> None:
     """Verify checkout completion page shows confirmation text and image."""
     customer = customer_on_checkout_complete
-    customer.expect(SauceDemo.CHECKOUT_COMPLETE_TITLE).to_have_text("Checkout: Complete!")
-    customer.expect(SauceDemo.CHECKOUT_COMPLETE_HEADER).to_have_text("Thank you for your order!")
-    customer.expect(SauceDemo.CHECKOUT_COMPLETE_TEXT).to_contain_text("dispatched")
-    customer.expect(SauceDemo.CHECKOUT_COMPLETE_PONY_IMAGE).to_be_visible()
+    customer.expect(CheckoutCompletePage.CHECKOUT_COMPLETE_TITLE).to_have_text(
+        "Checkout: Complete!"
+    )
+    customer.expect(CheckoutCompletePage.CHECKOUT_COMPLETE_HEADER).to_have_text(
+        "Thank you for your order!"
+    )
+    customer.expect(CheckoutCompletePage.CHECKOUT_COMPLETE_TEXT).to_contain_text("dispatched")
+    customer.expect(CheckoutCompletePage.CHECKOUT_COMPLETE_PONY_IMAGE).to_be_visible()
 
 
 @pytest.mark.integration
@@ -74,7 +80,7 @@ def test_checkout_complete_return_to_products_keeps_cart_empty(
     customer = customer_on_checkout_complete
     customer.attempts_to(
         ReturnToProducts(),
-        WaitUntilVisible.for_(SauceDemo.INVENTORY_CONTAINER),
+        WaitUntilVisible.for_(InventoryPage.INVENTORY_CONTAINER),
     )
 
     assert customer.asks_for(OnInventoryPage())
@@ -89,13 +95,13 @@ def test_checkout_complete_return_to_inventory_then_cart_is_empty(
     customer = customer_on_checkout_complete
     customer.attempts_to(
         ReturnToProducts(),
-        WaitUntilVisible.for_(SauceDemo.INVENTORY_CONTAINER),
+        WaitUntilVisible.for_(InventoryPage.INVENTORY_CONTAINER),
         GoToCart(),
     )
 
     assert customer.asks_for(CurrentUrl()).endswith("/cart.html")
     assert customer.asks_for(CartBadgeCount()) == 0
-    assert customer.asks_for(TextsOf(SauceDemo.CART_ITEM_NAMES)) == []
+    assert customer.asks_for(TextsOf(CartPage.CART_ITEM_NAMES)) == []
 
 
 @pytest.mark.integration
@@ -104,9 +110,14 @@ def test_checkout_complete_refresh_keeps_confirmation_visible(
 ) -> None:
     """Verify browser refresh on complete page preserves completion state."""
     customer = customer_on_checkout_complete
-    customer.attempts_to(RefreshPage(), WaitUntilVisible.for_(SauceDemo.CHECKOUT_COMPLETE_TITLE))
+    customer.attempts_to(
+        RefreshPage(), WaitUntilVisible.for_(CheckoutCompletePage.CHECKOUT_COMPLETE_TITLE)
+    )
 
-    assert customer.asks_for(TextOf(SauceDemo.CHECKOUT_COMPLETE_TITLE)) == "Checkout: Complete!"
+    assert (
+        customer.asks_for(TextOf(CheckoutCompletePage.CHECKOUT_COMPLETE_TITLE))
+        == "Checkout: Complete!"
+    )
     assert customer.asks_for(CartBadgeCount()) == 0
 
 

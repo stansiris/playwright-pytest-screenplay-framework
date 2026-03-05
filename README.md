@@ -188,9 +188,9 @@ The framework intentionally supports a hybrid style:
 Example:
 
 ```python
-customer.expect(SauceDemo.LOGIN_BUTTON).to_be_visible()
-customer.expect(SauceDemo.CHECKOUT_TOTAL).to_contain_text("Total:")
-customer.expect(SauceDemo.CHECKOUT_TOTAL).to_have_text("Total: $60.45", timeout=3000)
+customer.expect(LoginPage.LOGIN_BUTTON).to_be_visible()
+customer.expect(CheckoutOverviewPage.CHECKOUT_TOTAL).to_contain_text("Total:")
+customer.expect(CheckoutOverviewPage.CHECKOUT_TOTAL).to_have_text("Total: $60.45", timeout=3000)
 assert customer.asks_for(OnInventoryPage())
 ```
 
@@ -203,6 +203,7 @@ Timeout behavior:
 Detailed component model, task/question vocabulary, and architecture decisions are documented in:
 - `docs/domain_model.md`
 - `docs/architecture.md` (layered architecture, class hierarchy diagrams, dependency graphs, runtime sequence diagrams)
+- `docs/ui_target_organization.md` (page/component target organization and usage conventions)
 - `docs/design_decisions.md`
 
 ## Project Structure
@@ -217,7 +218,9 @@ screenplay_core/
 saucedemo/
 |-- tasks/          # SauceDemo business-level actions
 |-- questions/      # SauceDemo-specific queries
-`-- ui/             # SauceDemo locators/targets
+`-- ui/
+    |-- pages/      # Page-level target catalogs
+    `-- components/ # Shared target catalogs reused across pages
 
 tests/
 |-- features/       # Gherkin scenarios
@@ -247,6 +250,7 @@ docs/
 
 - Domain model: `docs/domain_model.md`
 - Architecture: `docs/architecture.md`
+- UI target organization: `docs/ui_target_organization.md`
 - Composed engine flows: `docs/engine_flows.md`
 - Design rationale: `docs/design_decisions.md`
 - Codex generation workflow: `docs/codex_workflow.md`

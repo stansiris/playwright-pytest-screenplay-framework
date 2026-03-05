@@ -1,4 +1,4 @@
-from saucedemo.ui.saucedemo import SauceDemo
+from saucedemo.ui.components.app_shell import AppShell
 from screenplay_core.core.task import Task
 from screenplay_core.interactions.click import Click
 
@@ -8,6 +8,6 @@ class Logout(Task):
 
     def perform_as(self, actor):
         actor.attempts_to(
-            Click(SauceDemo.MENU_BUTTON),
-            Click(SauceDemo.LOGOUT_LINK),
+            Click(AppShell.MENU_BUTTON),
+            Click(AppShell.LOGOUT_LINK),
         )

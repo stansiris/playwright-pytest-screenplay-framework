@@ -13,7 +13,17 @@ A dedicated Question keeps that calculation in one place and avoids duplicated a
 ## Why `AddProductToCart` is context-aware
 
 Tests should pass product names, not selector details.
-`AddProductToCart.named(product_name)` resolves the right button from centralized targets.
+`AddProductToCart.named(product_name)` resolves the right button from page-level targets.
+
+## Why targets are split into `pages` and `components`
+
+The original single target catalog became harder to navigate as coverage grew.
+Splitting targets by page ownership improves maintainability:
+- page-specific selectors stay with their page vocabulary
+- shared controls (`menu`, `cart`, `back`) stay in reusable component catalogs
+- selector changes are isolated to the owner module instead of a global file
+
+This keeps Tasks and Questions readable while reducing cross-page coupling.
 
 ## Why runtime settings are pytest-driven
 

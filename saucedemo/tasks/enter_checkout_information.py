@@ -1,4 +1,4 @@
-from saucedemo.ui.saucedemo import SauceDemo
+from saucedemo.ui.pages.checkout_info_page import CheckoutInfoPage
 from screenplay_core.core.actor import Actor
 from screenplay_core.core.task import Task
 from screenplay_core.interactions.fill import Fill
@@ -22,9 +22,9 @@ class EnterCheckoutInformation(Task):
 
     def perform_as(self, actor: Actor) -> None:
         actor.attempts_to(
-            Fill(SauceDemo.CHECKOUT_FIRST_NAME, self.first_name),
-            Fill(SauceDemo.CHECKOUT_LAST_NAME, self.last_name),
-            Fill(SauceDemo.CHECKOUT_POSTAL_CODE, self.postal_code),
+            Fill(CheckoutInfoPage.CHECKOUT_FIRST_NAME, self.first_name),
+            Fill(CheckoutInfoPage.CHECKOUT_LAST_NAME, self.last_name),
+            Fill(CheckoutInfoPage.CHECKOUT_POSTAL_CODE, self.postal_code),
         )
 
     @classmethod

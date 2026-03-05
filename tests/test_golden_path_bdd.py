@@ -15,7 +15,10 @@ from saucedemo.tasks.login import Login
 from saucedemo.tasks.open_login_page import OpenLoginPage
 from saucedemo.tasks.proceed_to_checkout import ProceedToCheckout
 from saucedemo.tasks.return_to_products import ReturnToProducts
-from saucedemo.ui.saucedemo import SauceDemo
+from saucedemo.ui.pages.cart_page import CartPage
+from saucedemo.ui.pages.checkout_complete_page import CheckoutCompletePage
+from saucedemo.ui.pages.checkout_overview_page import CheckoutOverviewPage
+from saucedemo.ui.pages.inventory_page import InventoryPage
 from screenplay_core.core.actor import Actor
 from screenplay_core.interactions.wait_until_visible import WaitUntilVisible
 from screenplay_core.questions.text_of import TextOf
@@ -79,7 +82,7 @@ def login_with_credentials(customer: Actor, username: str, password: str) -> Non
 
 @then("I should be on the inventory page")
 def should_be_on_inventory_page(customer: Actor) -> None:
-    customer.attempts_to(WaitUntilVisible.for_(SauceDemo.INVENTORY_CONTAINER))
+    customer.attempts_to(WaitUntilVisible.for_(InventoryPage.INVENTORY_CONTAINER))
     assert customer.asks_for(OnInventoryPage())
 
 
@@ -102,13 +105,13 @@ def go_to_cart(customer: Actor) -> None:
 @then("the cart should contain the following items:")
 def cart_should_contain_items(customer: Actor, datatable) -> None:
     expected_items = _expected_items(datatable)
-    actual_items = customer.asks_for(TextsOf(SauceDemo.CART_ITEM_NAMES))
+    actual_items = customer.asks_for(TextsOf(CartPage.CART_ITEM_NAMES))
     assert Counter(actual_items) == Counter(expected_items)
 
 
 @then(parsers.parse("the cart item count should be {count:d}"))
 def cart_item_count_should_be(customer: Actor, count: int) -> None:
-    assert len(customer.asks_for(TextsOf(SauceDemo.CART_ITEM_NAMES))) == count
+    assert len(customer.asks_for(TextsOf(CartPage.CART_ITEM_NAMES))) == count
 
 
 @when("I proceed to checkout")
@@ -140,18 +143,18 @@ def continue_checkout(customer: Actor) -> None:
 @then("the overview should contain the following items:")
 def overview_should_contain_items(customer: Actor, datatable) -> None:
     expected_items = _expected_items(datatable)
-    actual_items = customer.asks_for(TextsOf(SauceDemo.CHECKOUT_OVERVIEW_ITEM_NAMES))
+    actual_items = customer.asks_for(TextsOf(CheckoutOverviewPage.CHECKOUT_OVERVIEW_ITEM_NAMES))
     assert Counter(actual_items) == Counter(expected_items)
 
 
 @then(parsers.parse('the payment information should be "{text}"'))
 def payment_information_should_be(customer: Actor, text: str) -> None:
-    assert customer.asks_for(TextOf(SauceDemo.CHECKOUT_PAYMENT_INFO)) == text
+    assert customer.asks_for(TextOf(CheckoutOverviewPage.CHECKOUT_PAYMENT_INFO)) == text
 
 
 @then(parsers.parse('the shipping information should be "{text}"'))
 def shipping_information_should_be(customer: Actor, text: str) -> None:
-    assert customer.asks_for(TextOf(SauceDemo.CHECKOUT_SHIPPING_INFO)) == text
+    assert customer.asks_for(TextOf(CheckoutOverviewPage.CHECKOUT_SHIPPING_INFO)) == text
 
 
 @then("totals should match the computed sum")
@@ -166,13 +169,16 @@ def finish_checkout(customer: Actor) -> None:
 
 @then("I should see a checkout complete confirmation")
 def should_see_checkout_complete_confirmation(customer: Actor) -> None:
-    customer.attempts_to(WaitUntilVisible.for_(SauceDemo.CHECKOUT_COMPLETE_TITLE))
-    assert customer.asks_for(TextOf(SauceDemo.CHECKOUT_COMPLETE_TITLE)) == "Checkout: Complete!"
+    customer.attempts_to(WaitUntilVisible.for_(CheckoutCompletePage.CHECKOUT_COMPLETE_TITLE))
+    assert (
+        customer.asks_for(TextOf(CheckoutCompletePage.CHECKOUT_COMPLETE_TITLE))
+        == "Checkout: Complete!"
+    )
 
 
 @when("I return home to the inventory")
 def return_home_to_inventory(customer: Actor) -> None:
     customer.attempts_to(
         ReturnToProducts(),
-        WaitUntilVisible.for_(SauceDemo.INVENTORY_CONTAINER),
+        WaitUntilVisible.for_(InventoryPage.INVENTORY_CONTAINER),
     )
