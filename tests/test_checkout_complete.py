@@ -13,7 +13,6 @@ from saucedemo.tasks.provide_checkout_information import ProvideCheckoutInformat
 from saucedemo.tasks.return_to_products import ReturnToProducts
 from saucedemo.ui.saucedemo import SauceDemo
 from screenplay_core.core.actor import Actor
-from screenplay_core.core.target import Target
 from screenplay_core.interactions.navigate_to import NavigateTo
 from screenplay_core.interactions.refresh_page import RefreshPage
 from screenplay_core.interactions.wait_until_visible import WaitUntilVisible
@@ -25,19 +24,6 @@ PRODUCT_NAMES = ["Sauce Labs Backpack", "Sauce Labs Bike Light"]
 FIRST_NAME = "John"
 LAST_NAME = "Doe"
 POSTAL_CODE = "08873"
-
-CHECKOUT_COMPLETE_HEADER = Target(
-    "Checkout complete header",
-    lambda page: page.locator('[data-test="complete-header"]'),
-)
-CHECKOUT_COMPLETE_TEXT = Target(
-    "Checkout complete text",
-    lambda page: page.locator('[data-test="complete-text"]'),
-)
-CHECKOUT_COMPLETE_PONY_IMAGE = Target(
-    "Checkout complete pony image",
-    lambda page: page.locator('[data-test="pony-express"]'),
-)
 
 
 @pytest.fixture
@@ -68,9 +54,9 @@ def test_checkout_complete_confirmation_is_visible(customer_on_checkout_complete
     """Verify checkout completion page shows confirmation text and image."""
     customer = customer_on_checkout_complete
     customer.expect(SauceDemo.CHECKOUT_COMPLETE_TITLE).to_have_text("Checkout: Complete!")
-    customer.expect(CHECKOUT_COMPLETE_HEADER).to_have_text("Thank you for your order!")
-    customer.expect(CHECKOUT_COMPLETE_TEXT).to_contain_text("dispatched")
-    customer.expect(CHECKOUT_COMPLETE_PONY_IMAGE).to_be_visible()
+    customer.expect(SauceDemo.CHECKOUT_COMPLETE_HEADER).to_have_text("Thank you for your order!")
+    customer.expect(SauceDemo.CHECKOUT_COMPLETE_TEXT).to_contain_text("dispatched")
+    customer.expect(SauceDemo.CHECKOUT_COMPLETE_PONY_IMAGE).to_be_visible()
 
 
 @pytest.mark.integration

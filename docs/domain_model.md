@@ -75,7 +75,7 @@ Current automated coverage includes:
 ## Target Model
 
 All UI selectors are centralized in `saucedemo/ui/saucedemo.py` as `Target` objects.
-Tasks and Questions must reference these targets instead of inline selectors.
+Tasks, Questions, and tests/step definitions should reference these targets instead of inline selectors.
 
 ## Usage in BDD
 

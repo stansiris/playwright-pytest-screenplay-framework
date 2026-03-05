@@ -36,11 +36,27 @@ def as_row_dicts(datatable: Sequence[Sequence[object]]) -> list[dict[str, str]]:
         return []
 
     headers = [str(cell).strip() for cell in datatable[0]]
+    if not headers:
+        raise ValueError("Datatable must include at least one header column.")
+    if any(not header for header in headers):
+        raise ValueError(f"Datatable headers cannot be empty: {headers}")
+
+    duplicate_headers = [header for header, count in Counter(headers).items() if count > 1]
+    if duplicate_headers:
+        raise ValueError(f"Datatable headers must be unique: {duplicate_headers}")
+
     row_dicts: list[dict[str, str]] = []
 
-    for row in datatable[1:]:
+    for row_number, row in enumerate(datatable[1:], start=2):
         values = [str(cell).strip() for cell in row]
-        row_dicts.append(dict(zip(headers, values)))
+        if len(values) != len(headers):
+            raise ValueError(
+                "Malformed datatable row "
+                f"{row_number}: expected {len(headers)} column(s) {headers}, "
+                f"got {len(values)} value(s) {values}."
+            )
+
+        row_dicts.append(dict(zip(headers, values, strict=True)))
 
     return row_dicts
 

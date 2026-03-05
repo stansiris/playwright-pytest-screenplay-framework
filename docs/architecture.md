@@ -260,7 +260,7 @@ Two wait/assertion paths are intentionally supported:
 - Steps in `tests/test_*.py` should stay thin and delegate behavior to Tasks/Questions.
 - Tasks should express user intent and compose reusable interactions/tasks.
 - Questions should read state or compute business checks, then return values.
-- Selectors live in one place: `saucedemo/ui/saucedemo.py`.
+- Selectors and reusable target factories live in one place: `saucedemo/ui/saucedemo.py`.
 - `Target` resolution must flow through actor ability (`BrowseTheWeb`) to keep browser access centralized.
 
 ## 8. Directory-to-Responsibility Map

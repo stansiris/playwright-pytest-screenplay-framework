@@ -10,7 +10,6 @@ from saucedemo.tasks.proceed_to_checkout import ProceedToCheckout
 from saucedemo.tasks.provide_checkout_information import ProvideCheckoutInformation
 from saucedemo.ui.saucedemo import SauceDemo
 from screenplay_core.core.actor import Actor
-from screenplay_core.core.target import Target
 from screenplay_core.interactions.click import Click
 from screenplay_core.interactions.wait_until_visible import WaitUntilVisible
 from screenplay_core.questions.current_url import CurrentUrl
@@ -19,19 +18,6 @@ PRODUCT_NAME = "Sauce Labs Backpack"
 FIRST_NAME = "John"
 LAST_NAME = "Doe"
 POSTAL_CODE = "08873"
-
-CHECKOUT_INFO_ERROR_MESSAGE = Target(
-    "Checkout info error message",
-    lambda page: page.locator('[data-test="error"]'),
-)
-CHECKOUT_INFO_ERROR_CLOSE_BUTTON = Target(
-    "Checkout info error close button",
-    lambda page: page.locator('[data-test="error-button"]'),
-)
-CHECKOUT_INFO_CANCEL_BUTTON = Target(
-    "Checkout info cancel button",
-    lambda page: page.locator('[data-test="cancel"]'),
-)
 
 
 @pytest.fixture
@@ -83,11 +69,11 @@ def test_checkout_info_required_fields_validation(
         ContinueCheckout(),
     )
 
-    customer.expect(CHECKOUT_INFO_ERROR_MESSAGE).to_contain_text(expected_error_message)
+    customer.expect(SauceDemo.CHECKOUT_INFO_ERROR_MESSAGE).to_contain_text(expected_error_message)
     assert customer.asks_for(CurrentUrl()).endswith("/checkout-step-one.html")
 
-    customer.attempts_to(Click(CHECKOUT_INFO_ERROR_CLOSE_BUTTON))
-    customer.expect(CHECKOUT_INFO_ERROR_MESSAGE).to_be_hidden()
+    customer.attempts_to(Click(SauceDemo.CHECKOUT_INFO_ERROR_CLOSE_BUTTON))
+    customer.expect(SauceDemo.CHECKOUT_INFO_ERROR_MESSAGE).to_be_hidden()
 
 
 @pytest.mark.integration
@@ -123,7 +109,7 @@ def test_checkout_info_provide_checkout_information_task_proceeds_to_overview(
 def test_checkout_info_cancel_returns_to_cart(customer_on_checkout_info: Actor) -> None:
     """Verify cancel on checkout step one returns the user to cart page."""
     customer = customer_on_checkout_info
-    customer.attempts_to(Click(CHECKOUT_INFO_CANCEL_BUTTON))
+    customer.attempts_to(Click(SauceDemo.CHECKOUT_INFO_CANCEL_BUTTON))
 
     customer.expect(SauceDemo.CHECKOUT_BUTTON).to_be_visible()
     assert customer.asks_for(CurrentUrl()).endswith("/cart.html")

@@ -1,4 +1,3 @@
-import re
 from decimal import Decimal
 
 import pytest
@@ -13,7 +12,6 @@ from saucedemo.tasks.open_login_page import OpenLoginPage
 from saucedemo.tasks.sort_inventory import SortInventory
 from saucedemo.ui.saucedemo import SauceDemo
 from screenplay_core.core.actor import Actor
-from screenplay_core.core.target import Target
 from screenplay_core.interactions.click import Click
 from screenplay_core.interactions.wait_until_visible import WaitUntilVisible
 from screenplay_core.questions.current_url import CurrentUrl
@@ -31,33 +29,6 @@ def customer_on_inventory(customer: Actor) -> Actor:
     )
     assert customer.asks_for(OnInventoryPage())
     return customer
-
-
-def inventory_item_name_target(product_name: str) -> Target:
-    exact_name = re.compile(rf"^{re.escape(product_name)}$")
-    return Target(
-        f"Inventory item name '{product_name}'",
-        lambda page: page.locator('[data-test="inventory-item-name"]', has_text=exact_name),
-    )
-
-
-def inventory_item_button_target(product_name: str) -> Target:
-    exact_name = re.compile(rf"^{re.escape(product_name)}$")
-
-    def locator(page):
-        card = page.locator('[data-test="inventory-item"]').filter(
-            has=page.locator('[data-test="inventory-item-name"]', has_text=exact_name),
-        )
-        return card.locator("button")
-
-    return Target(f"Inventory item button for '{product_name}'", locator)
-
-
-def inventory_add_buttons_target() -> Target:
-    return Target(
-        "Inventory add-to-cart buttons",
-        lambda page: page.locator('button[data-test^="add-to-cart"]'),
-    )
 
 
 def parse_price(text: str) -> Decimal:
@@ -80,7 +51,7 @@ def test_inventory_displays_expected_products_and_controls(customer_on_inventory
     customer = customer_on_inventory
     customer.expect(SauceDemo.INVENTORY_ITEM_NAMES).to_have_count(INVENTORY_ITEM_COUNT)
     customer.expect(SauceDemo.INVENTORY_ITEM_PRICES).to_have_count(INVENTORY_ITEM_COUNT)
-    customer.expect(inventory_add_buttons_target()).to_have_count(INVENTORY_ITEM_COUNT)
+    customer.expect(SauceDemo.INVENTORY_ADD_TO_CART_BUTTONS).to_have_count(INVENTORY_ITEM_COUNT)
 
 
 @pytest.mark.integration
@@ -88,7 +59,7 @@ def test_inventory_add_and_remove_single_item_updates_badge(customer_on_inventor
     """Verify adding then removing one item updates cart badge and button state."""
     customer = customer_on_inventory
     product_name = "Sauce Labs Backpack"
-    product_button = inventory_item_button_target(product_name)
+    product_button = SauceDemo.inventory_item_action_button_for(product_name)
 
     customer.attempts_to(AddProductToCart.named(product_name))
     assert customer.asks_for(CartBadgeCount()) == 1
@@ -150,7 +121,7 @@ def test_inventory_product_details_and_back_preserves_cart(customer_on_inventory
     """Verify navigating to details and back keeps inventory state and cart contents."""
     customer = customer_on_inventory
     product_name = "Sauce Labs Bike Light"
-    product_name_link = inventory_item_name_target(product_name)
+    product_name_link = SauceDemo.inventory_item_name_for(product_name)
 
     customer.attempts_to(
         AddProductToCart.named(product_name),

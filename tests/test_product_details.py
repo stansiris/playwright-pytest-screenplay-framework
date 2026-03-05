@@ -1,5 +1,3 @@
-import re
-
 import pytest
 
 from saucedemo.questions.cart_badge_count import CartBadgeCount
@@ -10,7 +8,6 @@ from saucedemo.tasks.login import Login
 from saucedemo.tasks.open_login_page import OpenLoginPage
 from saucedemo.ui.saucedemo import SauceDemo
 from screenplay_core.core.actor import Actor
-from screenplay_core.core.target import Target
 from screenplay_core.interactions.click import Click
 from screenplay_core.interactions.navigate_to import NavigateTo
 from screenplay_core.interactions.wait_until_visible import WaitUntilVisible
@@ -33,70 +30,8 @@ def customer_on_inventory(customer: Actor) -> Actor:
     return customer
 
 
-def inventory_item_name_target(product_name: str) -> Target:
-    exact_name = re.compile(rf"^{re.escape(product_name)}$")
-    return Target(
-        f"Inventory item name '{product_name}'",
-        lambda page: page.locator('[data-test="inventory-item-name"]', has_text=exact_name),
-    )
-
-
-def inventory_item_price_target(product_name: str) -> Target:
-    exact_name = re.compile(rf"^{re.escape(product_name)}$")
-
-    def locator(page):
-        card = page.locator('[data-test="inventory-item"]').filter(
-            has=page.locator('[data-test="inventory-item-name"]', has_text=exact_name),
-        )
-        return card.locator('[data-test="inventory-item-price"]')
-
-    return Target(f"Inventory item price '{product_name}'", locator)
-
-
-def inventory_item_description_target(product_name: str) -> Target:
-    exact_name = re.compile(rf"^{re.escape(product_name)}$")
-
-    def locator(page):
-        card = page.locator('[data-test="inventory-item"]').filter(
-            has=page.locator('[data-test="inventory-item-name"]', has_text=exact_name),
-        )
-        return card.locator('[data-test="inventory-item-desc"]')
-
-    return Target(f"Inventory item description '{product_name}'", locator)
-
-
-def inventory_item_action_button_target(product_name: str) -> Target:
-    exact_name = re.compile(rf"^{re.escape(product_name)}$")
-
-    def locator(page):
-        card = page.locator('[data-test="inventory-item"]').filter(
-            has=page.locator('[data-test="inventory-item-name"]', has_text=exact_name),
-        )
-        return card.locator("button")
-
-    return Target(f"Inventory item action button '{product_name}'", locator)
-
-
-PRODUCT_DETAILS_NAME = Target(
-    "Product details name",
-    lambda page: page.locator('[data-test="inventory-item-name"]'),
-)
-PRODUCT_DETAILS_PRICE = Target(
-    "Product details price",
-    lambda page: page.locator('[data-test="inventory-item-price"]'),
-)
-PRODUCT_DETAILS_DESCRIPTION = Target(
-    "Product details description",
-    lambda page: page.locator('[data-test="inventory-item-desc"]'),
-)
-PRODUCT_DETAILS_ACTION_BUTTON = Target(
-    "Product details add/remove button",
-    lambda page: page.locator('button[data-test^="add-to-cart"], button[data-test^="remove"]'),
-)
-
-
 def open_product_details(customer: Actor, product_name: str) -> None:
-    customer.attempts_to(Click(inventory_item_name_target(product_name)))
+    customer.attempts_to(Click(SauceDemo.inventory_item_name_for(product_name)))
     customer.expect(SauceDemo.BACK_TO_PRODUCTS).to_be_visible()
     assert "inventory-item.html" in customer.asks_for(CurrentUrl())
 
@@ -108,26 +43,26 @@ def test_product_details_open_from_inventory(customer_on_inventory: Actor) -> No
     customer = customer_on_inventory
     open_product_details(customer, PRODUCT_NAME)
 
-    customer.expect(PRODUCT_DETAILS_NAME).to_be_visible()
-    customer.expect(PRODUCT_DETAILS_ACTION_BUTTON).to_be_visible()
-    assert customer.asks_for(TextOf(PRODUCT_DETAILS_NAME)) == PRODUCT_NAME
+    customer.expect(SauceDemo.PRODUCT_DETAILS_NAME).to_be_visible()
+    customer.expect(SauceDemo.PRODUCT_DETAILS_ACTION_BUTTON).to_be_visible()
+    assert customer.asks_for(TextOf(SauceDemo.PRODUCT_DETAILS_NAME)) == PRODUCT_NAME
 
 
 @pytest.mark.integration
 def test_product_details_content_matches_inventory_card(customer_on_inventory: Actor) -> None:
     """Verify name, price, and description on details page match the inventory card."""
     customer = customer_on_inventory
-    expected_name = customer.asks_for(TextOf(inventory_item_name_target(PRODUCT_NAME)))
-    expected_price = customer.asks_for(TextOf(inventory_item_price_target(PRODUCT_NAME)))
+    expected_name = customer.asks_for(TextOf(SauceDemo.inventory_item_name_for(PRODUCT_NAME)))
+    expected_price = customer.asks_for(TextOf(SauceDemo.inventory_item_price_for(PRODUCT_NAME)))
     expected_description = customer.asks_for(
-        TextOf(inventory_item_description_target(PRODUCT_NAME))
+        TextOf(SauceDemo.inventory_item_description_for(PRODUCT_NAME))
     )
 
     open_product_details(customer, PRODUCT_NAME)
 
-    assert customer.asks_for(TextOf(PRODUCT_DETAILS_NAME)) == expected_name
-    assert customer.asks_for(TextOf(PRODUCT_DETAILS_PRICE)) == expected_price
-    assert customer.asks_for(TextOf(PRODUCT_DETAILS_DESCRIPTION)) == expected_description
+    assert customer.asks_for(TextOf(SauceDemo.PRODUCT_DETAILS_NAME)) == expected_name
+    assert customer.asks_for(TextOf(SauceDemo.PRODUCT_DETAILS_PRICE)) == expected_price
+    assert customer.asks_for(TextOf(SauceDemo.PRODUCT_DETAILS_DESCRIPTION)) == expected_description
 
 
 @pytest.mark.integration
@@ -136,9 +71,9 @@ def test_product_details_add_to_cart_updates_badge(customer_on_inventory: Actor)
     customer = customer_on_inventory
     open_product_details(customer, PRODUCT_NAME)
 
-    customer.attempts_to(Click(PRODUCT_DETAILS_ACTION_BUTTON))
+    customer.attempts_to(Click(SauceDemo.PRODUCT_DETAILS_ACTION_BUTTON))
     assert customer.asks_for(CartBadgeCount()) == 1
-    customer.expect(PRODUCT_DETAILS_ACTION_BUTTON).to_have_text("Remove")
+    customer.expect(SauceDemo.PRODUCT_DETAILS_ACTION_BUTTON).to_have_text("Remove")
 
 
 @pytest.mark.integration
@@ -147,10 +82,10 @@ def test_product_details_remove_from_cart_updates_badge(customer_on_inventory: A
     customer = customer_on_inventory
     open_product_details(customer, PRODUCT_NAME)
 
-    customer.attempts_to(Click(PRODUCT_DETAILS_ACTION_BUTTON))
-    customer.attempts_to(Click(PRODUCT_DETAILS_ACTION_BUTTON))
+    customer.attempts_to(Click(SauceDemo.PRODUCT_DETAILS_ACTION_BUTTON))
+    customer.attempts_to(Click(SauceDemo.PRODUCT_DETAILS_ACTION_BUTTON))
     assert customer.asks_for(CartBadgeCount()) == 0
-    customer.expect(PRODUCT_DETAILS_ACTION_BUTTON).to_have_text("Add to cart")
+    customer.expect(SauceDemo.PRODUCT_DETAILS_ACTION_BUTTON).to_have_text("Add to cart")
 
 
 @pytest.mark.integration
@@ -158,7 +93,7 @@ def test_product_details_back_to_products_preserves_cart(customer_on_inventory: 
     """Verify back-to-products returns to inventory while preserving cart state."""
     customer = customer_on_inventory
     open_product_details(customer, PRODUCT_NAME)
-    customer.attempts_to(Click(PRODUCT_DETAILS_ACTION_BUTTON))
+    customer.attempts_to(Click(SauceDemo.PRODUCT_DETAILS_ACTION_BUTTON))
 
     customer.attempts_to(
         Click(SauceDemo.BACK_TO_PRODUCTS),
@@ -166,7 +101,7 @@ def test_product_details_back_to_products_preserves_cart(customer_on_inventory: 
     )
     assert customer.asks_for(OnInventoryPage())
     assert customer.asks_for(CartBadgeCount()) == 1
-    customer.expect(inventory_item_action_button_target(PRODUCT_NAME)).to_have_text("Remove")
+    customer.expect(SauceDemo.inventory_item_action_button_for(PRODUCT_NAME)).to_have_text("Remove")
 
 
 @pytest.mark.integration
@@ -177,7 +112,7 @@ def test_product_details_reflect_inventory_cart_state(customer_on_inventory: Act
     assert customer.asks_for(CartBadgeCount()) == 1
 
     open_product_details(customer, PRODUCT_NAME)
-    customer.expect(PRODUCT_DETAILS_ACTION_BUTTON).to_have_text("Remove")
+    customer.expect(SauceDemo.PRODUCT_DETAILS_ACTION_BUTTON).to_have_text("Remove")
 
 
 @pytest.mark.integration
@@ -185,7 +120,10 @@ def test_product_details_add_then_cart_contains_item(customer_on_inventory: Acto
     """Verify item added from details appears in the cart."""
     customer = customer_on_inventory
     open_product_details(customer, PRODUCT_NAME)
-    customer.attempts_to(Click(PRODUCT_DETAILS_ACTION_BUTTON), Click(SauceDemo.SHOPPING_CART_LINK))
+    customer.attempts_to(
+        Click(SauceDemo.PRODUCT_DETAILS_ACTION_BUTTON),
+        Click(SauceDemo.SHOPPING_CART_LINK),
+    )
 
     cart_items = customer.asks_for(TextsOf(SauceDemo.CART_ITEM_NAMES))
     assert PRODUCT_NAME in cart_items
