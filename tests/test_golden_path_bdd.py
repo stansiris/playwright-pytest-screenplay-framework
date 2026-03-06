@@ -15,12 +15,12 @@ from saucedemo.tasks.login import Login
 from saucedemo.tasks.open_login_page import OpenLoginPage
 from saucedemo.tasks.proceed_to_checkout import ProceedToCheckout
 from saucedemo.tasks.return_to_products import ReturnToProducts
+from saucedemo.tasks.wait_for_checkout_complete_page import WaitForCheckoutCompletePage
+from saucedemo.tasks.wait_for_inventory_page import WaitForInventoryPage
 from saucedemo.ui.pages.cart_page import CartPage
 from saucedemo.ui.pages.checkout_complete_page import CheckoutCompletePage
 from saucedemo.ui.pages.checkout_overview_page import CheckoutOverviewPage
-from saucedemo.ui.pages.inventory_page import InventoryPage
 from screenplay_core.core.actor import Actor
-from screenplay_core.interactions.wait_until_visible import WaitUntilVisible
 from screenplay_core.questions.text_of import TextOf
 from screenplay_core.questions.texts_of import TextsOf
 
@@ -82,7 +82,7 @@ def login_with_credentials(customer: Actor, username: str, password: str) -> Non
 
 @then("I should be on the inventory page")
 def should_be_on_inventory_page(customer: Actor) -> None:
-    customer.attempts_to(WaitUntilVisible.for_(InventoryPage.INVENTORY_CONTAINER))
+    customer.attempts_to(WaitForInventoryPage())
     assert customer.asks_for(OnInventoryPage())
 
 
@@ -169,7 +169,7 @@ def finish_checkout(customer: Actor) -> None:
 
 @then("I should see a checkout complete confirmation")
 def should_see_checkout_complete_confirmation(customer: Actor) -> None:
-    customer.attempts_to(WaitUntilVisible.for_(CheckoutCompletePage.CHECKOUT_COMPLETE_TITLE))
+    customer.attempts_to(WaitForCheckoutCompletePage())
     assert (
         customer.asks_for(TextOf(CheckoutCompletePage.CHECKOUT_COMPLETE_TITLE))
         == "Checkout: Complete!"
@@ -180,5 +180,5 @@ def should_see_checkout_complete_confirmation(customer: Actor) -> None:
 def return_home_to_inventory(customer: Actor) -> None:
     customer.attempts_to(
         ReturnToProducts(),
-        WaitUntilVisible.for_(InventoryPage.INVENTORY_CONTAINER),
+        WaitForInventoryPage(),
     )

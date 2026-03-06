@@ -6,8 +6,12 @@ from saucedemo.tasks.complete_checkout import CompleteCheckout
 from saucedemo.tasks.go_to_cart import GoToCart
 from saucedemo.tasks.login import Login
 from saucedemo.tasks.open_login_page import OpenLoginPage
+from saucedemo.tasks.open_product_details import OpenProductDetails
 from saucedemo.tasks.proceed_to_checkout import ProceedToCheckout
 from saucedemo.tasks.provide_checkout_information import ProvideCheckoutInformation
+from saucedemo.tasks.wait_for_checkout_complete_page import WaitForCheckoutCompletePage
+from saucedemo.tasks.wait_for_checkout_info_page import WaitForCheckoutInfoPage
+from saucedemo.tasks.wait_for_inventory_page import WaitForInventoryPage
 from saucedemo.ui.components.app_shell import AppShell
 from saucedemo.ui.components.back_navigation import BackNavigation
 from saucedemo.ui.pages.cart_page import CartPage
@@ -18,8 +22,6 @@ from saucedemo.ui.pages.inventory_page import InventoryPage
 from saucedemo.ui.pages.login_page import LoginPage
 from saucedemo.ui.pages.product_details_page import ProductDetailsPage
 from screenplay_core.core.actor import Actor
-from screenplay_core.interactions.click import Click
-from screenplay_core.interactions.wait_until_visible import WaitUntilVisible
 from screenplay_core.questions.attribute_of import AttributeOf
 from screenplay_core.questions.current_url import CurrentUrl
 from screenplay_core.questions.texts_of import TextsOf
@@ -34,7 +36,7 @@ def login_as_standard_user(customer: Actor) -> None:
     customer.attempts_to(
         OpenLoginPage(),
         Login.with_credentials("standard_user", "secret_sauce"),
-        WaitUntilVisible.for_(InventoryPage.INVENTORY_CONTAINER),
+        WaitForInventoryPage(),
     )
     assert customer.asks_for(OnInventoryPage())
 
@@ -44,7 +46,7 @@ def add_item_and_open_checkout_info(customer: Actor) -> None:
         AddProductToCart.named(PRODUCT_NAME),
         GoToCart(),
         ProceedToCheckout(),
-        WaitUntilVisible.for_(CheckoutInfoPage.CHECKOUT_FIRST_NAME),
+        WaitForCheckoutInfoPage(),
     )
 
 
@@ -87,7 +89,7 @@ def test_inventory_page_ui_elements(customer: Actor) -> None:
 def test_product_details_page_ui_elements(customer: Actor) -> None:
     """Verify product details page UI elements render after opening an item."""
     login_as_standard_user(customer)
-    customer.attempts_to(Click(InventoryPage.inventory_item_name_for(PRODUCT_NAME)))
+    customer.attempts_to(OpenProductDetails.named(PRODUCT_NAME))
 
     assert "inventory-item.html" in customer.asks_for(CurrentUrl())
     customer.expect(BackNavigation.BACK_TO_PRODUCTS).to_have_text("Back to products")
@@ -156,7 +158,7 @@ def test_checkout_complete_page_ui_elements(customer: Actor) -> None:
     customer.attempts_to(
         ProvideCheckoutInformation.as_customer(FIRST_NAME, LAST_NAME, POSTAL_CODE),
         CompleteCheckout(),
-        WaitUntilVisible.for_(CheckoutCompletePage.CHECKOUT_COMPLETE_TITLE),
+        WaitForCheckoutCompletePage(),
     )
 
     assert customer.asks_for(CurrentUrl()).endswith("/checkout-complete.html")

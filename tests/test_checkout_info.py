@@ -1,19 +1,20 @@
 import pytest
 
 from saucedemo.tasks.add_product_to_cart import AddProductToCart
+from saucedemo.tasks.cancel_checkout_info import CancelCheckoutInfo
 from saucedemo.tasks.continue_checkout import ContinueCheckout
+from saucedemo.tasks.dismiss_checkout_info_error import DismissCheckoutInfoError
 from saucedemo.tasks.enter_checkout_information import EnterCheckoutInformation
 from saucedemo.tasks.go_to_cart import GoToCart
 from saucedemo.tasks.login import Login
 from saucedemo.tasks.open_login_page import OpenLoginPage
 from saucedemo.tasks.proceed_to_checkout import ProceedToCheckout
 from saucedemo.tasks.provide_checkout_information import ProvideCheckoutInformation
+from saucedemo.tasks.wait_for_checkout_info_page import WaitForCheckoutInfoPage
 from saucedemo.ui.pages.cart_page import CartPage
 from saucedemo.ui.pages.checkout_info_page import CheckoutInfoPage
 from saucedemo.ui.pages.checkout_overview_page import CheckoutOverviewPage
 from screenplay_core.core.actor import Actor
-from screenplay_core.interactions.click import Click
-from screenplay_core.interactions.wait_until_visible import WaitUntilVisible
 from screenplay_core.questions.current_url import CurrentUrl
 
 PRODUCT_NAME = "Sauce Labs Backpack"
@@ -30,7 +31,7 @@ def customer_on_checkout_info(customer: Actor) -> Actor:
         AddProductToCart.named(PRODUCT_NAME),
         GoToCart(),
         ProceedToCheckout(),
-        WaitUntilVisible.for_(CheckoutInfoPage.CHECKOUT_FIRST_NAME),
+        WaitForCheckoutInfoPage(),
     )
     assert customer.asks_for(CurrentUrl()).endswith("/checkout-step-one.html")
     return customer
@@ -76,7 +77,7 @@ def test_checkout_info_required_fields_validation(
     )
     assert customer.asks_for(CurrentUrl()).endswith("/checkout-step-one.html")
 
-    customer.attempts_to(Click(CheckoutInfoPage.CHECKOUT_INFO_ERROR_CLOSE_BUTTON))
+    customer.attempts_to(DismissCheckoutInfoError())
     customer.expect(CheckoutInfoPage.CHECKOUT_INFO_ERROR_MESSAGE).to_be_hidden()
 
 
@@ -113,7 +114,7 @@ def test_checkout_info_provide_checkout_information_task_proceeds_to_overview(
 def test_checkout_info_cancel_returns_to_cart(customer_on_checkout_info: Actor) -> None:
     """Verify cancel on checkout step one returns the user to cart page."""
     customer = customer_on_checkout_info
-    customer.attempts_to(Click(CheckoutInfoPage.CHECKOUT_INFO_CANCEL_BUTTON))
+    customer.attempts_to(CancelCheckoutInfo())
 
     customer.expect(CartPage.CHECKOUT_BUTTON).to_be_visible()
     assert customer.asks_for(CurrentUrl()).endswith("/cart.html")

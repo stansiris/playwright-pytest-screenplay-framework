@@ -2,14 +2,13 @@ from pytest_bdd import given, parsers, scenario, then, when
 
 from saucedemo.questions.on_inventory_page import OnInventoryPage
 from saucedemo.questions.on_login_page import OnLoginPage
+from saucedemo.tasks.dismiss_login_error import DismissLoginError
 from saucedemo.tasks.login import Login
+from saucedemo.tasks.logout import Logout
 from saucedemo.tasks.open_login_page import OpenLoginPage
-from saucedemo.ui.components.app_shell import AppShell
-from saucedemo.ui.pages.inventory_page import InventoryPage
+from saucedemo.tasks.wait_for_inventory_page import WaitForInventoryPage
 from saucedemo.ui.pages.login_page import LoginPage
 from screenplay_core.core.actor import Actor
-from screenplay_core.interactions.click import Click
-from screenplay_core.interactions.wait_until_visible import WaitUntilVisible
 
 
 @scenario(
@@ -46,13 +45,13 @@ def submit_login_credentials(customer: Actor, username: str, password: str) -> N
 
 @then("I should be on the inventory page for login scenarios")
 def should_be_on_inventory_page_for_login_scenarios(customer: Actor) -> None:
-    customer.attempts_to(WaitUntilVisible.for_(InventoryPage.INVENTORY_CONTAINER))
+    customer.attempts_to(WaitForInventoryPage())
     assert customer.asks_for(OnInventoryPage())
 
 
 @when("I log out from the inventory menu")
 def log_out_from_inventory_menu(customer: Actor) -> None:
-    customer.attempts_to(Click(AppShell.MENU_BUTTON), Click(AppShell.LOGOUT_LINK))
+    customer.attempts_to(Logout())
 
 
 @then("I should be back on the login page for login scenarios")
@@ -68,5 +67,5 @@ def should_see_login_error_message_for_login_scenarios(customer: Actor, error_me
 
 @then("I can dismiss the login error message")
 def can_dismiss_login_error_message(customer: Actor) -> None:
-    customer.attempts_to(Click(LoginPage.LOGIN_ERROR_CLOSE_BUTTON))
+    customer.attempts_to(DismissLoginError())
     customer.expect(LoginPage.LOGIN_ERROR_MESSAGE).to_be_hidden()

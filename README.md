@@ -20,14 +20,14 @@ Actors perform **tasks** composed of **interactions**, while **questions** read 
 
 The framework separates:
 
-• behavior specification  
-• domain vocabulary  
-• automation mechanics  
-• browser runtime  
+- behavior specification
+- domain vocabulary
+- automation mechanics
+- browser runtime
 
 ---
 
-# Key Concepts
+## Key Concepts
 
 | Concept | Description |
 |---|---|
@@ -40,11 +40,11 @@ The framework separates:
 
 Example execution flow:
 
-Actor → Task → Interaction → Playwright → Browser
+Actor -> Task -> Interaction -> Playwright -> Browser
 
 ---
 
-# Screenplay Pattern Overview
+## Screenplay Pattern Overview
 
 ```mermaid
 graph TD
@@ -72,7 +72,7 @@ Question -->|reads| Target
 
 ---
 
-# Example Screenplay Test
+## Example Screenplay Test
 
 ```python
 def test_login(customer):
@@ -86,9 +86,9 @@ def test_login(customer):
 
 ---
 
-# Quick Start
+## Quick Start
 
-## Windows
+### Windows
 
 ```powershell
 git clone https://github.com/stansiris/playwright-pytest-screenplay-framework.git
@@ -102,7 +102,7 @@ playwright install
 pytest -q
 ```
 
-## macOS / Linux
+### macOS / Linux
 
 ```bash
 git clone https://github.com/stansiris/playwright-pytest-screenplay-framework.git
@@ -118,13 +118,13 @@ pytest -q
 
 ---
 
-# Screenplay Abstraction Chain
+## Screenplay Abstraction Chain
 
-Actor → Task → Interaction → Target → Playwright
+Actor -> Task -> Interaction -> Target -> Playwright
 
 ---
 
-# Framework Layers
+## Framework Layers
 
 | Layer | Purpose | Examples |
 |---|---|---|
@@ -136,19 +136,19 @@ Actor → Task → Interaction → Target → Playwright
 
 ---
 
-# Framework Architecture
+## Framework Architecture
 
-Tests → Domain Layer → Screenplay Core → Playwright
-
----
-
-# Execution Flow
-
-Test → Actor → Task → Interaction → Target → Playwright
+Tests -> Domain Layer -> Screenplay Core -> Playwright
 
 ---
 
-# Design Principles
+## Execution Flow
+
+Test -> Actor -> Task -> Interaction -> Target -> Playwright
+
+---
+
+## Design Principles
 
 ### Behavior First
 Tests describe **user behavior**, not browser mechanics.
@@ -167,14 +167,14 @@ Each abstraction has a focused purpose.
 
 ---
 
-# Targets
+## Targets
 
 Targets encapsulate UI locator strategies and allow interactions
 to remain independent from the underlying automation framework.
 
 ---
 
-# Actor Abilities
+## Actor Abilities
 
 ```python
 customer = Actor("Customer").can(
@@ -184,7 +184,7 @@ customer = Actor("Customer").can(
 
 ---
 
-# Project Structure
+## Project Structure
 
 ```
 screenplay_core/
@@ -207,7 +207,7 @@ docs/
 
 ---
 
-# CI Pipeline
+## CI Pipeline
 
 GitHub Actions provides:
 
@@ -217,7 +217,7 @@ GitHub Actions provides:
 
 ---
 
-# Runtime Configuration
+## Runtime Configuration
 
 ```
 pytest -q --browser=firefox --headed
@@ -225,7 +225,7 @@ pytest -q --browser=firefox --headed
 
 ---
 
-# Architecture Decision: Screenplay vs Page Object Model
+## Architecture Decision: Screenplay vs Page Object Model
 
 Decision: Use the **Screenplay Pattern** rather than traditional Page Object Model.
 
@@ -243,7 +243,7 @@ Trade-offs:
 
 ---
 
-# What This Framework Demonstrates
+## What This Framework Demonstrates
 
 This project demonstrates:
 
@@ -255,7 +255,7 @@ This project demonstrates:
 
 ---
 
-# Portfolio Context
+## Portfolio Context
 
 This repository demonstrates:
 

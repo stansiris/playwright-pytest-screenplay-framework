@@ -9,13 +9,15 @@ from saucedemo.tasks.add_product_to_cart import AddProductToCart
 from saucedemo.tasks.login import Login
 from saucedemo.tasks.logout import Logout
 from saucedemo.tasks.open_login_page import OpenLoginPage
+from saucedemo.tasks.open_product_details import OpenProductDetails
+from saucedemo.tasks.remove_product_from_cart import RemoveProductFromCart
+from saucedemo.tasks.return_to_products import ReturnToProducts
 from saucedemo.tasks.sort_inventory import SortInventory
+from saucedemo.tasks.wait_for_inventory_page import WaitForInventoryPage
 from saucedemo.ui.components.app_shell import AppShell
 from saucedemo.ui.components.back_navigation import BackNavigation
 from saucedemo.ui.pages.inventory_page import InventoryPage
 from screenplay_core.core.actor import Actor
-from screenplay_core.interactions.click import Click
-from screenplay_core.interactions.wait_until_visible import WaitUntilVisible
 from screenplay_core.questions.current_url import CurrentUrl
 from screenplay_core.questions.texts_of import TextsOf
 
@@ -27,7 +29,7 @@ def customer_on_inventory(customer: Actor) -> Actor:
     customer.attempts_to(
         OpenLoginPage(),
         Login.with_credentials("standard_user", "secret_sauce"),
-        WaitUntilVisible.for_(InventoryPage.INVENTORY_CONTAINER),
+        WaitForInventoryPage(),
     )
     assert customer.asks_for(OnInventoryPage())
     return customer
@@ -67,7 +69,7 @@ def test_inventory_add_and_remove_single_item_updates_badge(customer_on_inventor
     assert customer.asks_for(CartBadgeCount()) == 1
     customer.expect(product_button).to_have_text("Remove")
 
-    customer.attempts_to(Click(product_button))
+    customer.attempts_to(RemoveProductFromCart.named(product_name))
     assert customer.asks_for(CartBadgeCount()) == 0
     customer.expect(product_button).to_have_text("Add to cart")
 
@@ -123,18 +125,17 @@ def test_inventory_product_details_and_back_preserves_cart(customer_on_inventory
     """Verify navigating to details and back keeps inventory state and cart contents."""
     customer = customer_on_inventory
     product_name = "Sauce Labs Bike Light"
-    product_name_link = InventoryPage.inventory_item_name_for(product_name)
 
     customer.attempts_to(
         AddProductToCart.named(product_name),
-        Click(product_name_link),
+        OpenProductDetails.named(product_name),
     )
     assert "inventory-item.html" in customer.asks_for(CurrentUrl())
     customer.expect(BackNavigation.BACK_TO_PRODUCTS).to_be_visible()
 
     customer.attempts_to(
-        Click(BackNavigation.BACK_TO_PRODUCTS),
-        WaitUntilVisible.for_(InventoryPage.INVENTORY_CONTAINER),
+        ReturnToProducts(),
+        WaitForInventoryPage(),
     )
     assert customer.asks_for(OnInventoryPage())
     assert customer.asks_for(CartBadgeCount()) == 1

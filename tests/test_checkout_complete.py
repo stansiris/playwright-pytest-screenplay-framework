@@ -8,16 +8,16 @@ from saucedemo.tasks.begin_checkout import BeginCheckout
 from saucedemo.tasks.complete_checkout import CompleteCheckout
 from saucedemo.tasks.go_to_cart import GoToCart
 from saucedemo.tasks.login import Login
+from saucedemo.tasks.open_checkout_complete_page import OpenCheckoutCompletePage
 from saucedemo.tasks.open_login_page import OpenLoginPage
 from saucedemo.tasks.provide_checkout_information import ProvideCheckoutInformation
+from saucedemo.tasks.refresh_browser import RefreshBrowser
 from saucedemo.tasks.return_to_products import ReturnToProducts
+from saucedemo.tasks.wait_for_checkout_complete_page import WaitForCheckoutCompletePage
+from saucedemo.tasks.wait_for_inventory_page import WaitForInventoryPage
 from saucedemo.ui.pages.cart_page import CartPage
 from saucedemo.ui.pages.checkout_complete_page import CheckoutCompletePage
-from saucedemo.ui.pages.inventory_page import InventoryPage
 from screenplay_core.core.actor import Actor
-from screenplay_core.interactions.navigate_to import NavigateTo
-from screenplay_core.interactions.refresh_page import RefreshPage
-from screenplay_core.interactions.wait_until_visible import WaitUntilVisible
 from screenplay_core.questions.current_url import CurrentUrl
 from screenplay_core.questions.text_of import TextOf
 from screenplay_core.questions.texts_of import TextsOf
@@ -41,7 +41,7 @@ def customer_on_checkout_complete(customer: Actor) -> Actor:
             BeginCheckout(),
             ProvideCheckoutInformation.as_customer(FIRST_NAME, LAST_NAME, POSTAL_CODE),
             CompleteCheckout(),
-            WaitUntilVisible.for_(CheckoutCompletePage.CHECKOUT_COMPLETE_TITLE),
+            WaitForCheckoutCompletePage(),
         ]
     )
     customer.attempts_to(*activities)
@@ -80,7 +80,7 @@ def test_checkout_complete_return_to_products_keeps_cart_empty(
     customer = customer_on_checkout_complete
     customer.attempts_to(
         ReturnToProducts(),
-        WaitUntilVisible.for_(InventoryPage.INVENTORY_CONTAINER),
+        WaitForInventoryPage(),
     )
 
     assert customer.asks_for(OnInventoryPage())
@@ -95,7 +95,7 @@ def test_checkout_complete_return_to_inventory_then_cart_is_empty(
     customer = customer_on_checkout_complete
     customer.attempts_to(
         ReturnToProducts(),
-        WaitUntilVisible.for_(InventoryPage.INVENTORY_CONTAINER),
+        WaitForInventoryPage(),
         GoToCart(),
     )
 
@@ -111,7 +111,8 @@ def test_checkout_complete_refresh_keeps_confirmation_visible(
     """Verify browser refresh on complete page preserves completion state."""
     customer = customer_on_checkout_complete
     customer.attempts_to(
-        RefreshPage(), WaitUntilVisible.for_(CheckoutCompletePage.CHECKOUT_COMPLETE_TITLE)
+        RefreshBrowser(),
+        WaitForCheckoutCompletePage(),
     )
 
     assert (
@@ -123,8 +124,8 @@ def test_checkout_complete_refresh_keeps_confirmation_visible(
 
 @pytest.mark.integration
 def test_checkout_complete_direct_url_redirects_to_login_when_logged_out(
-    customer: Actor, base_url: str
+    customer: Actor,
 ) -> None:
     """Verify logged-out access to complete page URL redirects to login page."""
-    customer.attempts_to(NavigateTo(f"{base_url}checkout-complete.html"))
+    customer.attempts_to(OpenCheckoutCompletePage())
     assert customer.asks_for(OnLoginPage())

@@ -4,17 +4,19 @@ from saucedemo.questions.cart_badge_count import CartBadgeCount
 from saucedemo.questions.on_inventory_page import OnInventoryPage
 from saucedemo.questions.on_login_page import OnLoginPage
 from saucedemo.tasks.add_product_to_cart import AddProductToCart
+from saucedemo.tasks.go_to_cart import GoToCart
 from saucedemo.tasks.login import Login
 from saucedemo.tasks.open_login_page import OpenLoginPage
-from saucedemo.ui.components.app_shell import AppShell
+from saucedemo.tasks.open_product_details import OpenProductDetails
+from saucedemo.tasks.open_product_details_by_id import OpenProductDetailsById
+from saucedemo.tasks.return_to_products import ReturnToProducts
+from saucedemo.tasks.toggle_product_details_cart_action import ToggleProductDetailsCartAction
+from saucedemo.tasks.wait_for_inventory_page import WaitForInventoryPage
 from saucedemo.ui.components.back_navigation import BackNavigation
 from saucedemo.ui.pages.cart_page import CartPage
 from saucedemo.ui.pages.inventory_page import InventoryPage
 from saucedemo.ui.pages.product_details_page import ProductDetailsPage
 from screenplay_core.core.actor import Actor
-from screenplay_core.interactions.click import Click
-from screenplay_core.interactions.navigate_to import NavigateTo
-from screenplay_core.interactions.wait_until_visible import WaitUntilVisible
 from screenplay_core.questions.current_url import CurrentUrl
 from screenplay_core.questions.text_of import TextOf
 from screenplay_core.questions.texts_of import TextsOf
@@ -28,15 +30,15 @@ def customer_on_inventory(customer: Actor) -> Actor:
     customer.attempts_to(
         OpenLoginPage(),
         Login.with_credentials("standard_user", "secret_sauce"),
-        WaitUntilVisible.for_(InventoryPage.INVENTORY_CONTAINER),
+        WaitForInventoryPage(),
     )
     assert customer.asks_for(OnInventoryPage())
     return customer
 
 
 def open_product_details(customer: Actor, product_name: str) -> None:
-    customer.attempts_to(Click(InventoryPage.inventory_item_name_for(product_name)))
-    customer.expect(BackNavigation.BACK_TO_PRODUCTS).to_be_visible()
+    customer.attempts_to(OpenProductDetails.named(product_name))
+    customer.expect(ProductDetailsPage.PRODUCT_DETAILS_ACTION_BUTTON).to_be_visible()
     assert "inventory-item.html" in customer.asks_for(CurrentUrl())
 
 
@@ -78,7 +80,7 @@ def test_product_details_add_to_cart_updates_badge(customer_on_inventory: Actor)
     customer = customer_on_inventory
     open_product_details(customer, PRODUCT_NAME)
 
-    customer.attempts_to(Click(ProductDetailsPage.PRODUCT_DETAILS_ACTION_BUTTON))
+    customer.attempts_to(ToggleProductDetailsCartAction())
     assert customer.asks_for(CartBadgeCount()) == 1
     customer.expect(ProductDetailsPage.PRODUCT_DETAILS_ACTION_BUTTON).to_have_text("Remove")
 
@@ -89,8 +91,8 @@ def test_product_details_remove_from_cart_updates_badge(customer_on_inventory: A
     customer = customer_on_inventory
     open_product_details(customer, PRODUCT_NAME)
 
-    customer.attempts_to(Click(ProductDetailsPage.PRODUCT_DETAILS_ACTION_BUTTON))
-    customer.attempts_to(Click(ProductDetailsPage.PRODUCT_DETAILS_ACTION_BUTTON))
+    customer.attempts_to(ToggleProductDetailsCartAction())
+    customer.attempts_to(ToggleProductDetailsCartAction())
     assert customer.asks_for(CartBadgeCount()) == 0
     customer.expect(ProductDetailsPage.PRODUCT_DETAILS_ACTION_BUTTON).to_have_text("Add to cart")
 
@@ -100,11 +102,11 @@ def test_product_details_back_to_products_preserves_cart(customer_on_inventory: 
     """Verify back-to-products returns to inventory while preserving cart state."""
     customer = customer_on_inventory
     open_product_details(customer, PRODUCT_NAME)
-    customer.attempts_to(Click(ProductDetailsPage.PRODUCT_DETAILS_ACTION_BUTTON))
+    customer.attempts_to(ToggleProductDetailsCartAction())
 
     customer.attempts_to(
-        Click(BackNavigation.BACK_TO_PRODUCTS),
-        WaitUntilVisible.for_(InventoryPage.INVENTORY_CONTAINER),
+        ReturnToProducts(),
+        WaitForInventoryPage(),
     )
     assert customer.asks_for(OnInventoryPage())
     assert customer.asks_for(CartBadgeCount()) == 1
@@ -130,8 +132,8 @@ def test_product_details_add_then_cart_contains_item(customer_on_inventory: Acto
     customer = customer_on_inventory
     open_product_details(customer, PRODUCT_NAME)
     customer.attempts_to(
-        Click(ProductDetailsPage.PRODUCT_DETAILS_ACTION_BUTTON),
-        Click(AppShell.SHOPPING_CART_LINK),
+        ToggleProductDetailsCartAction(),
+        GoToCart(),
     )
 
     cart_items = customer.asks_for(TextsOf(CartPage.CART_ITEM_NAMES))
@@ -140,11 +142,11 @@ def test_product_details_add_then_cart_contains_item(customer_on_inventory: Acto
 
 @pytest.mark.integration
 def test_product_details_direct_url_when_logged_in(
-    customer_on_inventory: Actor, base_url: str
+    customer_on_inventory: Actor,
 ) -> None:
     """Verify logged-in user can open product details directly by URL."""
     customer = customer_on_inventory
-    customer.attempts_to(NavigateTo(f"{base_url}inventory-item.html?id={PRODUCT_ID}"))
+    customer.attempts_to(OpenProductDetailsById.with_id(PRODUCT_ID))
 
     customer.expect(BackNavigation.BACK_TO_PRODUCTS).to_be_visible()
     assert customer.asks_for(CurrentUrl()).endswith(f"/inventory-item.html?id={PRODUCT_ID}")
@@ -152,8 +154,8 @@ def test_product_details_direct_url_when_logged_in(
 
 @pytest.mark.integration
 def test_product_details_direct_url_redirects_to_login_when_logged_out(
-    customer: Actor, base_url: str
+    customer: Actor,
 ) -> None:
     """Verify logged-out access to details URL redirects to login page."""
-    customer.attempts_to(NavigateTo(f"{base_url}inventory-item.html?id={PRODUCT_ID}"))
+    customer.attempts_to(OpenProductDetailsById.with_id(PRODUCT_ID))
     assert customer.asks_for(OnLoginPage())
