@@ -3,13 +3,11 @@
 [![CI](https://github.com/stansiris/playwright-pytest-screenplay-framework/actions/workflows/ci.yml/badge.svg)](https://github.com/stansiris/playwright-pytest-screenplay-framework/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 
-A Python UI automation framework using Playwright, pytest, and the Screenplay pattern,
-with `pytest-bdd` as the primary behavior layer.
-
 ## Portfolio Project
 
-**This repository is a public portfolio showcase project.**
-It is intentionally designed to demonstrate end-to-end test automation engineering for recruiters and hiring teams.
+**This repository is a public portfolio project, not a comprehensive SauceDemo test suite.**
+
+This portfolio project demonstrates my automation and architecture skills by building a Python + Playwright framework around the Screenplay pattern. It shows that the same Screenplay model works cleanly with both 'pytest-bdd' scenarios and direct pytest tests.
 
 This project highlights:
 - a maintainable Screenplay-based architecture for UI testing
@@ -19,6 +17,112 @@ This project highlights:
 - support for both BDD and direct pytest styles on the same model
 - marker-driven CI lanes (`smoke`, `integration`, `ui`, `e2e`) with artifacts
 - centralized runtime configuration for project execution
+
+## Table of Contents
+
+- [Hybrid Assertion Model](#hybrid-assertion-model)
+- [API and Design References](#api-and-design-references)
+- [Project Structure](#project-structure)
+- [Test Modes](#test-modes)
+- [Documentation](#documentation)
+- [AI-Assisted Development](#ai-assisted-development)
+- [Current Test Coverage](#current-test-coverage)
+- [Results and Impact](#results-and-impact)
+- [Setup](#setup)
+- [Troubleshooting](#troubleshooting)
+- [Quick Run Commands](#quick-run-commands)
+- [CI-Ready Formatting](#ci-ready-formatting)
+- [CI Pipeline](#ci-pipeline)
+- [Test Reporting](#test-reporting)
+- [Demo and Evidence](#demo-and-evidence)
+- [Runtime Configuration](#runtime-configuration)
+
+## Hybrid Assertion Model
+
+The framework intentionally supports a hybrid style:
+- Playwright-native locator assertions through `Actor.expect(Target)` for strong UI synchronization and readable assertions.
+- Screenplay Questions through `Actor.asks_for(...)` for domain/state assertions and reusable business checks.
+
+Example:
+
+```python
+from saucedemo.questions.on_inventory_page import OnInventoryPage
+from saucedemo.ui.pages.checkout_overview_page import CheckoutOverviewPage
+from saucedemo.ui.pages.login_page import LoginPage
+
+
+def test_example(customer):
+    customer.expect(LoginPage.LOGIN_BUTTON).to_be_visible()
+    customer.expect(CheckoutOverviewPage.CHECKOUT_TOTAL).to_contain_text("Total:")
+    customer.expect(CheckoutOverviewPage.CHECKOUT_TOTAL).to_have_text(
+        "Total: $60.45", timeout=3000
+    )
+    assert customer.asks_for(OnInventoryPage())
+```
+
+Timeout behavior:
+- default `expect(...)` timeout is Playwright's built-in default
+- pass `timeout=...` on any Playwright assertion call to override per assertion
+
+## API and Design References
+
+Detailed component model, task/question vocabulary, and architecture decisions are documented in:
+- `docs/domain_model.md`
+- `docs/architecture.md` (layered architecture, class hierarchy diagrams, dependency graphs, runtime sequence diagrams)
+- `docs/ui_target_organization.md` (page/component target organization and usage conventions)
+- `docs/design_decisions.md`
+
+## Project Structure
+
+```text
+screenplay_core/
+|-- abilities/      # Reusable abilities (BrowseTheWeb)
+|-- core/           # Actor, Task, Interaction, Question, Target
+|-- interactions/   # Reusable low-level browser interactions
+`-- questions/      # Reusable generic questions
+
+saucedemo/
+|-- tasks/          # SauceDemo business-level actions
+|-- questions/      # SauceDemo-specific queries
+`-- ui/
+    |-- pages/      # Page-level target catalogs
+    `-- components/ # Shared target catalogs reused across pages
+
+tests/
+|-- features/       # Gherkin scenarios
+|-- conftest.py     # fixture wiring + runtime defaults
+`-- test_*.py       # BDD step adapters and direct pytest + Screenplay tests
+
+docs/
+|-- architecture.md
+|-- codex_workflow.md
+|-- design_decisions.md
+|-- domain_model.md
+|-- ui_target_organization.md
+`-- engine_flows.md
+```
+
+## Test Modes
+
+Both modes are first-class and share the same Tasks/Questions/Interactions model.
+
+### 1. pytest-bdd + Screenplay
+- Gherkin defines behavior.
+- Step definitions (in `tests/test_golden_path_bdd.py` and `tests/test_login_bdd.py`) map phrases to Tasks/Questions.
+- Business intent stays separate from UI mechanics.
+
+### 2. Direct pytest + Screenplay
+- Useful for focused workflow tests and refactoring safety.
+- Current examples: `tests/test_login.py`, `tests/test_inventory.py`, `tests/test_product_details.py`, `tests/test_checkout_info.py`, `tests/test_checkout_complete.py`, and `tests/test_ui_pages.py`.
+
+## Documentation
+
+- Domain model: `docs/domain_model.md`
+- Architecture: `docs/architecture.md`
+- UI target organization: `docs/ui_target_organization.md`
+- Composed engine flows: `docs/engine_flows.md`
+- Design rationale: `docs/design_decisions.md`
+- Codex generation workflow: `docs/codex_workflow.md`
 
 ## AI-Assisted Development
 
@@ -40,6 +144,15 @@ Current coverage includes both BDD and direct pytest modules:
   - `tests/test_checkout_complete.py`
 - UI presentation checks for each core page:
   - `tests/test_ui_pages.py`
+
+## Results and Impact
+
+- Built a test model that supports both BDD and direct pytest styles on the same Screenplay primitives (Tasks/Questions/Interactions).
+- Isolated UI selector change impact by organizing targets into page/component catalogs (`saucedemo/ui/pages/*`, `saucedemo/ui/components/*`).
+- Established CI confidence coverage across environments:
+  - fast lane on PR/push
+  - matrix regression on `ubuntu/windows` x `chromium/firefox`
+- Improved failure diagnosis through retained artifacts (`junit.xml`, HTML report, screenshots, traces).
 
 ## Setup
 
@@ -67,6 +180,19 @@ python -m playwright install
 pytest -q
 ```
 
+## Troubleshooting
+
+- Browser binaries missing:
+  - run `python -m playwright install`
+- `base_url` or navigation failures:
+  - verify `pytest.ini` `base_url`
+  - override per run with `--base-url="https://www.saucedemo.com"`
+- Headed mode fails in remote/headless environments:
+  - remove `--headed` for CI/server runs
+- Slow/flaky local runs:
+  - start with `pytest -q -m "smoke or e2e"`
+  - use `--slowmo=150` only for debugging, not regular regression runs
+
 ## Quick Run Commands
 
 ```powershell
@@ -81,17 +207,6 @@ pytest -q -m "ui"
 
 # full regression marker union (keep `ui` explicit for future marker strategy changes)
 pytest -q -m "smoke or integration or e2e or ui"
-```
-
-## Architecture At A Glance
-
-```mermaid
-flowchart LR
-  A[BDD features<br/>tests/features/*.feature] --> B[BDD step adapters<br/>tests/test_*_bdd.py]
-  C[Direct pytest suites<br/>tests/test_*.py] --> D[Domain tasks + questions<br/>saucedemo/]
-  B --> D
-  D --> E[Reusable Screenplay core<br/>screenplay_core/]
-  E --> F[Playwright browser]
 ```
 
 ## CI-Ready Formatting
@@ -147,6 +262,14 @@ Retention policy:
 - PR/push jobs: 14 days
 - scheduled/manual full regression: 30 days
 
+## Demo and Evidence
+
+- CI workflow runs and job history: [`.github/workflows/ci.yml`](https://github.com/stansiris/playwright-pytest-screenplay-framework/actions/workflows/ci.yml)
+- Local run output artifacts are written to `test-results/`:
+  - `test-results/junit.xml`
+  - `test-results/report.html`
+- CI also uploads the same `test-results/` bundle as downloadable artifacts on each run.
+
 ## Runtime Configuration
 
 Runtime defaults are defined in `pytest.ini` and consumed in `tests/conftest.py`.
@@ -178,79 +301,3 @@ pytest -q \
   --slowmo=150 \
   --base-url="https://www.saucedemo.com"
 ```
-
-## Hybrid Assertion Model
-
-The framework intentionally supports a hybrid style:
-- Playwright-native locator assertions through `Actor.expect(Target)` for strong UI synchronization and readable assertions.
-- Screenplay Questions through `Actor.asks_for(...)` for domain/state assertions and reusable business checks.
-
-Example:
-
-```python
-customer.expect(LoginPage.LOGIN_BUTTON).to_be_visible()
-customer.expect(CheckoutOverviewPage.CHECKOUT_TOTAL).to_contain_text("Total:")
-customer.expect(CheckoutOverviewPage.CHECKOUT_TOTAL).to_have_text("Total: $60.45", timeout=3000)
-assert customer.asks_for(OnInventoryPage())
-```
-
-Timeout behavior:
-- default `expect(...)` timeout is Playwright's built-in default
-- pass `timeout=...` on any Playwright assertion call to override per assertion
-
-## API and Design References
-
-Detailed component model, task/question vocabulary, and architecture decisions are documented in:
-- `docs/domain_model.md`
-- `docs/architecture.md` (layered architecture, class hierarchy diagrams, dependency graphs, runtime sequence diagrams)
-- `docs/ui_target_organization.md` (page/component target organization and usage conventions)
-- `docs/design_decisions.md`
-
-## Project Structure
-
-```text
-screenplay_core/
-|-- abilities/      # Reusable abilities (BrowseTheWeb)
-|-- core/           # Actor, Task, Interaction, Question, Target
-|-- interactions/   # Reusable low-level browser interactions
-`-- questions/      # Reusable generic questions
-
-saucedemo/
-|-- tasks/          # SauceDemo business-level actions
-|-- questions/      # SauceDemo-specific queries
-`-- ui/
-    |-- pages/      # Page-level target catalogs
-    `-- components/ # Shared target catalogs reused across pages
-
-tests/
-|-- features/       # Gherkin scenarios
-|-- conftest.py     # fixture wiring + runtime defaults
-`-- test_*.py       # BDD step adapters and direct pytest + Screenplay tests
-
-docs/
-|-- architecture.md
-|-- codex_workflow.md
-|-- design_decisions.md
-|-- domain_model.md
-`-- engine_flows.md
-```
-
-## Test Modes
-
-### 1. pytest-bdd + Screenplay (primary)
-- Gherkin defines behavior.
-- Step definitions (in `tests/test_golden_path_bdd.py` and `tests/test_login_bdd.py`) map phrases to Tasks/Questions.
-- Business intent stays separate from UI mechanics.
-
-### 2. Direct pytest + Screenplay (supported)
-- Useful for focused workflow tests and refactoring safety.
-- Current examples: `tests/test_login.py`, `tests/test_inventory.py`, `tests/test_product_details.py`, `tests/test_checkout_info.py`, `tests/test_checkout_complete.py`, and `tests/test_ui_pages.py`.
-
-## Documentation
-
-- Domain model: `docs/domain_model.md`
-- Architecture: `docs/architecture.md`
-- UI target organization: `docs/ui_target_organization.md`
-- Composed engine flows: `docs/engine_flows.md`
-- Design rationale: `docs/design_decisions.md`
-- Codex generation workflow: `docs/codex_workflow.md`
