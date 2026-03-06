@@ -2,6 +2,7 @@ import pytest
 
 from saucedemo.questions.on_inventory_page import OnInventoryPage
 from saucedemo.tasks.login import Login
+from saucedemo.tasks.logout import Logout
 from saucedemo.tasks.open_login_page import OpenLoginPage
 from saucedemo.ui.components.app_shell import AppShell
 from saucedemo.ui.pages.login_page import LoginPage
@@ -34,7 +35,8 @@ from screenplay_core.interactions.click import Click
 def test_failed_login(customer, username, password, expected_error_message) -> None:
     """Verify invalid login inputs show the expected error and that the error can be dismissed."""
     customer.attempts_to(
-        OpenLoginPage(), Login.with_credentials(username=username, password=password)
+        OpenLoginPage(), 
+        Login.with_credentials(username=username, password=password),
     )
 
     customer.expect(LoginPage.LOGIN_ERROR_MESSAGE).to_contain_text(expected_error_message)
@@ -54,8 +56,9 @@ def test_failed_login(customer, username, password, expected_error_message) -> N
 def test_successful_login(customer, username, password) -> None:
     """Verify valid users can log in, reach inventory, and then log out back to login page."""
     customer.attempts_to(
-        OpenLoginPage(), Login.with_credentials(username=username, password=password)
+        OpenLoginPage(), 
+        Login.with_credentials(username=username, password=password),
     )
     assert customer.asks_for(OnInventoryPage())
-    customer.attempts_to(Click(AppShell.MENU_BUTTON), Click(AppShell.LOGOUT_LINK))
+    customer.attempts_to(Logout())
     customer.expect(LoginPage.LOGIN_BUTTON).to_be_visible()

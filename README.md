@@ -1,4 +1,8 @@
+
 # Playwright + Pytest Screenplay Framework
+
+![Python](https://img.shields.io/badge/python-3.11+-blue)
+![Playwright](https://img.shields.io/badge/playwright-testing-green)
 
 A production-style UI automation framework built with:
 
@@ -7,42 +11,84 @@ A production-style UI automation framework built with:
 - Pytest
 - Screenplay Pattern
 
-This repository demonstrates how the **Screenplay architecture** can be implemented in Python
+This repository demonstrates how the **Screenplay Pattern** can be implemented in Python
 to build maintainable and scalable UI automation frameworks that support both
 **BDD (`pytest-bdd`) and direct pytest tests**.
 
+The Screenplay Pattern models tests as interactions between **actors** and the system under test.
+Actors perform **tasks** composed of **interactions**, while **questions** read system state.
+
 The framework separates:
 
-- test behavior
-- domain vocabulary
-- automation mechanics
-- browser runtime
-
-This approach keeps tests readable while preserving a reusable and extensible automation architecture.
+• behavior specification  
+• domain vocabulary  
+• automation mechanics  
+• browser runtime  
 
 ---
 
-## Example Screenplay Test
+# Key Concepts
 
-In the Screenplay pattern, tests interact with the system through an **Actor**.
-The `customer` fixture represents a user interacting with the application through the browser.
+| Concept | Description |
+|---|---|
+| Actor | Represents a user interacting with the system |
+| Task | A business-level action performed by the actor |
+| Interaction | A low-level UI operation |
+| Question | Reads information from the application |
+| Target | Encapsulates a UI locator |
+| Ability | Gives the actor the capability to interact with external systems |
+
+Example execution flow:
+
+Actor → Task → Interaction → Playwright → Browser
+
+---
+
+# Screenplay Pattern Overview
+
+```mermaid
+graph TD
+
+Actor["Actor"]
+Ability["Ability<br/>(BrowseTheWeb)"]
+Task["Task<br/>(Login, ProceedToCheckout)"]
+Interaction["Interaction<br/>(Click, Fill, Wait)"]
+Question["Question<br/>(IsVisible, TextOf)"]
+Target["Target<br/>(UI Locator)"]
+Playwright["Playwright Runtime"]
+System["Application Under Test"]
+
+Actor -->|has ability| Ability
+
+Actor -->|performs| Task
+Task -->|composed of| Interaction
+Interaction -->|acts on| Target
+Target -->|resolved by| Playwright
+Playwright -->|drives| System
+
+Actor -->|asks| Question
+Question -->|reads| Target
+```
+
+---
+
+# Example Screenplay Test
 
 ```python
 def test_login(customer):
+
     customer.attempts_to(
         Login.with_credentials("standard_user", "secret_sauce")
     )
 
-    customer.expect(InventoryPage.INVENTORY_CONTAINER).to_be_visible()
+    assert customer.asks_for(OnInventoryPage())
 ```
-
-Screenplay allows tests to read like **user behavior instead of browser instructions**.
 
 ---
 
-## Quick Start
+# Quick Start
 
-### Windows (PowerShell)
+## Windows
 
 ```powershell
 git clone https://github.com/stansiris/playwright-pytest-screenplay-framework.git
@@ -50,13 +96,13 @@ cd playwright-pytest-screenplay-framework
 
 python -m venv .venv
 .venv\Scripts\Activate.ps1
-python -m pip install -e ".[dev]"
-python -m playwright install
+pip install -e ".[dev]"
+playwright install
 
 pytest -q
 ```
 
-### macOS / Linux
+## macOS / Linux
 
 ```bash
 git clone https://github.com/stansiris/playwright-pytest-screenplay-framework.git
@@ -64,157 +110,71 @@ cd playwright-pytest-screenplay-framework
 
 python -m venv .venv
 source .venv/bin/activate
-python -m pip install -e ".[dev]"
-python -m playwright install
+pip install -e ".[dev]"
+playwright install
 
 pytest -q
 ```
 
 ---
 
-## Framework Architecture
+# Screenplay Abstraction Chain
 
-The framework follows a layered architecture separating behavior,
-domain logic, and automation mechanics.
-
-```
-Tests / BDD
-      |
-      v
-Domain Layer (tasks, questions, UI targets)
-      |
-      v
-Reusable Screenplay Core
-      |
-      v
-Playwright
-```
-
-| Layer | Responsibility |
-|-----|-----|
-| Tests | Behavior specification |
-| Domain | Business vocabulary |
-| Screenplay Core | Reusable automation primitives |
-| Playwright | Browser automation runtime |
+Actor → Task → Interaction → Target → Playwright
 
 ---
 
-## Execution Flow
+# Framework Layers
 
-```
-Test / Feature
-    |
-    v
-Actor
-    |
-    v
-Task (business intent)
-    |
-    v
-Interaction (UI operation)
-    |
-    v
-Target (locator abstraction)
-    |
-    v
-Playwright Locator / Page
-```
+| Layer | Purpose | Examples |
+|---|---|---|
+| Tests | Behavior scenarios | `test_login.py` |
+| Domain Layer | Business vocabulary | `Login`, `Checkout` |
+| Screenplay Core | Automation primitives | `Actor`, `Task`, `Interaction` |
+| Integration | Connects external systems | `BrowseTheWeb` |
+| Runtime | Executes browser automation | Playwright |
 
 ---
 
-## Design Principles
+# Framework Architecture
 
-The framework follows several principles to keep automation scalable
-and maintainable.
+Tests → Domain Layer → Screenplay Core → Playwright
+
+---
+
+# Execution Flow
+
+Test → Actor → Task → Interaction → Target → Playwright
+
+---
+
+# Design Principles
 
 ### Behavior First
-
 Tests describe **user behavior**, not browser mechanics.
 
-```python
-customer.attempts_to(Login.with_credentials(user, password))
-```
-
-Instead of:
-
-```python
-page.fill("#username", user)
-page.fill("#password", password)
-page.click("#login")
-```
-
----
-
 ### Intent Over Implementation
-
-Tasks represent **what the user does**, while interactions define
-**how the browser performs it**.
-
-```
-Login Task
-   |
-   v
-Fill interaction
-Click interaction
-```
-
----
+Tasks represent **what the user does**.
 
 ### Thin Tests
-
-Test files remain minimal and delegate work to reusable domain logic.
-
-```python
-customer.attempts_to(
-    OpenLoginPage(),
-    Login.with_credentials("standard_user", "secret_sauce"),
-    Logout(),
-)
-```
-
----
+Tests remain minimal and delegate work to reusable domain logic.
 
 ### Domain Vocabulary
-
-Automation should reflect **business language**, not UI mechanics.
-
-Examples:
-
-```
-Login
-AddItemToCart
-Checkout
-IsInventoryPageVisible
-```
-
-Instead of:
-
-```
-ClickLoginButton
-FillUsername
-ClickSubmit
-```
-
----
+Automation reflects **business language**, not UI mechanics.
 
 ### Single Responsibility
-
 Each abstraction has a focused purpose.
-
-| Component | Responsibility |
-|---|---|
-| Actor | orchestrates activities |
-| Task | represents user intent |
-| Interaction | performs browser operations |
-| Question | reads system state |
-| Target | resolves UI elements |
-| Ability | connects external systems |
 
 ---
 
-## Actor Abilities
+# Targets
 
-Actors gain capabilities through abilities.
+Targets encapsulate UI locator strategies and allow interactions
+to remain independent from the underlying automation framework.
+
+---
+
+# Actor Abilities
 
 ```python
 customer = Actor("Customer").can(
@@ -222,20 +182,9 @@ customer = Actor("Customer").can(
 )
 ```
 
-Abilities isolate external systems from domain logic.
-
-Potential abilities include:
-
-- Browser automation
-- REST API communication
-- Database access
-- Messaging systems
-
 ---
 
-## Project Structure
-
-The project is organized into reusable framework components and domain-specific automation.
+# Project Structure
 
 ```
 screenplay_core/
@@ -248,108 +197,69 @@ saucedemo/
     tasks/
     questions/
     ui/
-        pages/
-        components/
 
 tests/
     features/
     test_*.py
-    conftest.py
 
 docs/
 ```
 
-| Directory | Responsibility |
-|---|---|
-| screenplay_core | reusable framework primitives |
-| saucedemo | domain-specific automation |
-| tests | behavior specs and test suites |
-| docs | architecture and design documentation |
-
 ---
 
-## Extending the Framework
+# CI Pipeline
 
-The framework is **domain-agnostic**.
-
-To automate another application:
-
-```
-myapp/
-    tasks/
-    questions/
-    ui/pages/
-    ui/components/
-```
-
-The Screenplay engine remains unchanged.
-
----
-
-## Documentation
-
-The `/docs` directory contains deeper conceptual documentation:
-
-- architecture diagrams
-- domain modeling
-- design decisions
-- runtime flows
-
----
-
-## Core API Reference
-
-The framework exposes a small set of abstractions:
-
-| Component | Purpose |
-|---|---|
-| Actor | orchestrates tasks and questions |
-| Task | represents user intent |
-| Interaction | performs browser operations |
-| Question | reads system state |
-| Target | resolves locators |
-| BrowseTheWeb | browser ability |
-
----
-
-## CI Pipeline
-
-GitHub Actions provides continuous integration including:
+GitHub Actions provides:
 
 - Ruff linting
 - Black formatting checks
 - automated test execution
-- artifact retention (reports, traces)
 
 ---
 
-## Runtime Configuration
-
-Runtime defaults are defined in `pytest.ini`.
-
-Common CLI overrides:
+# Runtime Configuration
 
 ```
---browser
---headed
---slowmo
---base-url
-```
-
-Example:
-
-```bash
 pytest -q --browser=firefox --headed
 ```
 
 ---
 
-## Portfolio Context
+# Architecture Decision: Screenplay vs Page Object Model
+
+Decision: Use the **Screenplay Pattern** rather than traditional Page Object Model.
+
+Advantages:
+
+- clearer domain vocabulary
+- scalable framework structure
+- improved test readability
+- better separation of concerns
+
+Trade-offs:
+
+- slightly more framework structure
+- requires understanding Screenplay abstractions
+
+---
+
+# What This Framework Demonstrates
+
+This project demonstrates:
+
+- Screenplay Pattern implementation in Python
+- Playwright UI automation
+- scalable test framework architecture
+- domain-driven automation design
+- CI integration
+
+---
+
+# Portfolio Context
 
 This repository demonstrates:
 
 - automation architecture design
-- Screenplay pattern implementation in Python
+- Screenplay pattern implementation
 - Playwright integration
 - CI pipelines
-- BDD + pytest test strategies
