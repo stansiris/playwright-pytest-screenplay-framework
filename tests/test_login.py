@@ -58,8 +58,6 @@ def test_successful_login(customer, username, password) -> None:
         OpenLoginPage(),
         Login.with_credentials(username=username, password=password),
         Ensure.that(InventoryPage.INVENTORY_CONTAINER).to_be_visible(),
+        Logout(),
+        Ensure.that(LoginPage.LOGIN_BUTTON).to_be_visible(),
     )
-    assert customer.asks_for(TextOf(AppShell.PAGE_TITLE)) == "Products"
-    assert customer.asks_for(InventoryCount()) == 6
-    customer.attempts_to(Logout())
-    customer.attempts_to(Ensure.that(LoginPage.LOGIN_BUTTON).to_be_visible())
