@@ -159,15 +159,28 @@ See `docs/assertion_model.md` for details.
 
 # Framework Architecture
 
-Tests  
-↓  
-Domain Layer (SauceDemo tasks & questions)  
-↓  
-Screenplay Core  
-↓  
-Playwright Runtime  
-↓  
+The framework separates responsibilities into clear layers so that tests remain thin,
+domain behavior stays reusable, and browser automation details remain isolated.
+
+Tests
+↓
+Domain Layer (tasks, questions, targets)
+↓
+Screenplay Core (actor, task, interaction, consequence, ability)
+↓
+Playwright Runtime
+↓
 Application Under Test
+
+| Layer | Responsibility |
+|---|---|
+| Tests | Describe scenarios and orchestrate behavior |
+| Domain Layer | Encapsulates application-specific tasks, questions, and targets |
+| Screenplay Core | Provides reusable Screenplay abstractions |
+| Playwright Runtime | Executes browser interactions and assertions |
+| Application Under Test | The system being automated |
+
+For a deeper explanation, see [docs/architecture.md](docs/architecture.md).
 
 ---
 
@@ -215,17 +228,24 @@ docs/
 
 # How to Explore This Repository
 
-Recommended reading order:
+A good way to understand the framework is to read the code in the following order.
 
-1. `tests/test_login.py`
-2. `screenplay_core/core/actor.py`
-3. `saucedemo/tasks/login.py`
-4. `screenplay_core/consequences/ensure.py`
+1. `tests/test_login.py`  
+   Start here to see the smallest complete Screenplay test using the framework.
+
+2. `screenplay_core/core/actor.py`  
+   Read this next to understand how the actor executes tasks, consequences, and questions.
+
+3. `saucedemo/tasks/login.py`  
+   This shows how domain behavior is modeled as a reusable Screenplay task.
+
+4. `screenplay_core/consequences/ensure.py`  
+   This file demonstrates how Playwright assertions are exposed through the Screenplay DSL.
 
 Additional orientation:
 
-- `docs/getting_started.md`
-- `docs/assertion_model.md`
+- `docs/getting_started.md` — overview of how to navigate the project
+- `docs/assertion_model.md` — explanation of `Ensure`, `Question`, and assertion usage
 
 ---
 
