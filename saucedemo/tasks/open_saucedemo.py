@@ -11,7 +11,7 @@ class OpenSauceDemo(Task):
         base_url = actor.ability_to(BrowseTheWeb).base_url
         if not base_url:
             raise ValueError("BrowseTheWeb ability must include a base_url to open SauceDemo.")
-        actor.attempts_to(NavigateTo(base_url))
+        self.perform_interactions(actor, NavigateTo(base_url))
 
     @classmethod
     def app(cls) -> "OpenSauceDemo":

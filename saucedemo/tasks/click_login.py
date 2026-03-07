@@ -8,4 +8,4 @@ class ClickLogin(Task):
     """Task: click the login button."""
 
     def perform_as(self, actor: Actor) -> None:
-        actor.attempts_to(Click(LoginPage.LOGIN_BUTTON))
+        self.perform_interactions(actor, Click(LoginPage.LOGIN_BUTTON))

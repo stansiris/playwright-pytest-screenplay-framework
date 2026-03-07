@@ -8,4 +8,6 @@ class WaitForCheckoutCompletePage(Task):
     """Task: wait for checkout complete confirmation page to be visible."""
 
     def perform_as(self, actor: Actor) -> None:
-        actor.attempts_to(WaitUntilVisible.for_(CheckoutCompletePage.CHECKOUT_COMPLETE_TITLE))
+        self.perform_interactions(
+            actor, WaitUntilVisible.for_(CheckoutCompletePage.CHECKOUT_COMPLETE_TITLE)
+        )

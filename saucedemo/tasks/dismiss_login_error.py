@@ -8,4 +8,4 @@ class DismissLoginError(Task):
     """Task: dismiss the login error banner."""
 
     def perform_as(self, actor: Actor) -> None:
-        actor.attempts_to(Click(LoginPage.LOGIN_ERROR_CLOSE_BUTTON))
+        self.perform_interactions(actor, Click(LoginPage.LOGIN_ERROR_CLOSE_BUTTON))

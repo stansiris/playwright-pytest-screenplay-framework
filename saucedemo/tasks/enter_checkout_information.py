@@ -21,7 +21,8 @@ class EnterCheckoutInformation(Task):
         )
 
     def perform_as(self, actor: Actor) -> None:
-        actor.attempts_to(
+        self.perform_interactions(
+            actor,
             Fill(CheckoutInfoPage.CHECKOUT_FIRST_NAME, self.first_name),
             Fill(CheckoutInfoPage.CHECKOUT_LAST_NAME, self.last_name),
             Fill(CheckoutInfoPage.CHECKOUT_POSTAL_CODE, self.postal_code),

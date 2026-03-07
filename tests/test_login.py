@@ -1,46 +1,46 @@
 import pytest
 
-from saucedemo.questions.on_inventory_page import OnInventoryPage
+from saucedemo.questions.inventory_count import InventoryCount
 from saucedemo.tasks.dismiss_login_error import DismissLoginError
 from saucedemo.tasks.login import Login
 from saucedemo.tasks.logout import Logout
 from saucedemo.tasks.open_login_page import OpenLoginPage
+from saucedemo.ui.components.app_shell import AppShell
+from saucedemo.ui.pages.inventory_page import InventoryPage
 from saucedemo.ui.pages.login_page import LoginPage
+from screenplay_core.consequences.ensure import Ensure
+from screenplay_core.questions.text_of import TextOf
 
 
 @pytest.mark.parametrize(
     "username,password,expected_error_message",
     [
-        ("", "secret_sauce", "Username is required"),  # missing username
-        ("standard_user", "", "Password is required"),  # missing password
+        ("", "secret_sauce", "Username is required"),
+        ("standard_user", "", "Password is required"),
         (
             "invalid_user",
             "secret_sauce",
             "Username and password do not match any user in this service",
-        ),  # invalid username
+        ),
         (
             "standard_user",
             "wrong_password",
             "Username and password do not match any user in this service",
-        ),  # invalid password
-        (
-            "locked_out_user",
-            "secret_sauce",
-            "Sorry, this user has been locked out.",
-        ),  # locked out user
+        ),
+        ("locked_out_user", "secret_sauce", "Sorry, this user has been locked out."),
     ],
 )
 @pytest.mark.integration
 def test_failed_login(customer, username, password, expected_error_message) -> None:
     """Verify invalid login inputs show the expected error and that the error can be dismissed."""
     customer.attempts_to(
-        OpenLoginPage(),
-        Login.with_credentials(username=username, password=password),
+        OpenLoginPage(), Login.with_credentials(username=username, password=password)
     )
-
-    customer.expect(LoginPage.LOGIN_ERROR_MESSAGE).to_contain_text(expected_error_message)
+    customer.attempts_to(
+        Ensure.that(LoginPage.LOGIN_ERROR_MESSAGE).to_contain_text(expected_error_message)
+    )
     customer.attempts_to(DismissLoginError())
-    customer.expect(LoginPage.LOGIN_ERROR_MESSAGE).to_be_hidden()
+    customer.attempts_to(Ensure.that(LoginPage.LOGIN_ERROR_MESSAGE).to_be_hidden())
 
 
 @pytest.mark.parametrize(
@@ -57,7 +57,9 @@ def test_successful_login(customer, username, password) -> None:
     customer.attempts_to(
         OpenLoginPage(),
         Login.with_credentials(username=username, password=password),
+        Ensure.that(InventoryPage.INVENTORY_CONTAINER).to_be_visible(),
     )
-    assert customer.asks_for(OnInventoryPage())
+    assert customer.asks_for(TextOf(AppShell.PAGE_TITLE)) == "Products"
+    assert customer.asks_for(InventoryCount()) == 6
     customer.attempts_to(Logout())
-    customer.expect(LoginPage.LOGIN_BUTTON).to_be_visible()
+    customer.attempts_to(Ensure.that(LoginPage.LOGIN_BUTTON).to_be_visible())

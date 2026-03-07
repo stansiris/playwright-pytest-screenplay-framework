@@ -8,4 +8,4 @@ class ProceedToCheckout(Task):
     """Task: continue from cart page to checkout information."""
 
     def perform_as(self, actor: Actor) -> None:
-        actor.attempts_to(Click(CartPage.CHECKOUT_BUTTON))
+        self.perform_interactions(actor, Click(CartPage.CHECKOUT_BUTTON))

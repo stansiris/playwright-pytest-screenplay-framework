@@ -15,9 +15,12 @@ class Login(Task):
         self.password = password
 
     def perform_as(self, actor) -> None:
-        actor.attempts_to(
+        self.perform_interactions(
+            actor,
             Fill(LoginPage.LOGIN_USERNAME, self.username),
             Fill(LoginPage.LOGIN_PASSWORD, self.password),
+        )
+        actor.attempts_to(
             ClickLogin(),
         )
 

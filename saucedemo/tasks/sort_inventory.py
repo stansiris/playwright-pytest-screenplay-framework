@@ -24,7 +24,8 @@ class SortInventory(Task):
         return f"SortInventory(option='{self.option}')"
 
     def perform_as(self, actor: Actor) -> None:
-        actor.attempts_to(
+        self.perform_interactions(
+            actor,
             SelectByValue(InventoryPage.INVENTORY_SORT, SORT_OPTION_VALUE[self.option]),
         )
 

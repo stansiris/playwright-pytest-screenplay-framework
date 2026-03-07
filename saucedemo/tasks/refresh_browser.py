@@ -7,4 +7,4 @@ class RefreshBrowser(Task):
     """Task: refresh the current browser page."""
 
     def perform_as(self, actor: Actor) -> None:
-        actor.attempts_to(RefreshPage())
+        self.perform_interactions(actor, RefreshPage())

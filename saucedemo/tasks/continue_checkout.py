@@ -8,4 +8,4 @@ class ContinueCheckout(Task):
     """Task: continue from checkout information to overview."""
 
     def perform_as(self, actor: Actor) -> None:
-        actor.attempts_to(Click(CheckoutInfoPage.CHECKOUT_CONTINUE))
+        self.perform_interactions(actor, Click(CheckoutInfoPage.CHECKOUT_CONTINUE))

@@ -8,4 +8,4 @@ class WaitForInventoryPage(Task):
     """Task: wait for the inventory page container to be visible."""
 
     def perform_as(self, actor: Actor) -> None:
-        actor.attempts_to(WaitUntilVisible.for_(InventoryPage.INVENTORY_CONTAINER))
+        self.perform_interactions(actor, WaitUntilVisible.for_(InventoryPage.INVENTORY_CONTAINER))

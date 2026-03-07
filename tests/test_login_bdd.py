@@ -8,22 +8,17 @@ from saucedemo.tasks.logout import Logout
 from saucedemo.tasks.open_login_page import OpenLoginPage
 from saucedemo.tasks.wait_for_inventory_page import WaitForInventoryPage
 from saucedemo.ui.pages.login_page import LoginPage
+from screenplay_core.consequences.ensure import Ensure
 from screenplay_core.core.actor import Actor
 
 
-@scenario(
-    "features/login.feature",
-    "Successful login reaches inventory and user can log out",
-)
+@scenario("features/login.feature", "Successful login reaches inventory and user can log out")
 def test_successful_login_reaches_inventory_and_user_can_log_out() -> None:
     """Run the BDD login success flow and verify logout returns to login."""
     pass
 
 
-@scenario(
-    "features/login.feature",
-    "Invalid login shows expected error message",
-)
+@scenario("features/login.feature", "Invalid login shows expected error message")
 def test_invalid_login_shows_expected_error_message() -> None:
     """Run the BDD invalid login flow and verify expected error handling."""
     pass
@@ -36,7 +31,7 @@ def open_login_page_for_login_scenarios(customer: Actor) -> None:
 
 @when(
     parsers.re(
-        r'^I submit login credentials username "(?P<username>.*)" and password "(?P<password>.*)"$'
+        '^I submit login credentials username "(?P<username>.*)" and password "(?P<password>.*)"$'
     )
 )
 def submit_login_credentials(customer: Actor, username: str, password: str) -> None:
@@ -56,16 +51,16 @@ def log_out_from_inventory_menu(customer: Actor) -> None:
 
 @then("I should be back on the login page for login scenarios")
 def should_be_back_on_login_page_for_login_scenarios(customer: Actor) -> None:
-    customer.expect(LoginPage.LOGIN_BUTTON).to_be_visible()
+    customer.attempts_to(Ensure.that(LoginPage.LOGIN_BUTTON).to_be_visible())
     assert customer.asks_for(OnLoginPage())
 
 
 @then(parsers.parse('I should see login error message "{error_message}" for login scenarios'))
 def should_see_login_error_message_for_login_scenarios(customer: Actor, error_message: str) -> None:
-    customer.expect(LoginPage.LOGIN_ERROR_MESSAGE).to_contain_text(error_message)
+    customer.attempts_to(Ensure.that(LoginPage.LOGIN_ERROR_MESSAGE).to_contain_text(error_message))
 
 
 @then("I can dismiss the login error message")
 def can_dismiss_login_error_message(customer: Actor) -> None:
     customer.attempts_to(DismissLoginError())
-    customer.expect(LoginPage.LOGIN_ERROR_MESSAGE).to_be_hidden()
+    customer.attempts_to(Ensure.that(LoginPage.LOGIN_ERROR_MESSAGE).to_be_hidden())

@@ -8,4 +8,4 @@ class CompleteCheckout(Task):
     """Task: finish checkout on the overview page."""
 
     def perform_as(self, actor: Actor) -> None:
-        actor.attempts_to(Click(CheckoutOverviewPage.CHECKOUT_FINISH))
+        self.perform_interactions(actor, Click(CheckoutOverviewPage.CHECKOUT_FINISH))

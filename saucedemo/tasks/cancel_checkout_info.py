@@ -8,4 +8,4 @@ class CancelCheckoutInfo(Task):
     """Task: cancel from checkout information page back to cart."""
 
     def perform_as(self, actor: Actor) -> None:
-        actor.attempts_to(Click(CheckoutInfoPage.CHECKOUT_INFO_CANCEL_BUTTON))
+        self.perform_interactions(actor, Click(CheckoutInfoPage.CHECKOUT_INFO_CANCEL_BUTTON))

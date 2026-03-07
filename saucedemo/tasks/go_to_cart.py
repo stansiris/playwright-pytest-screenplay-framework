@@ -8,4 +8,4 @@ class GoToCart(Task):
     """Task: navigate to the cart page."""
 
     def perform_as(self, actor: Actor) -> None:
-        actor.attempts_to(Click(AppShell.SHOPPING_CART_LINK))
+        self.perform_interactions(actor, Click(AppShell.SHOPPING_CART_LINK))

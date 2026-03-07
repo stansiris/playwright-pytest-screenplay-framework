@@ -13,4 +13,4 @@ class OpenCheckoutCompletePage(Task):
             raise ValueError(
                 "BrowseTheWeb ability must include a base_url to open checkout complete page."
             )
-        actor.attempts_to(NavigateTo(f"{base_url}checkout-complete.html"))
+        self.perform_interactions(actor, NavigateTo(f"{base_url}checkout-complete.html"))

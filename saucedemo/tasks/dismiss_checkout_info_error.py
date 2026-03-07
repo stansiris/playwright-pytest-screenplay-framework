@@ -8,4 +8,4 @@ class DismissCheckoutInfoError(Task):
     """Task: dismiss the checkout information error banner."""
 
     def perform_as(self, actor: Actor) -> None:
-        actor.attempts_to(Click(CheckoutInfoPage.CHECKOUT_INFO_ERROR_CLOSE_BUTTON))
+        self.perform_interactions(actor, Click(CheckoutInfoPage.CHECKOUT_INFO_ERROR_CLOSE_BUTTON))

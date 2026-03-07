@@ -8,4 +8,4 @@ class ReturnToProducts(Task):
     """Task: return from checkout complete page to product list."""
 
     def perform_as(self, actor: Actor) -> None:
-        actor.attempts_to(Click(BackNavigation.BACK_TO_PRODUCTS))
+        self.perform_interactions(actor, Click(BackNavigation.BACK_TO_PRODUCTS))

@@ -1,11 +1,11 @@
 import logging
 import time
 
-from playwright.sync_api import LocatorAssertions, expect
-
 from screenplay_core.core.activity import Activity
+from screenplay_core.core.consequence import Consequence
+from screenplay_core.core.interaction import Interaction
 from screenplay_core.core.question import Question
-from screenplay_core.core.target import Target
+from screenplay_core.core.task import Task
 
 logger = logging.getLogger(__name__)
 
@@ -24,24 +24,29 @@ class Actor:
             raise Exception(f"{self.name} does not have ability {ability_class.__name__}.")
         return self._abilities[ability_class]
 
-    def attempts_to(self, *activities: Activity) -> None:
+    def attempts_to(self, *activities: Task | Consequence) -> None:
         for activity in activities:
-            activity_name = activity.__class__.__name__
-            logger.info("%s performs %s %s", self.name, activity_name, _safe_repr(activity))
-
-            start = time.perf_counter()
-            try:
-                activity.perform_as(self)
-            except Exception:
-                logger.exception(
-                    "%s FAILED %s after %.0f ms",
-                    self.name,
-                    activity_name,
-                    _elapsed_ms(start),
+            if isinstance(activity, Interaction):
+                raise TypeError(
+                    f"{self.name}.attempts_to() accepts Task/Consequence only; "
+                    f"got Interaction '{activity.__class__.__name__}'. "
+                    "Wrap low-level interactions inside a Task."
                 )
-                raise
+            if not isinstance(activity, (Task, Consequence)):
+                raise TypeError(
+                    f"{self.name}.attempts_to() accepts Task/Consequence only; "
+                    f"got {activity.__class__.__name__}."
+                )
+            self._perform_activity(activity)
 
-            logger.info("%s DONE %s (%.0f ms)", self.name, activity_name, _elapsed_ms(start))
+    def _attempts_to_interactions(self, *interactions: Interaction) -> None:
+        for interaction in interactions:
+            if not isinstance(interaction, Interaction):
+                raise TypeError(
+                    f"{self.name}._attempts_to_interactions() accepts Interaction only; "
+                    f"got {interaction.__class__.__name__}."
+                )
+            self._perform_activity(interaction)
 
     def asks_for(self, question: Question):
         q_name = question.__class__.__name__
@@ -56,8 +61,23 @@ class Actor:
         logger.info("%s got %s -> %r (%.0f ms)", self.name, q_name, answer, _elapsed_ms(start))
         return answer
 
-    def expect(self, target: Target) -> LocatorAssertions:
-        return expect(target.resolve_for(self))
+    def _perform_activity(self, activity: Activity) -> None:
+        activity_name = activity.__class__.__name__
+        logger.info("%s performs %s %s", self.name, activity_name, _safe_repr(activity))
+
+        start = time.perf_counter()
+        try:
+            activity.perform_as(self)
+        except Exception:
+            logger.exception(
+                "%s FAILED %s after %.0f ms",
+                self.name,
+                activity_name,
+                _elapsed_ms(start),
+            )
+            raise
+
+        logger.info("%s DONE %s (%.0f ms)", self.name, activity_name, _elapsed_ms(start))
 
 
 def _safe_repr(obj) -> str:

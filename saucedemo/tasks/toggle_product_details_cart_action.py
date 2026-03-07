@@ -8,4 +8,4 @@ class ToggleProductDetailsCartAction(Task):
     """Task: click the add/remove action button on product details page."""
 
     def perform_as(self, actor: Actor) -> None:
-        actor.attempts_to(Click(ProductDetailsPage.PRODUCT_DETAILS_ACTION_BUTTON))
+        self.perform_interactions(actor, Click(ProductDetailsPage.PRODUCT_DETAILS_ACTION_BUTTON))

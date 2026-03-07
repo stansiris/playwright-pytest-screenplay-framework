@@ -19,7 +19,9 @@ class OpenProductDetailsById(Task):
             raise ValueError(
                 "BrowseTheWeb ability must include a base_url to open product details."
             )
-        actor.attempts_to(NavigateTo(f"{base_url}inventory-item.html?id={self.product_id}"))
+        self.perform_interactions(
+            actor, NavigateTo(f"{base_url}inventory-item.html?id={self.product_id}")
+        )
 
     @classmethod
     def with_id(cls, product_id: int) -> "OpenProductDetailsById":
