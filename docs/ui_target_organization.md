@@ -1,10 +1,10 @@
 # UI Target Organization Guide
 
-This document explains how UI targets are organized in the SauceDemo domain after the locator refactor.
+This document explains how UI targets are organized in the SauceDemo domain.
 
 ## Why this structure exists
 
-The project now separates targets by ownership:
+The project separates targets by ownership:
 - `pages`: targets that belong to a single page/screen
 - `components`: targets shared across multiple pages
 
@@ -31,17 +31,17 @@ saucedemo/ui/
 
 ### Page catalogs
 
-- `LoginPage`: login form, error banner
-- `InventoryPage`: inventory grid, sort controls, product-level dynamic target factories
-- `ProductDetailsPage`: details view content and action button
-- `CartPage`: cart item rows, checkout button
-- `CheckoutInfoPage`: checkout step one form and validation controls
-- `CheckoutOverviewPage`: checkout step two summary and finish action
+- `LoginPage`: login form and error banner
+- `InventoryPage`: inventory grid, sort controls, and product-level dynamic target factories
+- `ProductDetailsPage`: details content and add/remove action button
+- `CartPage`: cart item rows and checkout button
+- `CheckoutInfoPage`: checkout step-one form and validation controls
+- `CheckoutOverviewPage`: checkout step-two summary and finish action
 - `CheckoutCompletePage`: confirmation UI
 
 ### Component catalogs
 
-- `AppShell`: global/shared shell controls (`PAGE_TITLE`, `MENU_BUTTON`, `LOGOUT_LINK`, `SHOPPING_CART_LINK`, `SHOPPING_CART_BADGE`)
+- `AppShell`: shared shell controls (`PAGE_TITLE`, `MENU_BUTTON`, `LOGOUT_LINK`, `SHOPPING_CART_LINK`, `SHOPPING_CART_BADGE`)
 - `BackNavigation`: shared back navigation (`BACK_TO_PRODUCTS`)
 
 ## Usage conventions
@@ -53,28 +53,41 @@ Task example:
 
 ```python
 from saucedemo.ui.pages.login_page import LoginPage
+from screenplay_core.core.task import Task
 from screenplay_core.interactions.fill import Fill
 
-actor.attempts_to(
-    Fill(LoginPage.LOGIN_USERNAME, username),
-    Fill(LoginPage.LOGIN_PASSWORD, password),
-)
+
+class EnterCredentials(Task):
+    def __init__(self, username: str, password: str):
+        self.username = username
+        self.password = password
+
+    def perform_as(self, actor) -> None:
+        self.perform_interactions(
+            actor,
+            Fill(LoginPage.LOGIN_USERNAME, self.username),
+            Fill(LoginPage.LOGIN_PASSWORD, self.password),
+        )
 ```
 
 Question example:
 
 ```python
-from saucedemo.ui.components.app_shell import AppShell
+from saucedemo.ui.pages.checkout_overview_page import CheckoutOverviewPage
+from screenplay_core.questions.text_of import TextOf
 
-badge = AppShell.SHOPPING_CART_BADGE.resolve_for(actor)
+subtotal_text = customer.asks_for(TextOf(CheckoutOverviewPage.CHECKOUT_SUBTOTAL))
 ```
 
 Test example:
 
 ```python
 from saucedemo.ui.pages.checkout_overview_page import CheckoutOverviewPage
+from screenplay_core.consequences.ensure import Ensure
 
-customer.expect(CheckoutOverviewPage.CHECKOUT_TOTAL).to_contain_text("Total:")
+customer.attempts_to(
+    Ensure.that(CheckoutOverviewPage.CHECKOUT_TOTAL).to_contain_text("Total:"),
+)
 ```
 
 ## Placement rules for new targets

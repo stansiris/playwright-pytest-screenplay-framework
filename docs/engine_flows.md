@@ -3,20 +3,20 @@
 Engine flows are higher-level compositions of existing Screenplay Tasks and Questions.
 They do not add new selectors.
 
-The current checked-in BDD automation covers:
-- the golden-path purchase flow (`tests/features/golden_path.feature`)
-- a focused login mirror flow (`tests/features/login.feature`)
-The additional flows below document supported compositions from the available
-task/question API, even when they are not yet represented by a dedicated feature file.
+Current executable coverage:
+- BDD: golden-path purchase (`tests/features/golden_path.feature`) and login mirror (`tests/features/login.feature`)
+- Direct pytest: login, inventory, product details, checkout info, checkout complete, and UI page suites
 
 ## 1) Login successfully
 
 Compose:
 - `OpenLoginPage()`
 - `Login.with_credentials(username, password)`
+- `WaitForInventoryPage()`
 
 Verify:
 - `OnInventoryPage()`
+- `TextOf(AppShell.PAGE_TITLE) == "Products"`
 
 ## 2) Login expecting failure
 
@@ -25,52 +25,75 @@ Compose:
 - `Login.with_credentials(invalid_username, invalid_password)` or partial credentials (`with_username_only` / `with_password_only`)
 
 Verify:
-- `TextOf(LoginPage.LOGIN_ERROR_MESSAGE)`
+- `Ensure.that(LoginPage.LOGIN_ERROR_MESSAGE).to_contain_text(...)`
 - `OnLoginPage()`
+- optional cleanup: `DismissLoginError()`
 
-## 3) Add multiple items and verify cart badge
+## 3) Inventory cart operations
 
 Compose:
-- `SortInventory.by(option)` (optional)
-- `AddProductToCart.named(item_name)` for each item
+- `AddProductToCart.named(item_name)`
+- optional remove path: `RemoveProductFromCart.named(item_name)`
 
 Verify:
 - `CartBadgeCount() == expected_count`
+- `Ensure.that(InventoryPage.inventory_item_action_button_for(item_name)).to_have_text(...)`
 
-## 4) Checkout multiple items
+## 4) Product details behavior
+
+Compose:
+- `OpenProductDetails.named(item_name)` or `OpenProductDetailsById.with_id(id)`
+- `ToggleProductDetailsCartAction()`
+- optional: `ReturnToProducts()`
+
+Verify:
+- `CurrentUrl()` contains `inventory-item.html`
+- `TextOf(ProductDetailsPage.PRODUCT_DETAILS_NAME)`
+- cart state reflected via `CartBadgeCount()` and action button text
+
+## 5) Checkout step-one validation
 
 Compose:
 - `GoToCart()`
 - `ProceedToCheckout()`
-- `EnterCheckoutInformation.as_customer(first_name, last_name, postal_code)`
+- `WaitForCheckoutInfoPage()`
+- `EnterCheckoutInformation.as_customer(...)`
 - `ContinueCheckout()`
-- `CompleteCheckout()`
 
 Verify:
-- `TextsOf(CheckoutOverviewPage.CHECKOUT_OVERVIEW_ITEM_NAMES)`
-- `TextOf(CheckoutOverviewPage.CHECKOUT_PAYMENT_INFO)`
-- `TextOf(CheckoutOverviewPage.CHECKOUT_SHIPPING_INFO)`
-- `TotalsMatchComputedSum()`
+- required-field errors via `Ensure.that(CheckoutInfoPage.CHECKOUT_INFO_ERROR_MESSAGE).to_contain_text(...)`
+- dismiss path via `DismissCheckoutInfoError()`
+- cancel path via `CancelCheckoutInfo()`
 
-## 5) Return to inventory after checkout
+## 6) Checkout through completion
+
+Compose:
+- `BeginCheckout()` or (`GoToCart()` + `ProceedToCheckout()`)
+- `ProvideCheckoutInformation.as_customer(...)`
+- `CompleteCheckout()`
+- `WaitForCheckoutCompletePage()`
+
+Verify:
+- completion text and visuals on `CheckoutCompletePage`
+- `CartBadgeCount() == 0`
+
+## 7) Return to inventory after checkout
 
 Compose:
 - `ReturnToProducts()`
+- `WaitForInventoryPage()`
 
 Verify:
 - `OnInventoryPage()`
 - `CartBadgeCount() == 0`
 
-## 6) Alternative end-to-end with logout
+## 8) Logout and guarded direct URLs
 
 Compose:
-- `Login.with_credentials(...)`
-- `AddProductToCart.named(...)`
-- `BeginCheckout()`
-- `ProvideCheckoutInformation.as_customer(...)`
-- `CompleteCheckout()`
-- `ReturnToProducts()`
 - `Logout()`
+- direct URL tasks when logged out:
+  - `OpenProductDetailsById.with_id(...)`
+  - `OpenCheckoutCompletePage()`
 
 Verify:
-- `TextOf(LoginPage.LOGIN_BUTTON) == "Login"`
+- `OnLoginPage()`

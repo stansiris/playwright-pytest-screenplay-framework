@@ -115,7 +115,7 @@ Simple mental model:
 
 - `Ensure.that(target)` stores a `Target` in a builder object.
 - When you call a method on that builder, Python `__getattr__` catches the method name.
-- The builder creates a `_TargetAssertion` consequence with:
+- The builder creates an `_EnsureCall` consequence with:
   - the target
   - the method name you called
   - args and kwargs
@@ -126,8 +126,8 @@ Simple mental model:
 
 Important: this is currently permissive.
 
-- We allow any `to_*` method name, then forward it to Playwright `expect(locator)`.
-- If method name does not start with `to_`, `Ensure` raises an `AttributeError` early.
+- We allow any method name and forward it to Playwright `expect(locator)`.
+- If that method does not exist on Playwright locator assertions, `_EnsureCall.perform_as(...)` raises an `AttributeError`.
 - That keeps API small and flexible.
 - It also means typos fail at runtime, not at editor/type-check time.
 

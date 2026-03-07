@@ -65,6 +65,7 @@ classDiagram
 
   class Task
   class Interaction
+  class Consequence
 
   class Question {
     <<abstract>>
@@ -75,9 +76,9 @@ classDiagram
     +name str
     +can(ability) Actor
     +ability_to(ability_class)
-    +attempts_to(*activities) None
+    +attempts_to(*activities: Task|Consequence) None
+    +_attempts_to_interactions(*interactions) None
     +asks_for(question)
-    +expect(target) LocatorAssertions
   }
 
   class Target {
@@ -98,9 +99,10 @@ classDiagram
 
   Activity <|-- Task
   Activity <|-- Interaction
+  Activity <|-- Consequence
   Actor --> Activity : performs
   Actor --> Question : asks
-  Actor --> Target : expect(target)
+  Actor --> Consequence : performs assertions
   Actor "1" o-- "*" BrowseTheWeb : abilities
   Target --> BrowseTheWeb : resolve_for(actor)
   BrowseTheWeb --> Page : wraps
@@ -208,7 +210,7 @@ sequenceDiagram
 
   TestStep->>ScreenActor: attempts_to(Task)
   ScreenActor->>DomainTask: perform_as(actor)
-  DomainTask->>ScreenActor: attempts_to(Interaction...)
+  DomainTask->>ScreenActor: perform_interactions(...)
   ScreenActor->>UiInteraction: perform_as(actor)
   UiInteraction->>UiTarget: resolve_for(actor)
   UiTarget->>WebAbility: actor.ability_to(BrowseTheWeb)
@@ -252,7 +254,8 @@ Two wait/assertion paths are intentionally supported:
 - source of default timeout: `BrowseTheWeb.default_timeout_ms`
 
 2. Playwright assertion path:
-- `Actor.expect(Target)` returns Playwright locator assertions
+- `Ensure.that(Target).<assertion_method>(...)` creates a Screenplay `Consequence`
+- actor runs that consequence through `attempts_to(...)`
 - assertion timeout uses Playwright's default unless overridden per assertion
 - any assertion can still override timeout explicitly
 
