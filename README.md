@@ -180,7 +180,9 @@ Application Under Test
 | Playwright Runtime | Executes browser interactions and assertions |
 | Application Under Test | The system being automated |
 
-For a deeper explanation, see [docs/architecture.md](docs/architecture.md).
+For a deeper explanation of framework layers and runtime flow, see [docs/architecture.md](docs/architecture.md).
+
+For implementation rationale and trade-offs, see [docs/design_decisions.md](docs/design_decisions.md).
 
 ---
 

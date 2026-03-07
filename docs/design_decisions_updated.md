@@ -207,6 +207,12 @@ customer.attempts_to(
 )
 ```
 
+### Why not `actor.expect(...)`
+
+Adding `expect()` directly to the Actor would make the Actor feel more like a wrapper around Playwright than a Screenplay abstraction.
+
+The Actor is intended to perform Tasks, verify Consequences, ask Questions, and use Abilities. `Ensure.that()` keeps assertions explicit and separate while still preserving access to Playwright’s assertion capabilities.
+
 ## Why `Ensure.that()` is modeled as a Consequence
 
 `Ensure.that(...).to_be_visible()` is modeled as a **Consequence** because it represents a verification step in the actor’s flow.
