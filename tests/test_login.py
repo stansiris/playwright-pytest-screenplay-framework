@@ -1,15 +1,12 @@
 import pytest
 
-from saucedemo.questions.inventory_count import InventoryCount
 from saucedemo.tasks.dismiss_login_error import DismissLoginError
 from saucedemo.tasks.login import Login
 from saucedemo.tasks.logout import Logout
 from saucedemo.tasks.open_login_page import OpenLoginPage
-from saucedemo.ui.components.app_shell import AppShell
 from saucedemo.ui.pages.inventory_page import InventoryPage
 from saucedemo.ui.pages.login_page import LoginPage
 from screenplay_core.consequences.ensure import Ensure
-from screenplay_core.questions.text_of import TextOf
 
 
 @pytest.mark.parametrize(
