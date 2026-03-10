@@ -1,0 +1,151 @@
+name: CI
+
+# Trigger strategy:
+# - push/pull_request: fast validation for active development
+# - schedule: unattended confidence runs
+# - workflow_dispatch: manual rerun/debug
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  schedule:
+    - cron: "0 2 * * 1-5" # Weekday nightly (02:00 UTC)
+    - cron: "0 3 * * 0" # Weekly full run (Sunday 03:00 UTC)
+  workflow_dispatch:
+
+# Avoid duplicate runs for the same ref when new commits arrive.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Static quality gate: fail fast on style/lint before browser tests.
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Lint (ruff)
+        run: python -m ruff check .
+
+      - name: Format check (black)
+        run: python -m black --check .
+
+  # Fast validation lane for PRs/pushes.
+  # Consolidates smoke, integration, e2e, and ui markers into one job.
+  tests_fast:
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    needs: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+
+    env:
+      BROWSER: chromium
+      PYTHONDONTWRITEBYTECODE: "1"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Install Playwright browser and Linux dependencies
+        run: python -m playwright install --with-deps ${{ env.BROWSER }}
+
+      - name: Test fast marker union (pytest)
+        # Unified pre-merge lane: smoke + integration + e2e + ui.
+        run: pytest -q --browser "${{ env.BROWSER }}" -m "smoke or integration or e2e or ui"
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-fast-ubuntu-${{ env.BROWSER }}
+          path: test-results
+          if-no-files-found: warn
+          retention-days: 14
+
+  # Full cross-platform/browser regression.
+  # Intended for scheduled and manual runs due to runtime cost.
+  full_matrix_regression:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    needs: lint
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        browser: [chromium, firefox]
+
+    env:
+      BROWSER: ${{ matrix.browser }}
+      PYTHONDONTWRITEBYTECODE: "1"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Install Playwright browser and Linux dependencies
+        if: runner.os == 'Linux'
+        run: python -m playwright install --with-deps ${{ matrix.browser }}
+
+      - name: Install Playwright browser
+        if: runner.os != 'Linux'
+        run: python -m playwright install ${{ matrix.browser }}
+
+      - name: Test full regression markers (pytest)
+        # Marker-union run; keep ui explicit to avoid accidental coverage gaps
+        # if marker overlap changes later.
+        run: pytest -q --browser "${{ env.BROWSER }}" -m "smoke or integration or e2e or ui"
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-full-regression-${{ matrix.os }}-${{ matrix.browser }}
+          path: test-results
+          if-no-files-found: warn
+          # Keep scheduled/manual artifacts longer for diagnosis/history.
+          retention-days: 30
