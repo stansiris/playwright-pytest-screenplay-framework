@@ -16,7 +16,9 @@
             <div class="session-meta">
                 <span class="signed-in-as">Signed in as <strong>{{ session['username'] }}</strong></span>
                 <form method="post" action="{{ url_for('logout') }}">
-                    <button type="submit" class="ghost">Logout</button>
+                    <button type="submit" class="ghost" data-testid="taskhub-logout-button">
+                        Logout
+                    </button>
                 </form>
             </div>
             {% endif %}
@@ -33,4 +35,3 @@
     </main>
 </body>
 </html>
-

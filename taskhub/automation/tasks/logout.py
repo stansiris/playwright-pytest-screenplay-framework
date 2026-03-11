@@ -8,7 +8,7 @@ class LogoutFromTaskHub(Task):
 
     LOGOUT_BUTTON = Target(
         "TaskHub logout button",
-        lambda page: page.get_by_role("button", name="Logout"),
+        lambda page: page.locator('[data-testid="taskhub-logout-button"]'),
     )
 
     def perform_as(self, actor) -> None:

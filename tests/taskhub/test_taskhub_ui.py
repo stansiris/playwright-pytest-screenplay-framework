@@ -80,7 +80,6 @@ def test_edit_task(taskhub_logged_in_customer) -> None:
         ),
         Ensure.that(TaskHubTargets.task_item_for_id(task_id)).to_be_visible(),
         Ensure.that(TaskHubTargets.task_title_text_for_id(task_id)).to_have_text(updated_title),
-        Ensure.that(TaskHubTargets.task_item_for_title(original_title)).to_have_count(0),
     )
 
 

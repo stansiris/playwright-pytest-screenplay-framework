@@ -5,8 +5,11 @@ from __future__ import annotations
 import pytest
 
 from screenplay_core.consequences.ensure import Ensure
-from taskhub.automation.questions.api_questions import TaskExistsViaApi, TaskFieldEqualsViaApi
-from taskhub.automation.questions.task_id_for_title import TaskIdForTitle
+from taskhub.automation.questions.api_questions import (
+    TaskExistsViaApi,
+    TaskFieldEqualsViaApi,
+    TaskIdForTitleViaApi,
+)
 from taskhub.automation.tasks.api_tasks import CreateTaskViaApi, LoginToTaskHubApi
 from taskhub.automation.tasks.create_task import CreateTask
 from taskhub.automation.tasks.login import LoginToTaskHub
@@ -52,15 +55,14 @@ def test_create_task_via_ui_verify_in_api(
             priority="MEDIUM",
             due_date="2030-05-01",
         ),
-        Ensure.that(TaskHubTargets.task_item_for_title(title)).to_be_visible(),
     )
 
-    task_id = taskhub_logged_in_customer.asks_for(TaskIdForTitle(title))
+    taskhub_api_actor.attempts_to(LoginToTaskHubApi.with_credentials("admin", "admin123"))
+    task_id = taskhub_api_actor.asks_for(TaskIdForTitleViaApi(title))
     assert task_id is not None
     taskhub_logged_in_customer.attempts_to(
         Ensure.that(TaskHubTargets.task_item_for_id(task_id)).to_be_visible(),
     )
 
-    taskhub_api_actor.attempts_to(LoginToTaskHubApi.with_credentials("admin", "admin123"))
     assert taskhub_api_actor.asks_for(TaskExistsViaApi(task_id))
     assert taskhub_api_actor.asks_for(TaskFieldEqualsViaApi(task_id, "title", title))
