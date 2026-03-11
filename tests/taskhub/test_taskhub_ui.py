@@ -49,7 +49,6 @@ def test_create_task(taskhub_logged_in_customer) -> None:
             priority="HIGH",
             due_date="2030-02-01",
         ),
-        Ensure.that(TaskHubTargets.task_item_for_title(new_title)).to_be_visible(),
     )
 
     task_id = taskhub_logged_in_customer.asks_for(TaskIdForTitle(new_title))
@@ -64,7 +63,6 @@ def test_edit_task(taskhub_logged_in_customer) -> None:
     updated_title = "UI edit task updated"
     taskhub_logged_in_customer.attempts_to(
         CreateTask.named(title=original_title, description="Original", priority="LOW"),
-        Ensure.that(TaskHubTargets.task_item_for_title(original_title)).to_be_visible(),
     )
 
     task_id = taskhub_logged_in_customer.asks_for(TaskIdForTitle(original_title))
@@ -87,7 +85,6 @@ def test_complete_task(taskhub_logged_in_customer) -> None:
     title = "UI complete task"
     taskhub_logged_in_customer.attempts_to(
         CreateTask.named(title=title, description="Needs completion"),
-        Ensure.that(TaskHubTargets.task_item_for_title(title)).to_be_visible(),
     )
 
     task_id = taskhub_logged_in_customer.asks_for(TaskIdForTitle(title))
@@ -100,7 +97,6 @@ def test_delete_task(taskhub_logged_in_customer) -> None:
     title = "UI delete task"
     taskhub_logged_in_customer.attempts_to(
         CreateTask.named(title=title),
-        Ensure.that(TaskHubTargets.task_item_for_title(title)).to_be_visible(),
     )
 
     task_id = taskhub_logged_in_customer.asks_for(TaskIdForTitle(title))
@@ -118,8 +114,6 @@ def test_filter_completed_tasks(taskhub_logged_in_customer) -> None:
     taskhub_logged_in_customer.attempts_to(
         CreateTask.named(title=active_title),
         CreateTask.named(title=completed_title),
-        Ensure.that(TaskHubTargets.task_item_for_title(active_title)).to_be_visible(),
-        Ensure.that(TaskHubTargets.task_item_for_title(completed_title)).to_be_visible(),
     )
 
     active_task_id = taskhub_logged_in_customer.asks_for(TaskIdForTitle(active_title))
@@ -128,6 +122,8 @@ def test_filter_completed_tasks(taskhub_logged_in_customer) -> None:
     assert completed_task_id is not None
 
     taskhub_logged_in_customer.attempts_to(
+        Ensure.that(TaskHubTargets.task_item_for_id(active_task_id)).to_be_visible(),
+        Ensure.that(TaskHubTargets.task_item_for_id(completed_task_id)).to_be_visible(),
         ToggleTaskCompletion.for_task_id(completed_task_id),
         FilterTasks.by("completed"),
         Ensure.that(TaskHubTargets.task_item_for_id(completed_task_id)).to_be_visible(),

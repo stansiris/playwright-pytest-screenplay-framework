@@ -67,6 +67,10 @@ class TaskHubTargets:
         "TaskHub add task button",
         lambda page: page.locator('[data-testid="add-task-button"]'),
     )
+    LOGOUT_BUTTON = Target(
+        "TaskHub logout button",
+        lambda page: page.locator('[data-testid="taskhub-logout-button"]'),
+    )
 
     @classmethod
     def filter_button(cls, filter_name: str) -> Target:
