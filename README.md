@@ -66,7 +66,7 @@ pytest -q
 | Concept | Description |
 |---|---|
 | Actor | Represents a user interacting with the system and orchestrates actions. |
-| Ability | Grants the actor the capability to interact with external systems (e.g., `BrowseTheWeb`, `CallTheAPI`). |
+| Ability | Grants the actor the capability to interact with external systems (e.g., `BrowseTheWeb`, `CallTheApi`). |
 | Task | A high-level business action performed by the actor (e.g., `Login`, `Checkout`). |
 | Interaction | A low-level operation that performs a single UI action (e.g., `Click`, `Fill`). |
 | Target | Encapsulates a UI locator and resolves it for the actor. |
@@ -159,7 +159,7 @@ pytest tests/taskhub/test_taskhub_hybrid.py -q
 graph TD
 
 Actor["Actor"]
-Ability["Ability<br/>(BrowseTheWeb, CallTheAPI)"]
+Ability["Ability<br/>(BrowseTheWeb, CallTheApi)"]
 Task["Task<br/>(Login, ProceedToCheckout)"]
 Interaction["Interaction<br/>(Click, Fill, Wait)"]
 Question["Question<br/>(IsVisible, TextOf)"]
@@ -256,7 +256,7 @@ Each layer interacts only with adjacent layers, improving maintainability and re
 | Domain Layer | Business vocabulary and behavior | `Login`, `Checkout`, `TextOf` |
 | Screenplay Core | Actor behavior primitives | `Actor`, `Task`, `Interaction`, `Question`, `Consequence` |
 | UI Abstractions | Encapsulates UI elements | `Target` |
-| Integration | Actor abilities connecting to external systems | `BrowseTheWeb`, `CallTheAPI` |
+| Integration | Actor abilities connecting to external systems | `BrowseTheWeb`, `CallTheApi` |
 | Automation Engine | Executes browser automation | Playwright |
 
 #### For a detailed explanation of the framework, see [docs/architecture.md](docs/architecture.md).</br>

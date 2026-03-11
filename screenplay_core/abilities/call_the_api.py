@@ -6,7 +6,7 @@ import requests
 from requests import Response, Session
 
 
-class CallTheAPI:
+class CallTheApi:
     """
     Ability wrapper around requests.Session.
     Keeps HTTP transport details out of Actor/Tasks.
@@ -28,9 +28,9 @@ class CallTheAPI:
         base_url: str,
         session: Session | None = None,
         timeout_seconds: float = 10,
-    ) -> CallTheAPI:
+    ) -> CallTheApi:
         """Factory for readability in actor fixture setup."""
-        return CallTheAPI(base_url, session=session, timeout_seconds=timeout_seconds)
+        return CallTheApi(base_url, session=session, timeout_seconds=timeout_seconds)
 
     def close(self) -> None:
         """Close underlying HTTP session."""

@@ -118,7 +118,7 @@
                     <form method="get" action="{{ url_for('tasks_dashboard') }}">
                         <input type="hidden" name="filter" value="{{ active_filter }}">
                         <input type="hidden" name="edit" value="{{ task.id }}">
-                        <button type="submit" data-testid="edit-button">Edit</button>
+                        <button type="submit" data-testid="edit-task-open-button">Edit</button>
                     </form>
 
                     <form method="post" action="{{ url_for('delete_task_ui', task_id=task.id) }}">
@@ -138,6 +138,7 @@
                         type="text"
                         maxlength="180"
                         value="{{ task.title }}"
+                        data-testid="edit-task-title-input"
                     >
 
                     <label for="edit-description-{{ task.id }}">Description</label>
@@ -146,12 +147,17 @@
                         name="description"
                         rows="3"
                         maxlength="1000"
+                        data-testid="edit-task-description-input"
                     >{{ task.description or '' }}</textarea>
 
                     <div class="inline-grid">
                         <div>
                             <label for="edit-priority-{{ task.id }}">Priority</label>
-                            <select id="edit-priority-{{ task.id }}" name="priority">
+                            <select
+                                id="edit-priority-{{ task.id }}"
+                                name="priority"
+                                data-testid="edit-task-priority-select"
+                            >
                                 <option value="LOW" {% if task.priority == 'LOW' %}selected{% endif %}>LOW</option>
                                 <option value="MEDIUM" {% if task.priority == 'MEDIUM' %}selected{% endif %}>MEDIUM</option>
                                 <option value="HIGH" {% if task.priority == 'HIGH' %}selected{% endif %}>HIGH</option>
@@ -165,11 +171,22 @@
                                 name="due_date"
                                 type="date"
                                 value="{{ task.due_date or '' }}"
+                                data-testid="edit-task-due-date-input"
                             >
                         </div>
                     </div>
 
-                    <button type="submit" class="primary" data-testid="save-button">Save</button>
+                    <div class="task-actions">
+                        <button type="submit" class="primary" data-testid="edit-task-save-button">
+                            Save
+                        </button>
+                        <a
+                            href="{{ url_for('tasks_dashboard', filter=active_filter) }}"
+                            data-testid="edit-task-cancel-button"
+                        >
+                            Cancel
+                        </a>
+                    </div>
                 </form>
                 {% endif %}
             </article>

@@ -2,13 +2,20 @@
 
 from __future__ import annotations
 
+import re
+
 from screenplay_core.core.target import Target
 
 
+def _task_row_by_id_locator(page, task_id: int):
+    return page.locator(f'[data-testid="task-item"][data-task-id="{task_id}"]')
+
+
 def _task_row_by_title_locator(page, title: str):
+    exact_title_pattern = re.compile(rf"^{re.escape(title)}$")
     return (
         page.locator('[data-testid="task-item"]')
-        .filter(has=page.locator('[data-testid="task-title-text"]', has_text=title))
+        .filter(has=page.locator('[data-testid="task-title-text"]', has_text=exact_title_pattern))
         .first
     )
 
@@ -70,6 +77,13 @@ class TaskHubTargets:
         )
 
     @classmethod
+    def task_item_for_id(cls, task_id: int) -> Target:
+        return Target(
+            f"TaskHub task row for id {task_id}",
+            lambda page: _task_row_by_id_locator(page, task_id),
+        )
+
+    @classmethod
     def task_item_for_title(cls, title: str) -> Target:
         return Target(
             f"TaskHub task row for title '{title}'",
@@ -77,11 +91,101 @@ class TaskHubTargets:
         )
 
     @classmethod
+    def task_title_text_for_id(cls, task_id: int) -> Target:
+        return Target(
+            f"TaskHub task title text for id {task_id}",
+            lambda page: _task_row_by_id_locator(page, task_id).locator(
+                '[data-testid="task-title-text"]'
+            ),
+        )
+
+    @classmethod
+    def edit_button_for_task_id(cls, task_id: int) -> Target:
+        return Target(
+            f"TaskHub edit button for task id {task_id}",
+            lambda page: _task_row_by_id_locator(page, task_id).locator(
+                '[data-testid="edit-task-open-button"]'
+            ),
+        )
+
+    @classmethod
+    def delete_button_for_task_id(cls, task_id: int) -> Target:
+        return Target(
+            f"TaskHub delete button for task id {task_id}",
+            lambda page: _task_row_by_id_locator(page, task_id).locator(
+                '[data-testid="delete-button"]'
+            ),
+        )
+
+    @classmethod
+    def complete_toggle_for_task_id(cls, task_id: int) -> Target:
+        return Target(
+            f"TaskHub complete toggle for task id {task_id}",
+            lambda page: _task_row_by_id_locator(page, task_id).locator(
+                '[data-testid="complete-toggle"]'
+            ),
+        )
+
+    @classmethod
+    def edit_title_input_for_task_id(cls, task_id: int) -> Target:
+        return Target(
+            f"TaskHub edit title input for task id {task_id}",
+            lambda page: _task_row_by_id_locator(page, task_id).locator(
+                '[data-testid="edit-task-title-input"]'
+            ),
+        )
+
+    @classmethod
+    def edit_description_input_for_task_id(cls, task_id: int) -> Target:
+        return Target(
+            f"TaskHub edit description input for task id {task_id}",
+            lambda page: _task_row_by_id_locator(page, task_id).locator(
+                '[data-testid="edit-task-description-input"]'
+            ),
+        )
+
+    @classmethod
+    def edit_priority_input_for_task_id(cls, task_id: int) -> Target:
+        return Target(
+            f"TaskHub edit priority input for task id {task_id}",
+            lambda page: _task_row_by_id_locator(page, task_id).locator(
+                '[data-testid="edit-task-priority-select"]'
+            ),
+        )
+
+    @classmethod
+    def edit_due_date_input_for_task_id(cls, task_id: int) -> Target:
+        return Target(
+            f"TaskHub edit due date input for task id {task_id}",
+            lambda page: _task_row_by_id_locator(page, task_id).locator(
+                '[data-testid="edit-task-due-date-input"]'
+            ),
+        )
+
+    @classmethod
+    def save_button_for_task_id(cls, task_id: int) -> Target:
+        return Target(
+            f"TaskHub save button for task id {task_id}",
+            lambda page: _task_row_by_id_locator(page, task_id).locator(
+                '[data-testid="edit-task-save-button"]'
+            ),
+        )
+
+    @classmethod
+    def cancel_button_for_task_id(cls, task_id: int) -> Target:
+        return Target(
+            f"TaskHub cancel edit button for task id {task_id}",
+            lambda page: _task_row_by_id_locator(page, task_id).locator(
+                '[data-testid="edit-task-cancel-button"]'
+            ),
+        )
+
+    @classmethod
     def edit_button_for_title(cls, title: str) -> Target:
         return Target(
             f"TaskHub edit button for title '{title}'",
             lambda page: _task_row_by_title_locator(page, title).locator(
-                '[data-testid="edit-button"]'
+                '[data-testid="edit-task-open-button"]'
             ),
         )
 
@@ -108,7 +212,7 @@ class TaskHubTargets:
         return Target(
             f"TaskHub edit title input for title '{title}'",
             lambda page: _task_row_by_title_locator(page, title).locator(
-                '.edit-form input[name="title"]'
+                '[data-testid="edit-task-title-input"]'
             ),
         )
 
@@ -117,7 +221,7 @@ class TaskHubTargets:
         return Target(
             f"TaskHub edit description input for title '{title}'",
             lambda page: _task_row_by_title_locator(page, title).locator(
-                '.edit-form textarea[name="description"]'
+                '[data-testid="edit-task-description-input"]'
             ),
         )
 
@@ -126,7 +230,7 @@ class TaskHubTargets:
         return Target(
             f"TaskHub edit priority input for title '{title}'",
             lambda page: _task_row_by_title_locator(page, title).locator(
-                '.edit-form select[name="priority"]'
+                '[data-testid="edit-task-priority-select"]'
             ),
         )
 
@@ -135,7 +239,7 @@ class TaskHubTargets:
         return Target(
             f"TaskHub edit due date input for title '{title}'",
             lambda page: _task_row_by_title_locator(page, title).locator(
-                '.edit-form input[name="due_date"]'
+                '[data-testid="edit-task-due-date-input"]'
             ),
         )
 
@@ -144,6 +248,6 @@ class TaskHubTargets:
         return Target(
             f"TaskHub save button for title '{title}'",
             lambda page: _task_row_by_title_locator(page, title).locator(
-                '[data-testid="save-button"]'
+                '[data-testid="edit-task-save-button"]'
             ),
         )

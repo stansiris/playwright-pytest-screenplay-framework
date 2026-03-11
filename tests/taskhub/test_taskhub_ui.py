@@ -5,6 +5,7 @@ import pytest
 from screenplay_core.consequences.ensure import Ensure
 from taskhub.automation.questions.on_tasks_page import OnTaskHubTasksPage
 from taskhub.automation.questions.task_completed import TaskCompleted
+from taskhub.automation.questions.task_id_for_title import TaskIdForTitle
 from taskhub.automation.tasks.create_task import CreateTask
 from taskhub.automation.tasks.delete_task import DeleteTask
 from taskhub.automation.tasks.edit_task import EditTask
@@ -14,9 +15,9 @@ from taskhub.automation.tasks.open_taskhub import OpenTaskHub
 from taskhub.automation.tasks.toggle_task_completion import ToggleTaskCompletion
 from taskhub.automation.ui.targets import TaskHubTargets
 
+pytestmark = [pytest.mark.ui, pytest.mark.integration]
 
-@pytest.mark.ui
-@pytest.mark.integration
+
 def test_successful_login(taskhub_customer) -> None:
     taskhub_customer.attempts_to(
         OpenTaskHub.app(),
@@ -27,8 +28,6 @@ def test_successful_login(taskhub_customer) -> None:
     assert taskhub_customer.asks_for(OnTaskHubTasksPage())
 
 
-@pytest.mark.ui
-@pytest.mark.integration
 def test_failed_login(taskhub_customer) -> None:
     taskhub_customer.attempts_to(
         OpenTaskHub.app(),
@@ -41,8 +40,6 @@ def test_failed_login(taskhub_customer) -> None:
     )
 
 
-@pytest.mark.ui
-@pytest.mark.integration
 def test_create_task(taskhub_logged_in_customer) -> None:
     new_title = "UI create task"
     taskhub_logged_in_customer.attempts_to(
@@ -55,53 +52,66 @@ def test_create_task(taskhub_logged_in_customer) -> None:
         Ensure.that(TaskHubTargets.task_item_for_title(new_title)).to_be_visible(),
     )
 
+    task_id = taskhub_logged_in_customer.asks_for(TaskIdForTitle(new_title))
+    assert task_id is not None
+    taskhub_logged_in_customer.attempts_to(
+        Ensure.that(TaskHubTargets.task_item_for_id(task_id)).to_be_visible(),
+    )
 
-@pytest.mark.ui
-@pytest.mark.integration
+
 def test_edit_task(taskhub_logged_in_customer) -> None:
     original_title = "UI edit task original"
     updated_title = "UI edit task updated"
     taskhub_logged_in_customer.attempts_to(
         CreateTask.named(title=original_title, description="Original", priority="LOW"),
         Ensure.that(TaskHubTargets.task_item_for_title(original_title)).to_be_visible(),
-        EditTask.from_title(
-            current_title=original_title,
+    )
+
+    task_id = taskhub_logged_in_customer.asks_for(TaskIdForTitle(original_title))
+    assert task_id is not None
+
+    taskhub_logged_in_customer.attempts_to(
+        EditTask.for_task_id(
+            task_id=task_id,
             new_title=updated_title,
             new_description="Updated description",
             new_priority="HIGH",
             new_due_date="2030-03-01",
         ),
-        Ensure.that(TaskHubTargets.task_item_for_title(updated_title)).to_be_visible(),
+        Ensure.that(TaskHubTargets.task_item_for_id(task_id)).to_be_visible(),
+        Ensure.that(TaskHubTargets.task_title_text_for_id(task_id)).to_have_text(updated_title),
         Ensure.that(TaskHubTargets.task_item_for_title(original_title)).to_have_count(0),
     )
 
 
-@pytest.mark.ui
-@pytest.mark.integration
 def test_complete_task(taskhub_logged_in_customer) -> None:
     title = "UI complete task"
     taskhub_logged_in_customer.attempts_to(
         CreateTask.named(title=title, description="Needs completion"),
         Ensure.that(TaskHubTargets.task_item_for_title(title)).to_be_visible(),
-        ToggleTaskCompletion.for_title(title),
     )
-    assert taskhub_logged_in_customer.asks_for(TaskCompleted(title))
+
+    task_id = taskhub_logged_in_customer.asks_for(TaskIdForTitle(title))
+    assert task_id is not None
+    taskhub_logged_in_customer.attempts_to(ToggleTaskCompletion.for_task_id(task_id))
+    assert taskhub_logged_in_customer.asks_for(TaskCompleted.for_task_id(task_id))
 
 
-@pytest.mark.ui
-@pytest.mark.integration
 def test_delete_task(taskhub_logged_in_customer) -> None:
     title = "UI delete task"
     taskhub_logged_in_customer.attempts_to(
         CreateTask.named(title=title),
         Ensure.that(TaskHubTargets.task_item_for_title(title)).to_be_visible(),
-        DeleteTask.named(title),
-        Ensure.that(TaskHubTargets.task_item_for_title(title)).to_have_count(0),
+    )
+
+    task_id = taskhub_logged_in_customer.asks_for(TaskIdForTitle(title))
+    assert task_id is not None
+    taskhub_logged_in_customer.attempts_to(
+        DeleteTask.with_id(task_id),
+        Ensure.that(TaskHubTargets.task_item_for_id(task_id)).to_have_count(0),
     )
 
 
-@pytest.mark.ui
-@pytest.mark.integration
 def test_filter_completed_tasks(taskhub_logged_in_customer) -> None:
     active_title = "UI active task for filtering"
     completed_title = "UI completed task for filtering"
@@ -109,15 +119,23 @@ def test_filter_completed_tasks(taskhub_logged_in_customer) -> None:
     taskhub_logged_in_customer.attempts_to(
         CreateTask.named(title=active_title),
         CreateTask.named(title=completed_title),
-        ToggleTaskCompletion.for_title(completed_title),
-        FilterTasks.by("completed"),
+        Ensure.that(TaskHubTargets.task_item_for_title(active_title)).to_be_visible(),
         Ensure.that(TaskHubTargets.task_item_for_title(completed_title)).to_be_visible(),
-        Ensure.that(TaskHubTargets.task_item_for_title(active_title)).to_have_count(0),
+    )
+
+    active_task_id = taskhub_logged_in_customer.asks_for(TaskIdForTitle(active_title))
+    completed_task_id = taskhub_logged_in_customer.asks_for(TaskIdForTitle(completed_title))
+    assert active_task_id is not None
+    assert completed_task_id is not None
+
+    taskhub_logged_in_customer.attempts_to(
+        ToggleTaskCompletion.for_task_id(completed_task_id),
+        FilterTasks.by("completed"),
+        Ensure.that(TaskHubTargets.task_item_for_id(completed_task_id)).to_be_visible(),
+        Ensure.that(TaskHubTargets.task_item_for_id(active_task_id)).to_have_count(0),
     )
 
 
-@pytest.mark.ui
-@pytest.mark.integration
 def test_empty_title_validation_error(taskhub_logged_in_customer) -> None:
     taskhub_logged_in_customer.attempts_to(
         CreateTask.named(title="", description="Missing title should fail"),

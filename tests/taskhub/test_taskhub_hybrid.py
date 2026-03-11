@@ -4,47 +4,46 @@ from __future__ import annotations
 
 import pytest
 
-from screenplay_core.abilities.call_the_api import CallTheAPI
 from screenplay_core.consequences.ensure import Ensure
-from screenplay_core.core.actor import Actor
-from taskhub.automation.api.client import TaskHubApiClient
+from taskhub.automation.questions.api_questions import TaskExistsViaApi, TaskFieldEqualsViaApi
+from taskhub.automation.questions.task_id_for_title import TaskIdForTitle
+from taskhub.automation.tasks.api_tasks import CreateTaskViaApi, LoginToTaskHubApi
 from taskhub.automation.tasks.create_task import CreateTask
 from taskhub.automation.tasks.login import LoginToTaskHub
 from taskhub.automation.tasks.open_taskhub import OpenTaskHub
 from taskhub.automation.ui.targets import TaskHubTargets
 
-
-def _taskhub_api(actor: Actor) -> TaskHubApiClient:
-    return TaskHubApiClient(actor.ability_to(CallTheAPI))
+pytestmark = [pytest.mark.hybrid, pytest.mark.integration]
 
 
-@pytest.mark.integration
-def test_create_task_via_api_verify_in_ui(taskhub_api_actor: Actor, taskhub_customer) -> None:
-    taskhub_api = _taskhub_api(taskhub_api_actor)
+def test_create_task_via_api_verify_in_ui(taskhub_api_actor, taskhub_customer) -> None:
     title = "Hybrid API to UI task"
-    taskhub_api.post_login("admin", "admin123")
-    create_response = taskhub_api.create_task(
+    create_task = CreateTaskViaApi.with_payload(
         {
             "title": title,
             "description": "Created through API then validated in UI",
             "priority": "HIGH",
         }
     )
-    assert create_response.status_code == 201
+    taskhub_api_actor.attempts_to(
+        LoginToTaskHubApi.with_credentials("admin", "admin123"),
+        create_task,
+    )
+    assert create_task.result.status_code == 201
+    assert create_task.task_id is not None
 
     taskhub_customer.attempts_to(
         OpenTaskHub.app(),
         LoginToTaskHub.with_credentials("admin", "admin123"),
-        Ensure.that(TaskHubTargets.task_item_for_title(title)).to_be_visible(),
+        Ensure.that(TaskHubTargets.task_item_for_id(create_task.task_id)).to_be_visible(),
+        Ensure.that(TaskHubTargets.task_title_text_for_id(create_task.task_id)).to_have_text(title),
     )
 
 
-@pytest.mark.integration
 def test_create_task_via_ui_verify_in_api(
     taskhub_logged_in_customer,
-    taskhub_api_actor: Actor,
+    taskhub_api_actor,
 ) -> None:
-    taskhub_api = _taskhub_api(taskhub_api_actor)
     title = "Hybrid UI to API task"
     taskhub_logged_in_customer.attempts_to(
         CreateTask.named(
@@ -56,8 +55,12 @@ def test_create_task_via_ui_verify_in_api(
         Ensure.that(TaskHubTargets.task_item_for_title(title)).to_be_visible(),
     )
 
-    taskhub_api.post_login("admin", "admin123")
-    tasks_response = taskhub_api.get_tasks()
-    assert tasks_response.status_code == 200
-    task_titles = [item["title"] for item in tasks_response.json()["items"]]
-    assert title in task_titles
+    task_id = taskhub_logged_in_customer.asks_for(TaskIdForTitle(title))
+    assert task_id is not None
+    taskhub_logged_in_customer.attempts_to(
+        Ensure.that(TaskHubTargets.task_item_for_id(task_id)).to_be_visible(),
+    )
+
+    taskhub_api_actor.attempts_to(LoginToTaskHubApi.with_credentials("admin", "admin123"))
+    assert taskhub_api_actor.asks_for(TaskExistsViaApi(task_id))
+    assert taskhub_api_actor.asks_for(TaskFieldEqualsViaApi(task_id, "title", title))

@@ -4,19 +4,19 @@ from typing import Any
 
 from requests import Response
 
-from screenplay_core.abilities.call_the_api import CallTheAPI
+from screenplay_core.abilities.call_the_api import CallTheApi
 
 
 class TaskHubApiClient:
     """Small session-based helper for TaskHub JSON API endpoints."""
 
-    def __init__(self, api_or_base_url: CallTheAPI | str):
-        if isinstance(api_or_base_url, CallTheAPI):
+    def __init__(self, api_or_base_url: CallTheApi | str):
+        if isinstance(api_or_base_url, CallTheApi):
             self.api = api_or_base_url
             self._owns_api_ability = False
             return
 
-        self.api = CallTheAPI.at(api_or_base_url)
+        self.api = CallTheApi.at(api_or_base_url)
         self._owns_api_ability = True
 
     def close(self) -> None:
