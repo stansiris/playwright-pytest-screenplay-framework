@@ -34,6 +34,7 @@ generated/
 *.log
 *.tmp
 *.temp
+*.db
 
 # Environment and local config
 .env

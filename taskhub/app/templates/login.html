@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}TaskHub Login{% endblock %}
+
+{% block content %}
+<section class="panel auth-panel">
+    <h1>Sign In</h1>
+    <p class="muted">Use your TaskHub credentials to access the dashboard.</p>
+
+    <form method="post" action="{{ url_for('login') }}" class="stack-form">
+        <label for="username">Username</label>
+        <input
+            id="username"
+            name="username"
+            type="text"
+            autocomplete="username"
+            value="{{ entered_username }}"
+            data-testid="login-username-input"
+            required
+        >
+
+        <label for="password">Password</label>
+        <input
+            id="password"
+            name="password"
+            type="password"
+            autocomplete="current-password"
+            data-testid="login-password-input"
+            required
+        >
+
+        <button type="submit" class="primary" data-testid="login-submit-button">Login</button>
+    </form>
+
+    {% if error_message %}
+    <p class="inline-error" data-testid="login-error-message">{{ error_message }}</p>
+    {% else %}
+    <p class="inline-error hidden" data-testid="login-error-message" aria-hidden="true"></p>
+    {% endif %}
+</section>
+{% endblock %}
+

@@ -11,6 +11,14 @@ A production-style UI automation framework built with:
 - Pytest
 - Screenplay Pattern
 
+This repo now includes two demo application targets:
+
+- **SauceDemo** (external public app)
+- **TaskHub** (bundled local Flask app under `taskhub/`)
+
+TaskHub is intentionally included as an **app-under-test** to demonstrate stable local UI, API,
+and hybrid automation scenarios without depending on an external service.
+
 This repository demonstrates how the **Screenplay Pattern** can be implemented in Python
 to build maintainable and scalable UI automation frameworks that support both
 **BDD (`pytest-bdd`) and direct pytest tests**.
@@ -58,12 +66,90 @@ pytest -q
 | Concept | Description |
 |---|---|
 | Actor | Represents a user interacting with the system and orchestrates actions. |
-| Ability | Grants the actor the capability to interact with external systems (e.g., `BrowseTheWeb`). |
+| Ability | Grants the actor the capability to interact with external systems (e.g., `BrowseTheWeb`, `CallTheAPI`). |
 | Task | A high-level business action performed by the actor (e.g., `Login`, `Checkout`). |
 | Interaction | A low-level operation that performs a single UI action (e.g., `Click`, `Fill`). |
 | Target | Encapsulates a UI locator and resolves it for the actor. |
 | Question | Retrieves information from the system under test. |
 | Consequence | Verifies system state, typically using assertions (e.g., `Ensure`). |
+
+---
+
+# TaskHub Demo App
+
+## What TaskHub Is
+
+TaskHub is a lightweight Flask + sqlite task management app bundled in this repository.
+It exists to showcase how this framework can automate:
+
+- UI flows with Playwright + Screenplay Tasks/Questions
+- JSON API flows
+- Hybrid flows (create in API, verify in UI and vice versa)
+
+## Where TaskHub Lives
+
+- App: `taskhub/app/`
+- TaskHub automation layer: `taskhub/automation/`
+- TaskHub tests: `tests/taskhub/`
+
+## Default Credentials
+
+- Username: `admin`
+- Password: `admin123`
+
+## Run TaskHub Locally
+
+### Windows
+
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install -e ".[dev]"
+playwright install
+
+python -m taskhub.app.app
+```
+
+### macOS / Linux
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -e ".[dev]"
+playwright install
+
+python -m taskhub.app.app
+```
+
+TaskHub default URL: `http://127.0.0.1:5001/`
+
+## Run TaskHub Tests
+
+UI, API, and hybrid suites are under `tests/taskhub/`.
+
+```bash
+pytest tests/taskhub -q
+```
+
+Run only UI:
+
+```bash
+pytest tests/taskhub/test_taskhub_ui.py -q
+```
+
+Run only API:
+
+```bash
+pytest tests/taskhub/test_taskhub_api.py -q
+```
+
+Run only hybrid:
+
+```bash
+pytest tests/taskhub/test_taskhub_hybrid.py -q
+```
+
+`tests/taskhub/conftest.py` starts a local TaskHub server automatically for test execution.
 
 ---
 
@@ -73,7 +159,7 @@ pytest -q
 graph TD
 
 Actor["Actor"]
-Ability["Ability<br/>(BrowseTheWeb)"]
+Ability["Ability<br/>(BrowseTheWeb, CallTheAPI)"]
 Task["Task<br/>(Login, ProceedToCheckout)"]
 Interaction["Interaction<br/>(Click, Fill, Wait)"]
 Question["Question<br/>(IsVisible, TextOf)"]
@@ -170,7 +256,7 @@ Each layer interacts only with adjacent layers, improving maintainability and re
 | Domain Layer | Business vocabulary and behavior | `Login`, `Checkout`, `TextOf` |
 | Screenplay Core | Actor behavior primitives | `Actor`, `Task`, `Interaction`, `Question`, `Consequence` |
 | UI Abstractions | Encapsulates UI elements | `Target` |
-| Integration | Actor abilities connecting to external systems | `BrowseTheWeb` |
+| Integration | Actor abilities connecting to external systems | `BrowseTheWeb`, `CallTheAPI` |
 | Automation Engine | Executes browser automation | Playwright |
 
 #### For a detailed explanation of the framework, see [docs/architecture.md](docs/architecture.md).</br>
@@ -194,8 +280,13 @@ saucedemo/
     questions/
     ui/
 
+taskhub/
+    app/
+    automation/
+
 tests/
     features/
+    taskhub/
     test_*.py
 
 docs/

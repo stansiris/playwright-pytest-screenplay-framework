@@ -30,6 +30,8 @@ classifiers = [
 ]
 dependencies = [
     "playwright>=1.56,<2",
+    "flask>=3.0,<4",
+    "requests>=2.32,<3",
 ]
 
 [project.urls]
@@ -58,7 +60,7 @@ dev = [
 ]
 
 [tool.setuptools.packages.find]
-include = ["screenplay_core*", "saucedemo*"]
+include = ["screenplay_core*", "saucedemo*", "taskhub*"]
 
 [tool.black]
 line-length = 100

@@ -152,6 +152,7 @@ classDiagram
 - `Question` is separate: it asks for data and returns an answer.
 - `Target` is a named recipe for finding an element on the page.
 - `BrowseTheWeb` gives the actor access to Playwright `page`.
+- `CallTheAPI` gives the actor access to HTTP APIs through a shared `requests` session.
 - `Ensure` builds `_EnsureCall`, and `_EnsureCall` is the actual assertion activity run by the actor.
 
 ## 3. Extension Points
@@ -282,7 +283,7 @@ sequenceDiagram
 | Directory | Responsibility |
 | --- | --- |
 | `screenplay_core/core` | Actor orchestration and base abstractions (`Activity`, `Task`, `Interaction`, `Question`, `Target`). |
-| `screenplay_core/abilities` | External system capability wrapper (`BrowseTheWeb`). |
+| `screenplay_core/abilities` | External system capability wrappers (`BrowseTheWeb`, `CallTheAPI`). |
 | `screenplay_core/interactions` | Reusable low-level actions against Playwright locators/pages. |
 | `screenplay_core/questions` | Generic read-model queries reusable across domains. |
 | `screenplay_core/consequences` | Assertion adapters that expose Playwright `expect(...)` as Screenplay `Consequence`s. |

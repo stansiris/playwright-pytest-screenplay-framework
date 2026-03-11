@@ -1,0 +1,1 @@
+"""TaskHub Flask application package."""
