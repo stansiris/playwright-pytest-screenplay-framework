@@ -4,17 +4,17 @@ from __future__ import annotations
 
 import pytest
 
-from screenplay_core.consequences.ensure import Ensure
-from taskhub.automation.questions.api_questions import (
+from examples.taskhub.automation.questions.api_questions import (
     TaskExistsViaApi,
     TaskFieldEqualsViaApi,
     TaskIdForTitleViaApi,
 )
-from taskhub.automation.tasks.api_tasks import CreateTaskViaApi, LoginToTaskHubApi
-from taskhub.automation.tasks.create_task import CreateTask
-from taskhub.automation.tasks.login import LoginToTaskHub
-from taskhub.automation.tasks.open_taskhub import OpenTaskHub
-from taskhub.automation.ui.targets import TaskHubTargets
+from examples.taskhub.automation.tasks.api_tasks import CreateTaskViaApi, LoginToTaskHubApi
+from examples.taskhub.automation.tasks.create_task import CreateTask
+from examples.taskhub.automation.tasks.login import LoginToTaskHub
+from examples.taskhub.automation.tasks.open_taskhub import OpenTaskHub
+from examples.taskhub.automation.ui.targets import TaskHubTargets
+from screenplay_core.consequences.ensure import Ensure
 
 pytestmark = [pytest.mark.hybrid, pytest.mark.integration]
 

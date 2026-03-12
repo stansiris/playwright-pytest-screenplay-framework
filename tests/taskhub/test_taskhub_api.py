@@ -4,15 +4,14 @@ from __future__ import annotations
 
 import pytest
 
-from screenplay_core.core.actor import Actor
-from taskhub.automation.questions.api_questions import (
+from examples.taskhub.automation.questions.api_questions import (
     CurrentUserViaApi,
     FetchTasksViaApi,
     FetchTaskViaApi,
     TaskExistsViaApi,
     TaskFieldEqualsViaApi,
 )
-from taskhub.automation.tasks.api_tasks import (
+from examples.taskhub.automation.tasks.api_tasks import (
     CreateTaskViaApi,
     DeleteTaskViaApi,
     LoginToTaskHubApi,
@@ -20,6 +19,7 @@ from taskhub.automation.tasks.api_tasks import (
     SeedTaskHubDataViaApi,
     UpdateTaskViaApi,
 )
+from screenplay_core.core.actor import Actor
 
 pytestmark = [pytest.mark.api, pytest.mark.integration]
 

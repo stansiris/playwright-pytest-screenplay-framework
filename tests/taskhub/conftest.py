@@ -13,13 +13,13 @@ from pathlib import Path
 import pytest
 import requests
 
+from examples.taskhub.automation.tasks.login import LoginToTaskHub
+from examples.taskhub.automation.tasks.open_taskhub import OpenTaskHub
+from examples.taskhub.automation.ui.targets import TaskHubTargets
 from screenplay_core.abilities.browse_the_web import BrowseTheWeb
 from screenplay_core.abilities.call_the_api import CallTheApi
 from screenplay_core.consequences.ensure import Ensure
 from screenplay_core.core.actor import Actor
-from taskhub.automation.tasks.login import LoginToTaskHub
-from taskhub.automation.tasks.open_taskhub import OpenTaskHub
-from taskhub.automation.ui.targets import TaskHubTargets
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -78,7 +78,7 @@ def taskhub_server(tmp_path_factory):
 
     stderr_handle = log_path.open(mode="w", encoding="utf-8")
     process = subprocess.Popen(
-        [sys.executable, "-m", "taskhub.app.app"],
+        [sys.executable, "-m", "examples.taskhub.app.app"],
         cwd=str(REPO_ROOT),
         env=environment,
         stdout=subprocess.DEVNULL,

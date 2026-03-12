@@ -60,7 +60,7 @@ dev = [
 ]
 
 [tool.setuptools.packages.find]
-include = ["screenplay_core*", "saucedemo*", "taskhub*"]
+include = ["screenplay_core*", "examples*"]
 
 [tool.black]
 line-length = 100

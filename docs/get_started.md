@@ -75,24 +75,24 @@ If a test does not use an actor with `BrowseTheWeb`, UI tasks and assertions wil
 
 For login tests, these pieces already exist:
 
-- Targets: [`saucedemo/ui/pages/login_page.py`](../saucedemo/ui/pages/login_page.py)
-- Task: [`saucedemo/tasks/login.py`](../saucedemo/tasks/login.py)
-- Open app task: [`saucedemo/tasks/open_saucedemo.py`](../saucedemo/tasks/open_saucedemo.py)
+- Targets: [`examples/saucedemo/ui/pages/login_page.py`](../examples/saucedemo/ui/pages/login_page.py)
+- Task: [`examples/saucedemo/tasks/login.py`](../examples/saucedemo/tasks/login.py)
+- Open app task: [`examples/saucedemo/tasks/open_saucedemo.py`](../examples/saucedemo/tasks/open_saucedemo.py)
 - Assertions DSL: [`screenplay_core/consequences/ensure.py`](../screenplay_core/consequences/ensure.py)
 
 This means you usually only need to write the test itself.
 
 ## Step 3: Create a New Login Test File
 
-Create `tests/test_login_get_started.py`:
+Create `tests/saucedemo/test_login_get_started.py`:
 
 ```python
 import pytest
 
-from saucedemo.tasks.login import Login
-from saucedemo.tasks.open_saucedemo import OpenSauceDemo
-from saucedemo.ui.pages.inventory_page import InventoryPage
-from saucedemo.ui.pages.login_page import LoginPage
+from examples.saucedemo.tasks.login import Login
+from examples.saucedemo.tasks.open_saucedemo import OpenSauceDemo
+from examples.saucedemo.ui.pages.inventory_page import InventoryPage
+from examples.saucedemo.ui.pages.login_page import LoginPage
 from screenplay_core.consequences.ensure import Ensure
 
 
@@ -116,7 +116,7 @@ What this test does:
 ## Step 4: Run Just Your New Test
 
 ```powershell
-pytest -q tests/test_login_get_started.py
+pytest -q tests/saucedemo/test_login_get_started.py
 ```
 
 If this passes, your first new Screenplay test is working correctly.
@@ -165,7 +165,7 @@ Why `conftest.py` is preferred:
 Assertion fails because target not found
 
 - Cause: locator or page state is wrong
-- Fix: verify target definitions in page files under [`saucedemo/ui/pages/`](../saucedemo/ui/pages/)
+- Fix: verify target definitions in page files under [`examples/saucedemo/ui/pages/`](../examples/saucedemo/ui/pages/)
 
 ## Recommended Workflow for Any New Test
 

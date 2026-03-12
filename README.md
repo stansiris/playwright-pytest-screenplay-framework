@@ -11,10 +11,10 @@ A production-style UI automation framework built with:
 - Pytest
 - Screenplay Pattern
 
-This repo now includes two demo application targets:
+This repo includes two example application targets built on top of a reusable Screenplay core:
 
 - **SauceDemo** (external public app)
-- **TaskHub** (bundled local Flask app under `taskhub/`)
+- **TaskHub** (bundled local Flask app under `examples/taskhub/`)
 
 TaskHub is intentionally included as an **app-under-test** to demonstrate stable local UI, API,
 and hybrid automation scenarios without depending on an external service.
@@ -88,8 +88,8 @@ It exists to showcase how this framework can automate:
 
 ## Where TaskHub Lives
 
-- App: `taskhub/app/`
-- TaskHub automation layer: `taskhub/automation/`
+- App: `examples/taskhub/app/`
+- TaskHub automation layer: `examples/taskhub/automation/`
 - TaskHub tests: `tests/taskhub/`
 
 ## Default Credentials
@@ -107,7 +107,7 @@ python -m venv .venv
 pip install -e ".[dev]"
 playwright install
 
-python -m taskhub.app.app
+python -m examples.taskhub.app.app
 ```
 
 ### macOS / Linux
@@ -118,7 +118,7 @@ source .venv/bin/activate
 pip install -e ".[dev]"
 playwright install
 
-python -m taskhub.app.app
+python -m examples.taskhub.app.app
 ```
 
 TaskHub default URL: `http://127.0.0.1:5001/`
@@ -150,6 +150,22 @@ pytest tests/taskhub/test_taskhub_hybrid.py -q
 ```
 
 `tests/taskhub/conftest.py` starts a local TaskHub server automatically for test execution.
+
+---
+
+# SauceDemo Example Target
+
+SauceDemo remains a first-class example target in this repository.
+
+- SauceDemo automation layer: `examples/saucedemo/`
+- SauceDemo tests: `tests/saucedemo/`
+- BDD feature files: `tests/saucedemo/features/`
+
+Run SauceDemo-only tests:
+
+```bash
+pytest tests/saucedemo -q
+```
 
 ---
 
@@ -253,7 +269,7 @@ Each layer interacts only with adjacent layers, improving maintainability and re
 | Layer | Purpose | Examples |
 |---|---|---|
 | Tests | Behavior scenarios orchestrating actions | `test_login.py` |
-| Domain Layer | Business vocabulary and behavior | `Login`, `Checkout`, `TextOf` |
+| Example Target Layer | App-specific vocabulary and behavior | `Login`, `Checkout`, `TextOf` |
 | Screenplay Core | Actor behavior primitives | `Actor`, `Task`, `Interaction`, `Question`, `Consequence` |
 | UI Abstractions | Encapsulates UI elements | `Target` |
 | Integration | Actor abilities connecting to external systems | `BrowseTheWeb`, `CallTheApi` |
@@ -275,19 +291,21 @@ screenplay_core/
     questions/
     consequences/
 
-saucedemo/
-    tasks/
-    questions/
-    ui/
-
-taskhub/
-    app/
-    automation/
+examples/
+    saucedemo/
+        tasks/
+        questions/
+        ui/
+    taskhub/
+        app/
+        automation/
 
 tests/
-    features/
+    saucedemo/
+        features/
+        test_*.py
     taskhub/
-    test_*.py
+        test_*.py
 
 docs/
     *.md
@@ -299,13 +317,13 @@ docs/
 
 A good way to understand the framework is to read the code in the following order.
 
-1. `tests/test_login.py`  
+1. `tests/saucedemo/test_login.py`  
    Start here to see the smallest complete Screenplay test using the framework.
 
 2. `screenplay_core/core/actor.py`  
    Read this next to understand how the actor executes tasks, consequences, and questions.
 
-3. `saucedemo/tasks/login.py`  
+3. `examples/saucedemo/tasks/login.py`  
    This shows how domain behavior is modeled as a reusable Screenplay task.
 
 4. `screenplay_core/consequences/ensure.py`  

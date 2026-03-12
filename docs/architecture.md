@@ -11,16 +11,19 @@ It shows:
 ```mermaid
 flowchart TB
   subgraph Behavior["Behavior and Test Entry Layer"]
-    F[tests/features/*.feature]
-    BDD[tests/test_*_bdd.py]
-    PYT[tests/test_*.py]
-    CONF[tests/conftest.py]
+    F[tests/saucedemo/features/*.feature]
+    BDD[tests/saucedemo/test_*_bdd.py]
+    PYTSD[tests/saucedemo/test_*.py]
+    PYTTH[tests/taskhub/test_*.py]
+    CONF[tests/conftest.py + tests/taskhub/conftest.py]
   end
 
-  subgraph Domain["Domain Layer: saucedemo/"]
-    ST[saucedemo/tasks/*]
-    SQ[saucedemo/questions/*]
-    SUI[saucedemo/ui/pages/* + ui/components/*]
+  subgraph Domain["Example Target Layer: examples/*"]
+    ST[examples/saucedemo/tasks/*]
+    SQ[examples/saucedemo/questions/*]
+    SUI[examples/saucedemo/ui/pages/* + ui/components/*]
+    THA[examples/taskhub/automation/*]
+    THAPP[examples/taskhub/app/*]
   end
 
   subgraph Core["Reusable Screenplay Layer: screenplay_core/"]
@@ -38,10 +41,12 @@ flowchart TB
   BDD --> SQ
   BDD --> SUI
   BDD --> CCONS
-  PYT --> ST
-  PYT --> SQ
-  PYT --> SUI
-  PYT --> CCONS
+  PYTSD --> ST
+  PYTSD --> SQ
+  PYTSD --> SUI
+  PYTSD --> CCONS
+  PYTTH --> THA
+  PYTTH --> CCONS
   CONF --> CAB
 
   ST --> SUI
@@ -52,6 +57,10 @@ flowchart TB
   ST --> CCORE
   SQ --> CCORE
   SUI --> CCORE
+  THA --> THAPP
+  THA --> CINT
+  THA --> CCORE
+  THA -. optional .-> CCONS
 
   CINT --> CCORE
   CQUE --> CCORE
@@ -65,7 +74,7 @@ flowchart TB
 
 - Think of this as a 4-layer stack:
 - top layer: test files (`tests/...`) say what should happen
-- domain layer: `saucedemo/...` turns that into business actions and questions
+- example target layer: `examples/saucedemo/...` and `examples/taskhub/...` provide app-specific behavior
 - core layer: `screenplay_core/...` provides reusable Screenplay building blocks
 - bottom layer: Playwright actually drives the browser
 - Most arrows are normal dependencies used every day.
@@ -270,12 +279,13 @@ sequenceDiagram
 
 ## 5. Architectural Rules (Current Conventions)
 
-- Steps in `tests/test_*.py` should stay thin and delegate behavior to Tasks/Questions/Consequences.
+- Steps in `tests/saucedemo/test_*.py` and `tests/taskhub/test_*.py` should stay thin and delegate behavior to Tasks/Questions/Consequences.
 - Tasks should express user intent and compose reusable interactions/tasks.
 - Tasks may compose Consequences when workflow-level verification is part of
   the domain behavior.
 - Questions should read state or compute business checks, then return values.
-- Selectors and target factories are organized by page under `saucedemo/ui/pages/*`, with shared controls in `saucedemo/ui/components/*`.
+- SauceDemo selectors and target factories are organized by page under `examples/saucedemo/ui/pages/*`, with shared controls in `examples/saucedemo/ui/components/*`.
+- TaskHub selectors and target factories are defined under `examples/taskhub/automation/ui/*`.
 - `Target` resolution must flow through actor ability (`BrowseTheWeb`) to keep browser access centralized.
 
 ## 6. Directory-to-Responsibility Map
@@ -287,12 +297,15 @@ sequenceDiagram
 | `screenplay_core/interactions` | Reusable low-level actions against Playwright locators/pages. |
 | `screenplay_core/questions` | Generic read-model queries reusable across domains. |
 | `screenplay_core/consequences` | Assertion adapters that expose Playwright `expect(...)` as Screenplay `Consequence`s. |
-| `saucedemo/ui/pages` | Page-specific target catalogs and dynamic target factories. |
-| `saucedemo/ui/components` | Reusable targets shared across multiple pages. |
-| `saucedemo/tasks` | Domain intent operations and composed workflows. |
-| `saucedemo/questions` | Domain-specific assertions/state checks. |
-| `tests/features` | Business-readable behavior specs (Gherkin). |
-| `tests/test_*.py` | Thin BDD adapters plus direct pytest + Screenplay suites. |
+| `examples/saucedemo/ui/pages` | Page-specific target catalogs and dynamic target factories for the SauceDemo example. |
+| `examples/saucedemo/ui/components` | Reusable targets shared across SauceDemo pages. |
+| `examples/saucedemo/tasks` | SauceDemo example intent operations and composed workflows. |
+| `examples/saucedemo/questions` | SauceDemo example state checks. |
+| `examples/taskhub/app` | Local Flask app-under-test used for UI/API/hybrid scenarios. |
+| `examples/taskhub/automation` | TaskHub automation tasks/questions/API client wrappers. |
+| `tests/saucedemo/features` | SauceDemo business-readable behavior specs (Gherkin). |
+| `tests/saucedemo/test_*.py` | SauceDemo thin BDD adapters plus direct pytest + Screenplay suites. |
+| `tests/taskhub/test_*.py` | TaskHub UI, API, and hybrid Screenplay suites. |
 | `tests/conftest.py` | Runtime wiring: actor fixture, base URL normalization, and browser launch option overrides. |
 
 

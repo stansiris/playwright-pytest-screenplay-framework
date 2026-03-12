@@ -2,18 +2,18 @@
 
 import pytest
 
+from examples.taskhub.automation.questions.on_tasks_page import OnTaskHubTasksPage
+from examples.taskhub.automation.questions.task_completed import TaskCompleted
+from examples.taskhub.automation.questions.task_id_for_title import TaskIdForTitle
+from examples.taskhub.automation.tasks.create_task import CreateTask
+from examples.taskhub.automation.tasks.delete_task import DeleteTask
+from examples.taskhub.automation.tasks.edit_task import EditTask
+from examples.taskhub.automation.tasks.filter_tasks import FilterTasks
+from examples.taskhub.automation.tasks.login import LoginToTaskHub
+from examples.taskhub.automation.tasks.open_taskhub import OpenTaskHub
+from examples.taskhub.automation.tasks.toggle_task_completion import ToggleTaskCompletion
+from examples.taskhub.automation.ui.targets import TaskHubTargets
 from screenplay_core.consequences.ensure import Ensure
-from taskhub.automation.questions.on_tasks_page import OnTaskHubTasksPage
-from taskhub.automation.questions.task_completed import TaskCompleted
-from taskhub.automation.questions.task_id_for_title import TaskIdForTitle
-from taskhub.automation.tasks.create_task import CreateTask
-from taskhub.automation.tasks.delete_task import DeleteTask
-from taskhub.automation.tasks.edit_task import EditTask
-from taskhub.automation.tasks.filter_tasks import FilterTasks
-from taskhub.automation.tasks.login import LoginToTaskHub
-from taskhub.automation.tasks.open_taskhub import OpenTaskHub
-from taskhub.automation.tasks.toggle_task_completion import ToggleTaskCompletion
-from taskhub.automation.ui.targets import TaskHubTargets
 
 pytestmark = [pytest.mark.ui, pytest.mark.integration]
 
