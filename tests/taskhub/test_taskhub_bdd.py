@@ -1,6 +1,5 @@
 """TaskHub BDD scenarios using pytest-bdd and Screenplay tasks."""
 
-import pytest
 from pytest_bdd import given, parsers, scenario, then, when
 
 from examples.taskhub.automation.questions.on_tasks_page import OnTaskHubTasksPage
@@ -120,4 +119,4 @@ def taskhub_task_should_be_visible(taskhub_logged_in_customer: Actor, title: str
 @then(parsers.parse('the TaskHub task titled "{title}" should not be visible'))
 def taskhub_task_should_not_be_visible(taskhub_logged_in_customer: Actor, title: str) -> None:
     task_id = taskhub_logged_in_customer.asks_for(TaskIdForTitle(title))
-    assert task_id is None, f"Task '{title}' was found in the task list but should have been deleted"
+    assert task_id is None, f"Task '{title}' was found but should have been deleted"
