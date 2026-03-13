@@ -4,32 +4,19 @@
 ![Python](https://img.shields.io/badge/python-3.11+-blue)
 ![Playwright](https://img.shields.io/badge/playwright-testing-green)
 
-A production-style UI automation framework built with:
+A production-style test automation framework built with Python, Playwright, Pytest, and the
+**Screenplay Pattern**. The repository ships two fully working example targets on top of a
+reusable Screenplay core:
 
-- Python
-- Playwright
-- Pytest
-- Screenplay Pattern
+- **SauceDemo** — external public e-commerce app (UI + BDD)
+- **TaskHub** — bundled Flask app (UI, JSON API, and hybrid cross-boundary tests)
 
-This repo includes two example application targets built on top of a reusable Screenplay core:
-
-- **SauceDemo** (external public app)
-- **TaskHub** (bundled local Flask app under `examples/taskhub/`)
-
-TaskHub is intentionally included as an **app-under-test** to demonstrate stable local UI, API,
-and hybrid automation scenarios without depending on an external service.
-
-This repository demonstrates how the **Screenplay Pattern** can be implemented in Python
-to build maintainable and scalable UI automation frameworks that support both
-**BDD (`pytest-bdd`) and direct pytest tests**.
-
-This project is primarily a **framework architecture demonstration** rather than a large
-test suite. The goal is to illustrate how Screenplay concepts can be implemented in Python
-while leveraging Playwright's modern automation capabilities.
+The primary goal is to demonstrate how the Screenplay Pattern can be implemented in Python
+to produce readable, layered, and maintainable automation — not to be a large test suite.
 
 ---
 
-# Quick Start
+## Quick Start
 
 ### Windows
 
@@ -61,182 +48,84 @@ pytest -q
 
 ---
 
-# Key Concepts
+## Key Concepts
 
 | Concept | Description |
 |---|---|
-| Actor | Represents a user interacting with the system and orchestrates actions. |
-| Ability | Grants the actor the capability to interact with external systems (e.g., `BrowseTheWeb`, `CallTheApi`). |
-| Task | A high-level business action performed by the actor (e.g., `Login`, `Checkout`). |
-| Interaction | A low-level operation that performs a single UI action (e.g., `Click`, `Fill`). |
-| Target | Encapsulates a UI locator and resolves it for the actor. |
-| Question | Retrieves information from the system under test. |
-| Consequence | Verifies system state, typically using assertions (e.g., `Ensure`). |
+| Actor | Represents a user; orchestrates all actions and questions. |
+| Ability | Grants the actor capability to reach an external system (`BrowseTheWeb`, `CallTheApi`). |
+| Task | A high-level business action composed of interactions (`Login`, `CreateTask`). |
+| Interaction | A single low-level browser operation (`Click`, `Fill`, `NavigateTo`). |
+| Target | A named, lazy locator recipe resolved through the actor's `BrowseTheWeb` ability. |
+| Question | Reads and returns information from the system under test. |
+| Consequence | Verifies system state; wraps Playwright `expect()` assertions (`Ensure`). |
 
 ---
 
-# TaskHub Demo App
+## Architecture
 
-## What TaskHub Is
+The framework is a strict 4-layer stack. Each layer depends only on the layer below it.
 
-TaskHub is a lightweight Flask + sqlite task management app bundled in this repository.
-It exists to showcase how this framework can automate:
-
-- UI flows with Playwright + Screenplay Tasks/Questions
-- JSON API flows
-- Hybrid flows (create in API, verify in UI and vice versa)
-
-## Where TaskHub Lives
-
-- App: `examples/taskhub/app/`
-- TaskHub automation layer: `examples/taskhub/automation/`
-- TaskHub tests: `tests/taskhub/`
-
-## Default Credentials
-
-- Username: `admin`
-- Password: `admin123`
-
-## Run TaskHub Locally
-
-### Windows
-
-```powershell
-python -m venv .venv
-.venv\Scripts\Activate.ps1
-pip install -e ".[dev]"
-playwright install
-
-python -m examples.taskhub.app.app
 ```
-
-### macOS / Linux
-
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -e ".[dev]"
-playwright install
-
-python -m examples.taskhub.app.app
+Tests               →  describe behavior (thin, no browser details)
+Example Target Layer →  app-specific Tasks, Questions, Targets, API tasks
+Screenplay Core      →  Actor, Task, Interaction, Question, Target, Ensure
+Playwright / requests →  browser and HTTP execution
 ```
-
-TaskHub default URL: `http://127.0.0.1:5001/`
-
-## Run TaskHub Tests
-
-UI, API, and hybrid suites are under `tests/taskhub/`.
-
-```bash
-pytest tests/taskhub -q
-```
-
-Run only UI:
-
-```bash
-pytest tests/taskhub/test_taskhub_ui.py -q
-```
-
-Run only API:
-
-```bash
-pytest tests/taskhub/test_taskhub_api.py -q
-```
-
-Run only hybrid:
-
-```bash
-pytest tests/taskhub/test_taskhub_hybrid.py -q
-```
-
-`tests/taskhub/conftest.py` starts a local TaskHub server automatically for test execution.
-
----
-
-# SauceDemo Example Target
-
-SauceDemo remains a first-class example target in this repository.
-
-- SauceDemo automation layer: `examples/saucedemo/`
-- SauceDemo tests: `tests/saucedemo/`
-- BDD feature files: `tests/saucedemo/features/`
-
-Run SauceDemo-only tests:
-
-```bash
-pytest tests/saucedemo -q
-```
-
----
-
-## Framework Screenplay Pattern Overview
 
 ```mermaid
 graph TD
 
 Actor["Actor"]
 Ability["Ability<br/>(BrowseTheWeb, CallTheApi)"]
-Task["Task<br/>(Login, ProceedToCheckout)"]
-Interaction["Interaction<br/>(Click, Fill, Wait)"]
-Question["Question<br/>(IsVisible, TextOf)"]
+Task["Task<br/>(Login, CreateTask)"]
+Interaction["Interaction<br/>(Click, Fill, NavigateTo)"]
+Question["Question<br/>(TaskVisible, TextOf)"]
 Consequence["Consequence<br/>(Ensure.that)"]
-Target["Target<br/>(UI Locator)"]
-Playwright["Playwright Runtime"]
+Target["Target<br/>(UI Locator Recipe)"]
+Playwright["Playwright / requests"]
 System["Application Under Test"]
 
 Actor -->|has ability| Ability
-
 Actor -->|performs| Task
 Task -->|composed of| Interaction
 Interaction -->|acts on| Target
 Target -->|resolved by| Playwright
 Playwright -->|drives| System
-
 Actor -->|asks| Question
 Question -->|reads| Target
-
 Actor -->|verifies| Consequence
-Consequence -->|read| Target
+Consequence -->|reads| Target
 ```
 
 ---
 
-# Assertion Model
+## Assertion Model
 
-A key feature of this framework is that it gives developers access to [Playwright's powerful assertion methods](https://playwright.dev/python/docs/test-assertions) without exposing the raw `expect()` function directly in test code.
+`Ensure` is a Screenplay-style DSL that wraps Playwright's `expect()` API. It gives tests
+access to Playwright's full locator assertion set — auto-waiting, retry, and strong failure
+diagnostics — without exposing `expect()` directly in test code.
 
-This is done through `Ensure`, a Screenplay-style assertion wrapper around Playwright's `expect()` API.
+```python
+# Raw Playwright
+expect(page.locator("#inventory_container")).to_be_visible()
 
-`Ensure` provides a thin DSL that allows Playwright locator assertions to be used as Screenplay Consequences.
+# Screenplay equivalent
+actor.attempts_to(
+    Ensure.that(InventoryPage.INVENTORY_CONTAINER).to_be_visible()
+)
+```
 
-Example:
-
-    actor.attempts_to(
-        Ensure.that(LoginPage.ERROR_MESSAGE).to_be_visible()
-    )
-
-## Design overview
-
-A Playwright assertion normally looks like this:
-
-    expect(locator).to_be_visible()
-
-In the Screenplay pattern, test behavior is expressed through activities performed by an Actor. Assertions therefore need to be represented as Screenplay objects that the actor can execute.
-
-`Ensure` bridges these two models by dynamically forwarding Playwright assertion methods into Screenplay Consequences.
-
-This design has several advantages:
-
-- keeps Playwright assertion methods available
-- avoids writing wrappers for every assertion method
-- preserves Screenplay semantics (the Actor performs Consequences)
-- keeps the DSL clean and expressive
-
-Type casting to `LocatorAssertions` is used to enable IDE auto-completion for Playwright assertion methods while still using dynamic forwarding internally.
+`Ensure.that(target)` returns a `Consequence` object. The actor executes it, resolves the
+`Target` into a Playwright `Locator`, and delegates to `expect(locator)`. IDE
+autocompletion for all Playwright assertion methods is preserved via a `cast` to
+`LocatorAssertions`.
 
 ---
 
-# Example Screenplay Test
+## Example Tests
+
+### SauceDemo — UI test with parametrize
 
 ```python
 @pytest.mark.parametrize(
@@ -247,109 +136,195 @@ Type casting to `LocatorAssertions` is used to enable IDE auto-completion for Pl
         ("performance_glitch_user", "secret_sauce"),
     ],
 )
+@pytest.mark.smoke
 def test_successful_login(customer, username, password) -> None:
-    """Verify valid users can log in, reach inventory, and then log out back to login page."""
     customer.attempts_to(
-        OpenSauceDemo.app(), #Open the SauceDemo app URL
-        Ensure.that(LoginPage.LOGIN_BUTTON).to_be_visible(), #Assert login page is ready
-        Login.with_credentials(username=username, password=password), #Enter valid credentials and click login
-        Ensure.that(InventoryPage.INVENTORY_CONTAINER).to_be_visible(), #Assert that we see the inventory page
-        Logout(), #Open the menu and click logout
-        Ensure.that(LoginPage.LOGIN_BUTTON).to_be_visible(), #Assert that we are back on the login page by checking that the login button is visible
+        OpenSauceDemo.app(),
+        Ensure.that(LoginPage.LOGIN_BUTTON).to_be_visible(),
+        Login.with_credentials(username=username, password=password),
+        Ensure.that(InventoryPage.INVENTORY_CONTAINER).to_be_visible(),
+        Logout(),
+        Ensure.that(LoginPage.LOGIN_BUTTON).to_be_visible(),
+    )
+```
+
+### TaskHub — hybrid test (create via API, verify in UI)
+
+```python
+@pytest.mark.hybrid
+def test_create_task_via_api_verify_in_ui(taskhub_api_actor, taskhub_customer) -> None:
+    title = "Hybrid API to UI task"
+    create_task = CreateTaskViaApi.with_payload(
+        {"title": title, "description": "Created via API", "priority": "HIGH"}
+    )
+    taskhub_api_actor.attempts_to(
+        LoginToTaskHubApi.with_credentials("admin", "admin123"),
+        create_task,
+    )
+    assert create_task.result.status_code == 201
+
+    taskhub_customer.attempts_to(
+        OpenTaskHub.app(),
+        LoginToTaskHub.with_credentials("admin", "admin123"),
+        Ensure.that(TaskHubTargets.task_item_for_id(create_task.task_id)).to_be_visible(),
+        Ensure.that(TaskHubTargets.task_title_text_for_id(create_task.task_id)).to_have_text(title),
     )
 ```
 
 ---
 
-# Framework Architecture
+## SauceDemo
 
-The framework separates responsibilities into clear architectural layers.
-Each layer interacts only with adjacent layers, improving maintainability and reuse.
+An external public e-commerce demo app used to show UI automation and BDD.
 
-| Layer | Purpose | Examples |
-|---|---|---|
-| Tests | Behavior scenarios orchestrating actions | `test_login.py` |
-| Example Target Layer | App-specific vocabulary and behavior | `Login`, `Checkout`, `TextOf` |
-| Screenplay Core | Actor behavior primitives | `Actor`, `Task`, `Interaction`, `Question`, `Consequence` |
-| UI Abstractions | Encapsulates UI elements | `Target` |
-| Integration | Actor abilities connecting to external systems | `BrowseTheWeb`, `CallTheApi` |
-| Automation Engine | Executes browser automation | Playwright |
+- Automation layer: `examples/saucedemo/`
+- Tests: `tests/saucedemo/`
+- BDD feature files: `tests/saucedemo/features/`
 
-#### For a detailed explanation of the framework, see [docs/architecture.md](docs/architecture.md).</br>
-#### For a detailed explanation of the design decisions, see [docs/design_decisions.md](docs/design_decisions.md).</br>
-#### For a step-by-step first test walkthrough, see [docs/get_started.md](docs/get_started.md).
+```bash
+pytest tests/saucedemo -q
+```
 
 ---
 
-# Project Structure
+## TaskHub
+
+A lightweight Flask + SQLite task management app bundled in this repository. It exists so
+the framework can demonstrate UI, API, and hybrid automation without any external dependency.
+
+### Where it lives
+
+| Path | Purpose |
+|---|---|
+| `examples/taskhub/app/` | Flask app source (routes, db, seed data) |
+| `examples/taskhub/automation/` | Tasks, Questions, Targets, API client |
+| `tests/taskhub/` | UI, API, and hybrid test suites |
+
+### Default credentials
+
+- Username: `admin`
+- Password: `admin123`
+
+### Run locally
+
+```bash
+python -m examples.taskhub.app.app
+# → http://127.0.0.1:5001/
+```
+
+### Run the tests
+
+`tests/taskhub/conftest.py` starts a TaskHub server automatically on a free port for each
+test session. No manual server start needed.
+
+```bash
+pytest tests/taskhub -q                          # all TaskHub tests
+pytest tests/taskhub/test_taskhub_ui.py -q       # UI only
+pytest tests/taskhub/test_taskhub_api.py -q      # API only
+pytest tests/taskhub/test_taskhub_hybrid.py -q   # hybrid only
+```
+
+### Test markers
+
+| Marker | Scope |
+|---|---|
+| `smoke` | Critical happy-path scenarios |
+| `ui` | UI presentation and interaction |
+| `api` | API-only scenarios |
+| `hybrid` | Cross UI–API boundary scenarios |
+| `integration` | Cross-component integration |
+| `e2e` | Full end-to-end flows |
+
+```bash
+pytest -m "smoke or api" -q
+```
+
+---
+
+## Project Structure
 
 ```
 screenplay_core/
-    abilities/
-    core/
-    interactions/
-    questions/
-    consequences/
+    abilities/          # BrowseTheWeb, CallTheApi
+    core/               # Actor, Task, Interaction, Question, Target
+    interactions/       # Click, Fill, NavigateTo, …
+    questions/          # TextOf, CurrentUrl, IsVisible, …
+    consequences/       # Ensure (Playwright expect() DSL)
 
 examples/
     saucedemo/
-        tasks/
-        questions/
+        tasks/          # Login, Logout, AddProductToCart, …
+        questions/      # OnInventoryPage, TotalsMatchComputedSum, …
         ui/
+            pages/      # LoginPage, InventoryPage, CartPage, …
+            components/ # AppShell, BackNavigation
     taskhub/
-        app/
+        app/            # Flask app, db, seed
         automation/
+            tasks/      # LoginToTaskHub, CreateTask, EditTask, …
+            questions/  # TaskVisible, TaskCompleted, FlashMessages, …
+            ui/         # TaskHubTargets (all data-testid selectors)
+            api/        # TaskHubApiClient
 
 tests/
+    conftest.py         # Browser launch option overrides
     saucedemo/
-        features/
-        test_*.py
+        conftest.py     # customer actor fixture, base URL
+        features/       # Gherkin feature files (pytest-bdd)
+        test_*.py       # Direct pytest + BDD suites
     taskhub/
-        test_*.py
+        conftest.py     # Server lifecycle, per-test reset, actor fixtures
+        test_*.py       # UI, API, hybrid suites
 
 docs/
-    *.md
+    architecture.md     # Class hierarchy, dependency map, runtime sequences
+    design_decisions.md # Q&A on key architectural choices
+    get_started.md      # Step-by-step guide: write your first test
 ```
 
 ---
 
-# How to Explore This Repository
+## How to Explore the Code
 
-A good way to understand the framework is to read the code in the following order.
+A good reading order for understanding the framework end to end:
 
-1. `tests/saucedemo/test_login.py`  
-   Start here to see the smallest complete Screenplay test using the framework.
-
-2. `screenplay_core/core/actor.py`  
-   Read this next to understand how the actor executes tasks, consequences, and questions.
-
-3. `examples/saucedemo/tasks/login.py`  
-   This shows how domain behavior is modeled as a reusable Screenplay task.
-
-4. `screenplay_core/consequences/ensure.py`  
-   This file demonstrates how Playwright assertions are exposed through the Screenplay DSL.
+1. [`tests/saucedemo/test_login.py`](tests/saucedemo/test_login.py) — smallest complete Screenplay test
+2. [`screenplay_core/core/actor.py`](screenplay_core/core/actor.py) — how the actor executes tasks, consequences, and questions
+3. [`examples/saucedemo/tasks/login.py`](examples/saucedemo/tasks/login.py) — domain behavior modeled as a reusable Task
+4. [`screenplay_core/consequences/ensure.py`](screenplay_core/consequences/ensure.py) — how Playwright assertions are exposed through the Screenplay DSL
+5. [`tests/taskhub/test_taskhub_hybrid.py`](tests/taskhub/test_taskhub_hybrid.py) — cross-boundary test using both `BrowseTheWeb` and `CallTheApi`
 
 ---
 
-# CI Pipeline
+## CI Pipeline
 
-GitHub Actions is used for:
+GitHub Actions runs on push, pull request, and a nightly schedule.
 
-- Ruff linting
-- Black formatting checks
-- Automated test execution
-- Artifact uploads to support debugging failed runs
+| Job | Trigger | What it does |
+|---|---|---|
+| `lint` | push / PR | ruff check + black format check |
+| `tests_fast` | push / PR | full marker union on Ubuntu / Chromium |
+| `full_matrix_regression` | schedule / manual | Ubuntu + Windows × Chromium + Firefox |
+
+Test artifacts (screenshots, traces, HTML report, JUnit XML) are uploaded on failure.
 
 ---
 
-# Portfolio Context
+## Further Reading
 
-This repository illustrates:
+- [docs/architecture.md](docs/architecture.md) — full class hierarchy and runtime sequence diagrams
+- [docs/design_decisions.md](docs/design_decisions.md) — why Screenplay over Page Object Model, and other key choices
+- [docs/get_started.md](docs/get_started.md) — step-by-step: write and run your first test
 
-- practical automation framework architecture in Python
-- Screenplay pattern implementation with clear layer boundaries
-- Playwright integration with readable business-flow tests (`Task`/`Consequence`)
-- a custom assertion DSL (`Ensure`) that preserves Playwright assertion power
-- support for both pytest and pytest-bdd test styles
-- maintainable automation design with CI quality gates (lint, format, tests)
+---
 
+## Portfolio Context
+
+This repository demonstrates:
+
+- Screenplay Pattern implementation in Python with clear layer boundaries
+- Playwright integration exposed through a custom assertion DSL (`Ensure`)
+- Dual-ability actors: `BrowseTheWeb` for UI and `CallTheApi` for JSON APIs
+- Cross-boundary (hybrid) testing combining UI and API actors in a single test
+- Support for both direct pytest and pytest-bdd test styles
+- CI quality gates: lint, format check, and automated test execution
