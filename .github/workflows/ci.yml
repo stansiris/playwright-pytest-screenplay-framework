@@ -6,7 +6,7 @@ name: CI
 # - workflow_dispatch: manual rerun/debug
 on:
   push:
-    branches: [main, master]
+    branches: [main, master, "feature/**"]
   pull_request:
     branches: [main, master]
   schedule:
@@ -82,8 +82,14 @@ jobs:
         run: python -m playwright install --with-deps ${{ env.BROWSER }}
 
       - name: Test fast marker union (pytest)
-        # Unified pre-merge lane: smoke + integration + e2e + ui.
-        run: pytest -q --browser "${{ env.BROWSER }}" -m "smoke or integration or e2e or ui"
+        # Unified pre-merge lane: smoke + integration + e2e + ui + api + hybrid.
+        run: pytest -q --browser "${{ env.BROWSER }}" -m "smoke or integration or e2e or ui or api or hybrid" --cov=screenplay_core --cov=examples --cov-report=xml:test-results/coverage.xml --cov-report=term-missing
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: test-results/coverage.xml
+          fail_ci_if_error: false
 
       - name: Upload test artifacts
         if: always()
@@ -136,9 +142,9 @@ jobs:
         run: python -m playwright install ${{ matrix.browser }}
 
       - name: Test full regression markers (pytest)
-        # Marker-union run; keep ui explicit to avoid accidental coverage gaps
+        # Marker-union run; keep ui/api/hybrid explicit to avoid accidental coverage gaps
         # if marker overlap changes later.
-        run: pytest -q --browser "${{ env.BROWSER }}" -m "smoke or integration or e2e or ui"
+        run: pytest -q --browser "${{ env.BROWSER }}" -m "smoke or integration or e2e or ui or api or hybrid"
 
       - name: Upload test artifacts
         if: always()

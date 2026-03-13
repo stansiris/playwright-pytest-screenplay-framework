@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}TaskHub{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header class="topbar">
+        <div class="topbar-inner">
+            <a class="brand" href="{{ url_for('tasks_dashboard') if session.get('username') else url_for('login') }}">
+                TaskHub
+            </a>
+            {% if session.get('username') %}
+            <div class="session-meta">
+                <span class="signed-in-as">Signed in as <strong>{{ session['username'] }}</strong></span>
+                <form method="post" action="{{ url_for('logout') }}">
+                    <button type="submit" class="ghost" data-testid="taskhub-logout-button">
+                        Logout
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="flash-stack" data-testid="flash-message-container">
+            {% for category, message in get_flashed_messages(with_categories=true) %}
+            <div class="flash flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

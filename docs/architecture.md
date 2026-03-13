@@ -1,75 +1,58 @@
-# Framework Architecture (Hierarchy + Dependencies)
+# Framework Architecture
 
-This document is a deep-dive architecture map for the framework.
-It shows:
-- class hierarchy (inheritance model)
-- class dependencies (implemented and allowed)
-- runtime execution flow from feature/test to browser
+This document is a deep-dive reference for the framework. It covers:
 
-## 1. System Architecture (Layered View)
+- the layered system architecture
+- the core class hierarchy and dependencies
+- how `Ensure` is implemented internally
+- runtime execution sequences for each activity type
+- architectural rules and the directory-to-responsibility map
+
+---
+
+## 1. Layered System Architecture
+
+The framework is a strict 4-layer stack. Arrows show dependency direction (upper layers
+depend on lower layers; lower layers never import from above).
 
 ```mermaid
 flowchart TB
-  subgraph Behavior["Behavior and Test Entry Layer"]
-    F[tests/features/*.feature]
-    BDD[tests/test_*_bdd.py]
-    PYT[tests/test_*.py]
-    CONF[tests/conftest.py]
+  subgraph TL["Test Layer — tests/"]
+    SD["SauceDemo — test_*.py · features/ · conftest.py"]
+    TH["TaskHub — test_*.py · conftest.py"]
   end
 
-  subgraph Domain["Domain Layer: saucedemo/"]
-    ST[saucedemo/tasks/*]
-    SQ[saucedemo/questions/*]
-    SUI[saucedemo/ui/pages/* + ui/components/*]
+  subgraph EL["Target Layer — examples/"]
+    SDE["saucedemo/ — tasks · questions · ui/pages · ui/components"]
+    THE["taskhub/ — automation/tasks · automation/questions · automation/ui · app/"]
   end
 
-  subgraph Core["Reusable Screenplay Layer: screenplay_core/"]
-    CCORE[core/*]
-    CAB[abilities/browse_the_web.py]
-    CINT[interactions/*]
-    CQUE[questions/*]
-    CCONS[consequences/*]
+  subgraph CL["Core — screenplay_core/"]
+    CORE["core/ — Actor · Task · Interaction · Question · Target · Consequence"]
+    AB["abilities/ — BrowseTheWeb · CallTheApi"]
+    BI["interactions/ · questions/ · consequences/ — Click · Fill · TextOf · Ensure · …"]
   end
 
-  PW[Playwright Sync API]
+  subgraph RT["Runtime"]
+    PW["Playwright — browser automation"]
+    HTTP["requests.Session — HTTP API calls"]
+  end
 
-  F --> BDD
-  BDD --> ST
-  BDD --> SQ
-  BDD --> SUI
-  BDD --> CCONS
-  PYT --> ST
-  PYT --> SQ
-  PYT --> SUI
-  PYT --> CCONS
-  CONF --> CAB
-
-  ST --> SUI
-  SQ --> SUI
-  ST --> CINT
-  ST -. optional .-> CCONS
-  SQ --> CQUE
-  ST --> CCORE
-  SQ --> CCORE
-  SUI --> CCORE
-
-  CINT --> CCORE
-  CQUE --> CCORE
-  CCONS --> CCORE
-  CCORE --> CAB
-  CCONS --> PW
-  CAB --> PW
+  TL --> EL
+  TL --> CL
+  EL --> CL
+  AB --> PW
+  AB --> HTTP
 ```
 
-### Plain-English Explanation
+| Layer | Responsibility |
+|---|---|
+| **Test layer** | Describes behavior — no `page`, `locator`, or `expect()` calls |
+| **Example target layer** | App-specific vocabulary: Tasks, Questions, Targets, API clients |
+| **Screenplay core** | Reusable building blocks: Actor, Task, Interaction, Question, Target, Ensure |
+| **Runtime** | Playwright drives the browser; `requests` makes HTTP API calls |
 
-- Think of this as a 4-layer stack:
-- top layer: test files (`tests/...`) say what should happen
-- domain layer: `saucedemo/...` turns that into business actions and questions
-- core layer: `screenplay_core/...` provides reusable Screenplay building blocks
-- bottom layer: Playwright actually drives the browser
-- Most arrows are normal dependencies used every day.
-- The dotted arrow from Task to Consequence means this is allowed but optional.
+---
 
 ## 2. Core Class Hierarchy
 
@@ -81,10 +64,17 @@ classDiagram
   }
 
   class Task {
+    +perform_as(actor) None
     +perform_interactions(actor, *interactions) None
   }
-  class Interaction
-  class Consequence
+
+  class Interaction {
+    +perform_as(actor) None
+  }
+
+  class Consequence {
+    +perform_as(actor) None
+  }
 
   class Question {
     <<abstract>>
@@ -95,203 +85,310 @@ classDiagram
     +name str
     +can(ability) Actor
     +ability_to(ability_class)
-    +attempts_to(*activities: Task|Consequence) None
+    +attempts_to(*activities Task|Consequence) None
     +_attempts_to_interactions(*interactions) None
     +asks_for(question)
   }
 
   class Target {
     +description str
-    +locator_function(page) Locator
+    +locator_function Callable
     +resolve_for(actor) Locator
   }
 
   class BrowseTheWeb {
-    +page
-    +base_url optional str
+    +page Page
+    +base_url str|None
     +using(page, base_url) BrowseTheWeb
+  }
+
+  class CallTheApi {
+    +base_url str
+    +session Session
+    +at(base_url) CallTheApi
+    +get(path) Response
+    +post(path) Response
+    +put(path) Response
+    +patch(path) Response
+    +delete(path) Response
+    +close() None
   }
 
   class Ensure {
     +that(target) LocatorAssertions
   }
 
-  class _EnsureCall {
-    +perform_as(actor) None
+  class _EnsureTargetBuilder {
+    +target Target
+    +__getattr__(method_name) wrapper
   }
 
-  class Page
-  class Locator
-  class LocatorAssertions
+  class _EnsureCall {
+    +target Target
+    +method_name str
+    +perform_as(actor) None
+  }
 
   Activity <|-- Task
   Activity <|-- Interaction
   Activity <|-- Consequence
   Consequence <|-- _EnsureCall
-  Actor --> Task : performs
-  Actor --> Consequence : performs assertions
-  Actor --> Interaction : executes internally
-  Actor --> Question : asks
-  Task --> Interaction : composes
+
+  Actor --> Task : attempts_to
+  Actor --> Consequence : attempts_to
+  Actor --> Interaction : _attempts_to_interactions
+  Actor --> Question : asks_for
   Actor "1" o-- "*" BrowseTheWeb : abilities
-  Target --> BrowseTheWeb : resolve_for(actor)
+  Actor "1" o-- "*" CallTheApi : abilities
+
+  Task --> Interaction : perform_interactions
+
+  Target --> BrowseTheWeb : resolve_for
   Target --> Locator : returns
-  Ensure ..> _EnsureCall : builds
+
+  Ensure ..> _EnsureTargetBuilder : builds
+  _EnsureTargetBuilder ..> _EnsureCall : builds
   _EnsureCall --> Target : resolves
-  _EnsureCall --> LocatorAssertions : delegates assertion
+  _EnsureCall --> LocatorAssertions : delegates
+
   BrowseTheWeb --> Page : wraps
+  CallTheApi --> Session : wraps
 ```
 
-### Plain-English Explanation
+**Key points:**
 
-- `Actor` is the test user. The actor is the one that does everything.
-- `Activity` is the parent type for things the actor can execute.
-- `Task` = high-level user action (business intent).
-- `Interaction` = low-level browser action (click, fill, navigate, etc.).
-- `Consequence` = verification step (assertion), such as `Ensure`.
-- `Question` is separate: it asks for data and returns an answer.
-- `Target` is a named recipe for finding an element on the page.
-- `BrowseTheWeb` gives the actor access to Playwright `page`.
-- `Ensure` builds `_EnsureCall`, and `_EnsureCall` is the actual assertion activity run by the actor.
+- `Activity` is the abstract base. Everything the actor executes inherits from it.
+- `Task` and `Interaction` both extend `Activity`; Tasks compose Interactions.
+- `Consequence` extends `Activity`; `_EnsureCall` is the only built-in Consequence implementation.
+- `Question` is separate from `Activity` — it returns a value rather than performing a side effect.
+- An actor can hold multiple abilities. `ability_to()` resolves by exact class or base-class match.
+- `_EnsureTargetBuilder` is an internal intermediate object; it is never used directly in tests.
 
-## 3. Extension Points
+---
 
-For new product domains, the framework extension path is intentionally small:
+## 3. The `Ensure` Implementation
 
-- define page targets in `yourdomain/ui/pages/*`
-- define shared targets in `yourdomain/ui/components/*` when reused across pages
-- implement intent-level Tasks in `yourdomain/tasks/*`
-- implement domain Questions in `yourdomain/questions/*`
-- keep test step files thin and delegate to Tasks/Questions/Consequences
+`Ensure` is the most non-obvious part of the framework. Understanding it requires following
+the construction chain before any actor is involved.
 
-This keeps business vocabulary domain-specific while preserving the reusable Screenplay core.
-
-## 4. Runtime Sequence (How a Step Executes)
-
-### 4.1 Task + Interaction Path
+### Construction chain
 
 ```mermaid
 sequenceDiagram
-  participant TestStep as "Step/Test Function"
-  participant ScreenActor as "Actor"
-  participant DomainTask as "Domain Task"
-  participant NestedActivity as "Nested Task/Consequence (optional)"
-  participant UiInteraction as "Interaction"
-  participant UiTarget as "Target"
-  participant WebAbility as "BrowseTheWeb"
-  participant PWRuntime as "Playwright Page/Locator"
+  participant Test as Test Function
+  participant Ensure
+  participant Builder as _EnsureTargetBuilder
+  participant Call as _EnsureCall
 
-  TestStep->>ScreenActor: attempts_to(Task)
-  ScreenActor->>DomainTask: perform_as(actor)
-  opt Task composes other activities
-    DomainTask->>ScreenActor: attempts_to(Task/Consequence)
-    ScreenActor->>NestedActivity: perform_as(actor)
-    NestedActivity-->>ScreenActor: done
+  Test->>Ensure: Ensure.that(target)
+  Ensure-->>Test: _EnsureTargetBuilder(target) [typed as LocatorAssertions]
+  Test->>Builder: .to_be_visible()
+  Builder->>Builder: __getattr__("to_be_visible")
+  Builder-->>Test: _EnsureCall(target, "to_be_visible", args, kwargs)
+```
+
+`Ensure.that(target).to_be_visible()` is a two-step construction. The result is a
+`_EnsureCall` object — a `Consequence` — that can be passed to `actor.attempts_to()`.
+
+### Execution chain
+
+```
+actor.attempts_to(_EnsureCall)
+  → _EnsureCall.perform_as(actor)
+      ↓
+  1. locator = target.resolve_for(actor)       # BrowseTheWeb.page → Playwright Locator
+  2. assertion = expect(locator)               # Playwright assertion factory
+  3. method = getattr(assertion, method_name)  # e.g. to_be_visible
+  4. method(*args, **kwargs)                   # execute; raises on failure
+```
+
+### Why the cast to `LocatorAssertions`
+
+`Ensure.that()` returns `_EnsureTargetBuilder` but declares its return type as
+`LocatorAssertions`. This is a deliberate lie to the type checker. It lets IDEs offer full
+Playwright assertion autocompletion (`.to_be_visible()`, `.to_have_text()`, etc.) while the
+actual runtime object is the dynamic `_EnsureTargetBuilder`. The pattern is a pragmatic
+trade-off: dynamic dispatch at runtime, static autocomplete in the IDE.
+
+---
+
+## 4. Runtime Sequences
+
+### 4.1 Task and Interaction
+
+```mermaid
+sequenceDiagram
+  participant Test as Test Function
+  participant A as Actor
+  participant DomainTask as Domain Task
+  participant Interaction
+  participant Target
+  participant BrowseTheWeb
+  participant Playwright as Playwright Page
+
+  Test->>A: attempts_to(Task)
+  A->>DomainTask: perform_as(actor)
+  opt Task composes nested Tasks or Consequences
+    DomainTask->>A: attempts_to(Task/Consequence)
+    A-->>DomainTask: done
   end
-  DomainTask->>ScreenActor: perform_interactions(...)
-  ScreenActor->>UiInteraction: perform_as(actor)
-  UiInteraction->>UiTarget: resolve_for(actor)
-  UiTarget->>WebAbility: actor.ability_to(BrowseTheWeb)
-  WebAbility-->>UiTarget: page
-  UiTarget-->>UiInteraction: Locator
-  UiInteraction->>PWRuntime: click/fill/navigate/select/reload/etc.
-  PWRuntime-->>UiInteraction: success/failure
-  UiInteraction-->>ScreenActor: done
-  ScreenActor-->>TestStep: done
+  DomainTask->>A: perform_interactions(actor, Click/Fill/...)
+  A->>Interaction: perform_as(actor)
+  Interaction->>Target: resolve_for(actor)
+  Target->>BrowseTheWeb: actor.ability_to(BrowseTheWeb)
+  BrowseTheWeb-->>Target: page
+  Target-->>Interaction: Locator
+  Interaction->>Playwright: click / fill / navigate / ...
+  Playwright-->>Interaction: done
+  Interaction-->>A: done
+  A-->>Test: done
 ```
 
-#### Plain-English Explanation
-
-1. A test step tells the actor to run a Task.
-2. That Task can optionally run other Tasks/Consequences.
-3. The Task then runs low-level Interactions.
-4. Each Interaction resolves a Target into a Playwright Locator through `BrowseTheWeb`.
-5. Playwright executes the browser action and returns pass/fail to the test flow.
-
-### 4.2 Question Path
+### 4.2 Question
 
 ```mermaid
 sequenceDiagram
-  participant TestStep as "Step/Test Function"
-  participant ScreenActor as "Actor"
-  participant DomainQuestion as "Domain/Generic Question"
-  participant UiTarget as "Target"
-  participant WebAbility as "BrowseTheWeb"
-  participant PWRuntime as "Playwright Page/Locator"
+  participant Test as Test Function
+  participant A as Actor
+  participant Question
+  participant Target
+  participant BrowseTheWeb
+  participant Playwright as Playwright Page
 
-  TestStep->>ScreenActor: asks_for(Question)
-  ScreenActor->>DomainQuestion: answered_by(actor)
-  DomainQuestion->>UiTarget: resolve_for(actor) (optional)
-  UiTarget->>WebAbility: actor.ability_to(BrowseTheWeb)
-  WebAbility-->>UiTarget: page
-  DomainQuestion->>PWRuntime: read url/text/visibility
-  PWRuntime-->>DomainQuestion: raw value
-  DomainQuestion-->>ScreenActor: computed answer
-  ScreenActor-->>TestStep: answer
+  Test->>A: asks_for(Question)
+  A->>Question: answered_by(actor)
+  opt Question reads a Target
+    Question->>Target: resolve_for(actor)
+    Target->>BrowseTheWeb: actor.ability_to(BrowseTheWeb)
+    BrowseTheWeb-->>Target: page
+    Target-->>Question: Locator
+  end
+  Question->>Playwright: read text / url / visibility / ...
+  Playwright-->>Question: raw value
+  Question-->>A: computed answer
+  A-->>Test: answer
 ```
 
-#### Plain-English Explanation
-
-1. A test asks the actor a Question.
-2. The Question reads UI state (optionally through a Target).
-3. The Question can transform raw UI data into a business answer.
-4. The answer is returned to the test for assertion or follow-up logic.
-
-### 4.3 Ensure Consequence Path
+### 4.3 Ensure Consequence
 
 ```mermaid
 sequenceDiagram
-  participant TestStep as "Step/Test Function"
-  participant EnsureDsl as "Ensure DSL"
-  participant ScreenActor as "Actor"
-  participant EnsureCall as "_EnsureCall (Consequence)"
-  participant UiTarget as "Target"
-  participant PWExpect as "Playwright expect(locator)"
+  participant Test as Test Function
+  participant Ensure
+  participant A as Actor
+  participant EnsureCall as _EnsureCall
+  participant Target
+  participant Playwright as expect(locator)
 
-  TestStep->>EnsureDsl: Ensure.that(Target).to_be_visible(...)
-  EnsureDsl-->>TestStep: _EnsureCall
-  TestStep->>ScreenActor: attempts_to(_EnsureCall)
-  ScreenActor->>EnsureCall: perform_as(actor)
-  EnsureCall->>UiTarget: resolve_for(actor)
-  UiTarget-->>EnsureCall: Locator
-  EnsureCall->>PWExpect: call assertion method
-  PWExpect-->>EnsureCall: pass/fail
-  EnsureCall-->>ScreenActor: done
-  ScreenActor-->>TestStep: done
+  Test->>Ensure: Ensure.that(Target).to_be_visible()
+  Ensure-->>Test: _EnsureCall
+  Test->>A: attempts_to(_EnsureCall)
+  A->>EnsureCall: perform_as(actor)
+  EnsureCall->>Target: resolve_for(actor)
+  Target-->>EnsureCall: Locator
+  EnsureCall->>Playwright: expect(locator).to_be_visible()
+  Playwright-->>EnsureCall: pass / AssertionError
+  EnsureCall-->>A: done
+  A-->>Test: done
 ```
 
-#### Plain-English Explanation
+### 4.4 API Task with `CallTheApi`
 
-1. `Ensure.that(...).to_*()` creates an assertion activity object.
-2. The test gives that object to the actor via `attempts_to(...)`.
-3. The actor executes it, resolves the Target, and calls Playwright `expect(locator)`.
-4. If the assertion passes, flow continues; if it fails, the test fails at this step.
+```mermaid
+sequenceDiagram
+  participant Test as Test Function
+  participant A as API Actor
+  participant ApiTask as API Task
+  participant CallTheApi
+  participant HTTP as requests.Session
 
-## 5. Architectural Rules (Current Conventions)
+  Test->>A: attempts_to(ApiTask)
+  A->>ApiTask: perform_as(actor)
+  ApiTask->>CallTheApi: actor.ability_to(CallTheApi)
+  CallTheApi-->>ApiTask: CallTheApi instance
+  ApiTask->>HTTP: session.post / get / put / delete
+  HTTP-->>ApiTask: Response
+  ApiTask->>ApiTask: store result (self.result)
+  ApiTask-->>A: done
+  A-->>Test: done
+  Test->>Test: assert task.result.status_code == 201
+```
 
-- Steps in `tests/test_*.py` should stay thin and delegate behavior to Tasks/Questions/Consequences.
-- Tasks should express user intent and compose reusable interactions/tasks.
-- Tasks may compose Consequences when workflow-level verification is part of
-  the domain behavior.
-- Questions should read state or compute business checks, then return values.
-- Selectors and target factories are organized by page under `saucedemo/ui/pages/*`, with shared controls in `saucedemo/ui/components/*`.
-- `Target` resolution must flow through actor ability (`BrowseTheWeb`) to keep browser access centralized.
+The API actor uses `CallTheApi` instead of `BrowseTheWeb`. There is no `Target` or
+Playwright involvement. API Tasks store their response in `self.result` so tests can
+inspect status codes and payloads after `attempts_to()` returns.
+
+### 4.5 Hybrid test: two actors
+
+```mermaid
+sequenceDiagram
+  participant Test as Test Function
+  participant ApiActor as API Actor (CallTheApi)
+  participant UiActor as UI Actor (BrowseTheWeb)
+  participant Server as TaskHub Server
+
+  Test->>ApiActor: attempts_to(LoginToTaskHubApi, CreateTaskViaApi)
+  ApiActor->>Server: POST /api/login, POST /api/tasks
+  Server-->>ApiActor: 200, 201
+  ApiActor-->>Test: done
+  Test->>Test: assert create_task.result.status_code == 201
+
+  Test->>UiActor: attempts_to(OpenTaskHub, LoginToTaskHub)
+  UiActor->>Server: browser GET /login, POST /login
+  Server-->>UiActor: 200
+
+  Test->>UiActor: attempts_to(Ensure.that(task_item).to_be_visible())
+  UiActor->>Server: browser renders /tasks
+  Server-->>UiActor: page with task visible
+  UiActor-->>Test: done
+```
+
+Two independent actors — one with `CallTheApi`, one with `BrowseTheWeb` — operate against
+the same server in a single test. They share no state; the test coordinates them.
+
+---
+
+## 5. Architectural Rules
+
+- **Test files stay thin.** Tests express behavior using Tasks, Consequences, and Questions.
+  No `page`, `locator`, or `expect()` calls appear in test code.
+- **`actor.attempts_to()` accepts only `Task | Consequence`.** Passing an `Interaction`
+  directly raises `TypeError`. This is enforced at runtime in `Actor.attempts_to()`.
+- **Interactions live inside Tasks.** They are dispatched through
+  `Task.perform_interactions()` → `Actor._attempts_to_interactions()`, never called
+  directly by tests.
+- **Target resolution flows through an Ability.** `Target.resolve_for(actor)` always goes
+  through `actor.ability_to(BrowseTheWeb)`. There is no direct `page` access outside of
+  Interactions and `BrowseTheWeb`.
+- **Tasks may compose other Tasks or Consequences** by calling `actor.attempts_to(...)`
+  inside `perform_as()`. This is the only supported nesting pattern.
+- **Questions return values; they do not assert.** Use `Ensure` for Playwright-backed UI
+  assertions. Use `Question` + `assert` for value-based checks.
+
+---
 
 ## 6. Directory-to-Responsibility Map
 
 | Directory | Responsibility |
-| --- | --- |
-| `screenplay_core/core` | Actor orchestration and base abstractions (`Activity`, `Task`, `Interaction`, `Question`, `Target`). |
-| `screenplay_core/abilities` | External system capability wrapper (`BrowseTheWeb`). |
-| `screenplay_core/interactions` | Reusable low-level actions against Playwright locators/pages. |
-| `screenplay_core/questions` | Generic read-model queries reusable across domains. |
-| `screenplay_core/consequences` | Assertion adapters that expose Playwright `expect(...)` as Screenplay `Consequence`s. |
-| `saucedemo/ui/pages` | Page-specific target catalogs and dynamic target factories. |
-| `saucedemo/ui/components` | Reusable targets shared across multiple pages. |
-| `saucedemo/tasks` | Domain intent operations and composed workflows. |
-| `saucedemo/questions` | Domain-specific assertions/state checks. |
-| `tests/features` | Business-readable behavior specs (Gherkin). |
-| `tests/test_*.py` | Thin BDD adapters plus direct pytest + Screenplay suites. |
-| `tests/conftest.py` | Runtime wiring: actor fixture, base URL normalization, and browser launch option overrides. |
-
-
+|---|---|
+| `screenplay_core/core` | Abstract base types and Actor orchestration: `Activity`, `Task`, `Interaction`, `Consequence`, `Question`, `Target`, `Actor`. |
+| `screenplay_core/abilities` | External system wrappers: `BrowseTheWeb` (Playwright page), `CallTheApi` (requests session). |
+| `screenplay_core/interactions` | Reusable low-level browser actions: `Click`, `Fill`, `NavigateTo`, `PressKey`, `ScrollIntoView`, etc. |
+| `screenplay_core/questions` | Generic read-model queries reusable across domains: `TextOf`, `CurrentUrl`, `IsVisible`, `AttributeOf`, etc. |
+| `screenplay_core/consequences` | `Ensure` — the Playwright `expect()` DSL adapter. |
+| `examples/saucedemo/ui/pages` | Page-level Target catalogs for SauceDemo (one class per page). |
+| `examples/saucedemo/ui/components` | Shared Targets used across multiple SauceDemo pages. |
+| `examples/saucedemo/tasks` | SauceDemo business Tasks: `Login`, `Logout`, `AddProductToCart`, `CompleteCheckout`, etc. |
+| `examples/saucedemo/questions` | SauceDemo Questions: inventory state, totals, login page state. |
+| `examples/taskhub/app` | Flask app-under-test: routes, SQLite db, seed data. |
+| `examples/taskhub/automation/ui` | `TaskHubTargets` — all `data-testid` and `data-task-id` selectors for TaskHub. |
+| `examples/taskhub/automation/tasks` | TaskHub UI Tasks (`CreateTask`, `EditTask`, `DeleteTask`, …) and API Tasks (`CreateTaskViaApi`, `LoginToTaskHubApi`, …). |
+| `examples/taskhub/automation/questions` | TaskHub Questions: task visibility, completion state, flash messages, API-based lookups. |
+| `examples/taskhub/automation/api` | `TaskHubApiClient` — thin HTTP client wrapping `CallTheApi`. |
+| `tests/conftest.py` | Shared browser launch option overrides (applies to all test suites). |
+| `tests/saucedemo/conftest.py` | `customer` actor fixture and `base_url` normalization for SauceDemo. |
+| `tests/saucedemo/features` | Gherkin feature files for SauceDemo pytest-bdd suites. |
+| `tests/saucedemo/test_*.py` | SauceDemo pytest and pytest-bdd test suites. |
+| `tests/taskhub/conftest.py` | TaskHub session-scoped server lifecycle, per-test data reset, and actor fixtures (`taskhub_customer`, `taskhub_logged_in_customer`, `taskhub_api_actor`). |
+| `tests/taskhub/features` | Gherkin feature files for TaskHub pytest-bdd suites. |
+| `tests/taskhub/test_*.py` | TaskHub UI, API, hybrid, and BDD test suites. |
