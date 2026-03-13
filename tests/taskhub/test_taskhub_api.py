@@ -54,6 +54,7 @@ def _current_task_snapshot(taskhub_api_actor: Actor) -> list[dict]:
 
 
 def test_api_login(taskhub_api_actor: Actor) -> None:
+    """Verify API login returns a 200 with the authenticated user's profile."""
     login = LoginToTaskHubApi.with_credentials("admin", "admin123")
     taskhub_api_actor.attempts_to(login)
     assert login.result.status_code == 200
@@ -67,6 +68,7 @@ def test_api_login(taskhub_api_actor: Actor) -> None:
 
 
 def test_api_get_tasks(taskhub_api_actor: Actor) -> None:
+    """Verify the tasks endpoint returns the seeded task list after login."""
     taskhub_api_actor.attempts_to(LoginToTaskHubApi.with_credentials("admin", "admin123"))
     tasks_response = taskhub_api_actor.asks_for(FetchTasksViaApi.all())
     assert tasks_response.status_code == 200
@@ -74,6 +76,7 @@ def test_api_get_tasks(taskhub_api_actor: Actor) -> None:
 
 
 def test_api_create_task(taskhub_api_actor: Actor) -> None:
+    """Verify creating a task via API returns 201 and the task is retrievable."""
     create_task = CreateTaskViaApi.with_payload(
         {
             "title": "API create task",
@@ -99,6 +102,7 @@ def test_api_create_task(taskhub_api_actor: Actor) -> None:
 
 
 def test_api_update_task(taskhub_api_actor: Actor) -> None:
+    """Verify updating a task via API persists the new title, priority, and status."""
     create_task = CreateTaskViaApi.with_payload({"title": "API update target", "priority": "LOW"})
     taskhub_api_actor.attempts_to(
         LoginToTaskHubApi.with_credentials("admin", "admin123"),
@@ -130,6 +134,7 @@ def test_api_update_task(taskhub_api_actor: Actor) -> None:
 
 
 def test_api_delete_task(taskhub_api_actor: Actor) -> None:
+    """Verify deleting a task via API returns 200 and a subsequent fetch returns 404."""
     create_task = CreateTaskViaApi.with_payload({"title": "API delete target"})
     taskhub_api_actor.attempts_to(
         LoginToTaskHubApi.with_credentials("admin", "admin123"),
@@ -148,6 +153,7 @@ def test_api_delete_task(taskhub_api_actor: Actor) -> None:
 
 
 def test_api_unauthorized_requests(taskhub_api_actor: Actor) -> None:
+    """Verify read and write API endpoints return 401 when called without a session."""
     get_tasks_response = taskhub_api_actor.asks_for(FetchTasksViaApi.all())
     assert get_tasks_response.status_code == 401
     assert isinstance(get_tasks_response.payload, dict)
@@ -161,6 +167,7 @@ def test_api_unauthorized_requests(taskhub_api_actor: Actor) -> None:
 
 
 def test_api_reset_and_seed_are_deterministic(taskhub_api_actor: Actor) -> None:
+    """Verify reset and seed endpoints produce identical task snapshots across repeated calls."""
     reset_snapshots = []
     for _ in range(3):
         reset_data = ResetTaskHubDataViaApi()

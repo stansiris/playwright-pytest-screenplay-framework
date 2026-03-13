@@ -19,6 +19,7 @@ pytestmark = [pytest.mark.ui, pytest.mark.integration]
 
 
 def test_successful_login(taskhub_customer) -> None:
+    """Verify valid credentials navigate the user to the task list."""
     taskhub_customer.attempts_to(
         OpenTaskHub.app(),
         Ensure.that(TaskHubTargets.LOGIN_SUBMIT_BUTTON).to_be_visible(),
@@ -29,6 +30,7 @@ def test_successful_login(taskhub_customer) -> None:
 
 
 def test_failed_login(taskhub_customer) -> None:
+    """Verify invalid credentials display an error message on the login page."""
     taskhub_customer.attempts_to(
         OpenTaskHub.app(),
         Ensure.that(TaskHubTargets.LOGIN_SUBMIT_BUTTON).to_be_visible(),
@@ -41,6 +43,7 @@ def test_failed_login(taskhub_customer) -> None:
 
 
 def test_create_task(taskhub_logged_in_customer) -> None:
+    """Verify a newly created task appears in the task list with a stable task ID."""
     new_title = "UI create task"
     taskhub_logged_in_customer.attempts_to(
         CreateTask.named(
@@ -59,6 +62,7 @@ def test_create_task(taskhub_logged_in_customer) -> None:
 
 
 def test_edit_task(taskhub_logged_in_customer) -> None:
+    """Verify editing a task updates its title and other fields in the task list."""
     original_title = "UI edit task original"
     updated_title = "UI edit task updated"
     taskhub_logged_in_customer.attempts_to(
@@ -82,6 +86,7 @@ def test_edit_task(taskhub_logged_in_customer) -> None:
 
 
 def test_complete_task(taskhub_logged_in_customer) -> None:
+    """Verify toggling task completion marks the task as completed."""
     title = "UI complete task"
     taskhub_logged_in_customer.attempts_to(
         CreateTask.named(title=title, description="Needs completion"),
@@ -94,6 +99,7 @@ def test_complete_task(taskhub_logged_in_customer) -> None:
 
 
 def test_delete_task(taskhub_logged_in_customer) -> None:
+    """Verify deleting a task removes it from the task list."""
     title = "UI delete task"
     taskhub_logged_in_customer.attempts_to(
         CreateTask.named(title=title),
@@ -108,6 +114,7 @@ def test_delete_task(taskhub_logged_in_customer) -> None:
 
 
 def test_filter_completed_tasks(taskhub_logged_in_customer) -> None:
+    """Verify the completed filter shows only completed tasks and hides active ones."""
     active_title = "UI active task for filtering"
     completed_title = "UI completed task for filtering"
 
@@ -132,6 +139,7 @@ def test_filter_completed_tasks(taskhub_logged_in_customer) -> None:
 
 
 def test_empty_title_validation_error(taskhub_logged_in_customer) -> None:
+    """Verify submitting a task with an empty title shows a validation error message."""
     taskhub_logged_in_customer.attempts_to(
         CreateTask.named(title="", description="Missing title should fail"),
         Ensure.that(TaskHubTargets.FLASH_MESSAGE_CONTAINER).to_contain_text("Title is required."),

@@ -45,6 +45,7 @@ test = [
     "pytest-bdd>=8.1,<9",
     "pytest-playwright>=0.7,<1",
     "pytest-html>=4.1,<5",
+    "pytest-cov>=6.0,<7",
 ]
 tooling = [
     "black>=24.10,<26",
@@ -55,6 +56,7 @@ dev = [
     "pytest-bdd>=8.1,<9",
     "pytest-playwright>=0.7,<1",
     "pytest-html>=4.1,<5",
+    "pytest-cov>=6.0,<7",
     "black>=24.10,<26",
     "ruff>=0.9,<1",
 ]

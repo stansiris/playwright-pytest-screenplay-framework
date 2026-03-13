@@ -3,6 +3,7 @@
 
 ![Python](https://img.shields.io/badge/python-3.11+-blue)
 ![Playwright](https://img.shields.io/badge/playwright-testing-green)
+[![codecov](https://codecov.io/gh/stansiris/playwright-pytest-screenplay-framework/branch/main/graph/badge.svg)](https://codecov.io/gh/stansiris/playwright-pytest-screenplay-framework)
 
 A production-style test automation framework built with Python, Playwright, Pytest, and the
 **Screenplay Pattern**. The repository ships two fully working example targets on top of a

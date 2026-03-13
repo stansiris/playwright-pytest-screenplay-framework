@@ -83,7 +83,13 @@ jobs:
 
       - name: Test fast marker union (pytest)
         # Unified pre-merge lane: smoke + integration + e2e + ui + api + hybrid.
-        run: pytest -q --browser "${{ env.BROWSER }}" -m "smoke or integration or e2e or ui or api or hybrid"
+        run: pytest -q --browser "${{ env.BROWSER }}" -m "smoke or integration or e2e or ui or api or hybrid" --cov=screenplay_core --cov=examples --cov-report=xml:test-results/coverage.xml --cov-report=term-missing
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: test-results/coverage.xml
+          fail_ci_if_error: false
 
       - name: Upload test artifacts
         if: always()
