@@ -199,7 +199,7 @@ the framework can demonstrate UI, API, and hybrid automation without any externa
 |---|---|
 | `examples/taskhub/app/` | Flask app source (routes, db, seed data) |
 | `examples/taskhub/automation/` | Tasks, Questions, Targets, API client |
-| `tests/taskhub/` | UI, API, and hybrid test suites |
+| `tests/taskhub/` | UI, API, hybrid, and BDD test suites |
 
 ### Default credentials
 
@@ -223,6 +223,7 @@ pytest tests/taskhub -q                          # all TaskHub tests
 pytest tests/taskhub/test_taskhub_ui.py -q       # UI only
 pytest tests/taskhub/test_taskhub_api.py -q      # API only
 pytest tests/taskhub/test_taskhub_hybrid.py -q   # hybrid only
+pytest tests/taskhub/test_taskhub_bdd.py -q      # BDD only
 ```
 
 ### Test markers
@@ -294,6 +295,7 @@ A good reading order for understanding the framework end to end:
 3. [`examples/saucedemo/tasks/login.py`](examples/saucedemo/tasks/login.py) — domain behavior modeled as a reusable Task
 4. [`screenplay_core/consequences/ensure.py`](screenplay_core/consequences/ensure.py) — how Playwright assertions are exposed through the Screenplay DSL
 5. [`tests/taskhub/test_taskhub_hybrid.py`](tests/taskhub/test_taskhub_hybrid.py) — cross-boundary test using both `BrowseTheWeb` and `CallTheApi`
+6. [`tests/taskhub/test_taskhub_bdd.py`](tests/taskhub/test_taskhub_bdd.py) — BDD scenarios wired to Screenplay steps via pytest-bdd
 
 ---
 

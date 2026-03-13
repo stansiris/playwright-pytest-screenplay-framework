@@ -387,7 +387,8 @@ the same server in a single test. They share no state; the test coordinates them
 | `examples/taskhub/automation/api` | `TaskHubApiClient` — thin HTTP client wrapping `CallTheApi`. |
 | `tests/conftest.py` | Shared browser launch option overrides (applies to all test suites). |
 | `tests/saucedemo/conftest.py` | `customer` actor fixture and `base_url` normalization for SauceDemo. |
-| `tests/saucedemo/features` | Gherkin feature files for pytest-bdd suites. |
+| `tests/saucedemo/features` | Gherkin feature files for SauceDemo pytest-bdd suites. |
 | `tests/saucedemo/test_*.py` | SauceDemo pytest and pytest-bdd test suites. |
 | `tests/taskhub/conftest.py` | TaskHub session-scoped server lifecycle, per-test data reset, and actor fixtures (`taskhub_customer`, `taskhub_logged_in_customer`, `taskhub_api_actor`). |
-| `tests/taskhub/test_*.py` | TaskHub UI, API, and hybrid test suites. |
+| `tests/taskhub/features` | Gherkin feature files for TaskHub pytest-bdd suites. |
+| `tests/taskhub/test_*.py` | TaskHub UI, API, hybrid, and BDD test suites. |
