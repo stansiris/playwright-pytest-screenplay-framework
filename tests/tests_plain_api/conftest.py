@@ -1,9 +1,10 @@
 from collections.abc import Generator
 
 import pytest
-from playwright.sync_api import Playwright, APIRequestContext
+from playwright.sync_api import APIRequestContext, Playwright
 
-TASKHUB_URL =  "http://127.0.1:5001"
+TASKHUB_URL = "http://127.0.1:5001"
+
 
 @pytest.fixture(scope="session")
 def api(playwright: Playwright) -> Generator[APIRequestContext, None, None]:
@@ -12,11 +13,13 @@ def api(playwright: Playwright) -> Generator[APIRequestContext, None, None]:
     yield ctx
     ctx.dispose()
 
+
 @pytest.fixture(autouse=True)
 def reset_data(api: APIRequestContext) -> None:
     """Reset TaskHub data before each test by calling the API endpoint."""
     api.post("/api/test/reset")
-    
+
+
 @pytest.fixture
 def auth_api(playwright: Playwright) -> Generator[APIRequestContext, None, None]:
     """Create an authenticated APIRequestContext for making API calls to TaskHub."""
