@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "taskhub/login_response",
+  "title": "LoginResponse",
+  "description": "Response from POST /api/login",
+  "type": "object",
+  "required": ["username"],
+  "additionalProperties": false,
+  "properties": {
+    "username": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}
