@@ -1,7 +1,6 @@
 from collections.abc import Generator
 
 import pytest
-import requests
 from playwright.sync_api import Playwright, APIRequestContext
 
 TASKHUB_URL =  "http://127.0.1:5001"
