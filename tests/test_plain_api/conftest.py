@@ -11,8 +11,9 @@ from screenplay_core.core.actor import Actor
 
 @pytest.fixture(scope="session")
 def base_url(pytestconfig) -> str:
-    """Read --base-url from CLI and normalise to no trailing slash."""
-    return pytestconfig.getoption("base_url").rstrip("/")
+    """Read --base-url from CLI; defaults to local TaskHub if not provided."""
+    url = pytestconfig.getoption("base_url", default=None) or "http://127.0.0.1:5001"
+    return url.rstrip("/")
 
 
 @pytest.fixture

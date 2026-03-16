@@ -6,7 +6,8 @@ from screenplay_core.core.actor import Actor
 
 @pytest.fixture(scope="session")
 def base_url(pytestconfig) -> str:
-    return pytestconfig.getoption("base_url").rstrip("/") + "/"
+    url = pytestconfig.getoption("base_url", default=None) or "https://www.saucedemo.com/"
+    return url.rstrip("/") + "/"
 
 
 @pytest.fixture
