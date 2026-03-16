@@ -32,7 +32,7 @@ def test_ui_login_session_shared_with_api(logged_in_taskhub_customer: Actor):
     # page.request uses the BrowserContext base_url (TASKHUB_URL), so relative paths work here
     request_ctx: APIRequestContext = logged_in_taskhub_customer.ability_to(
         BrowseTheWeb
-    ).page.request  # noqa: E501
+    ).page.request
 
     response: APIResponse = request_ctx.get("/api/me")
     assert response.ok
@@ -44,7 +44,7 @@ def test_ui_logout(logged_in_taskhub_customer: Actor):
     # page.request uses the BrowserContext base_url (TASKHUB_URL), so relative paths work here
     request_ctx: APIRequestContext = logged_in_taskhub_customer.ability_to(
         BrowseTheWeb
-    ).page.request  # noqa: E501
+    ).page.request
 
     response: APIResponse = request_ctx.post("/api/logout")
     assert response.ok

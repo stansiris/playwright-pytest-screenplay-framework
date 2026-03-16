@@ -100,7 +100,6 @@ addopts = [
     "--html=test-results/report.html",
     "--self-contained-html",
 ]
-base_url = "https://www.saucedemo.com/"
 log_cli = true
 log_cli_level = "INFO"
 # Suppress known third-party deprecation warning from gherkin-official on Python 3.14.
