@@ -4,9 +4,9 @@ from dataclasses import dataclass
 from typing import Any
 
 from examples.taskhub.automation.api.client import TaskHubApiClient
-from screenplay_core.http.call_the_api import CallTheApi
 from screenplay_core.core.actor import Actor
 from screenplay_core.core.question import Question
+from screenplay_core.http.call_the_api import CallTheApi
 
 
 @dataclass(frozen=True)

@@ -8,8 +8,8 @@ from examples.saucedemo.tasks.logout import Logout
 from examples.saucedemo.tasks.open_saucedemo import OpenSauceDemo
 from examples.saucedemo.ui.pages.inventory_page import InventoryPage
 from examples.saucedemo.ui.pages.login_page import LoginPage
-from screenplay_core.playwright.ensure import Ensure
 from screenplay_core.core.actor import Actor
+from screenplay_core.playwright.ensure import Ensure
 
 
 @scenario("features/login.feature", "Successful login reaches inventory and user can log out")

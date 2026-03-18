@@ -16,8 +16,8 @@ from examples.saucedemo.ui.components.app_shell import AppShell
 from examples.saucedemo.ui.components.back_navigation import BackNavigation
 from examples.saucedemo.ui.pages.inventory_page import InventoryPage
 from examples.saucedemo.ui.pages.login_page import LoginPage
-from screenplay_core.playwright.ensure import Ensure
 from screenplay_core.core.actor import Actor
+from screenplay_core.playwright.ensure import Ensure
 from screenplay_core.playwright.questions.current_url import CurrentUrl
 from screenplay_core.playwright.questions.texts_of import TextsOf
 

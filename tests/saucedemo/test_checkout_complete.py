@@ -17,8 +17,8 @@ from examples.saucedemo.ui.pages.cart_page import CartPage
 from examples.saucedemo.ui.pages.checkout_complete_page import CheckoutCompletePage
 from examples.saucedemo.ui.pages.inventory_page import InventoryPage
 from examples.saucedemo.ui.pages.login_page import LoginPage
-from screenplay_core.playwright.ensure import Ensure
 from screenplay_core.core.actor import Actor
+from screenplay_core.playwright.ensure import Ensure
 from screenplay_core.playwright.questions.current_url import CurrentUrl
 
 PRODUCT_NAMES = ["Sauce Labs Backpack", "Sauce Labs Bike Light"]

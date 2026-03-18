@@ -4,8 +4,8 @@ from dataclasses import dataclass
 from typing import Any
 
 from examples.taskhub.automation.api.client import TaskHubApiClient
-from screenplay_core.http.call_the_api import CallTheApi
 from screenplay_core.core.task import Task
+from screenplay_core.http.call_the_api import CallTheApi
 
 
 @dataclass

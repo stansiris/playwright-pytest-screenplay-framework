@@ -18,8 +18,8 @@ from examples.saucedemo.ui.pages.checkout_overview_page import CheckoutOverviewP
 from examples.saucedemo.ui.pages.inventory_page import InventoryPage
 from examples.saucedemo.ui.pages.login_page import LoginPage
 from examples.saucedemo.ui.pages.product_details_page import ProductDetailsPage
-from screenplay_core.playwright.ensure import Ensure
 from screenplay_core.core.actor import Actor
+from screenplay_core.playwright.ensure import Ensure
 from screenplay_core.playwright.questions.current_url import CurrentUrl
 
 PRODUCT_NAME = "Sauce Labs Backpack"

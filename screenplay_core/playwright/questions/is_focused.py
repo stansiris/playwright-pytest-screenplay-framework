@@ -1,6 +1,6 @@
-from screenplay_core.playwright.browse_the_web import BrowseTheWeb
 from screenplay_core.core.actor import Actor
 from screenplay_core.core.question import Question
+from screenplay_core.playwright.browse_the_web import BrowseTheWeb
 from screenplay_core.playwright.target import Target
 
 

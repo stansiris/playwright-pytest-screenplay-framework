@@ -11,8 +11,8 @@ from examples.taskhub.automation.tasks.login import LoginToTaskHub
 from examples.taskhub.automation.tasks.open_taskhub import OpenTaskHub
 from examples.taskhub.automation.tasks.toggle_task_completion import ToggleTaskCompletion
 from examples.taskhub.automation.ui.targets import TaskHubTargets
-from screenplay_core.playwright.ensure import Ensure
 from screenplay_core.core.actor import Actor
+from screenplay_core.playwright.ensure import Ensure
 
 
 @scenario("features/task_management.feature", "Successful login reaches the task list")
