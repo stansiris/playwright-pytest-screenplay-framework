@@ -580,7 +580,7 @@ flowchart TB
 1. [tests/saucedemo/test_login.py](../tests/saucedemo/test_login.py) — smallest complete Screenplay test
 2. [screenplay_core/core/actor.py](../screenplay_core/core/actor.py) — how the actor runs activities
 3. [examples/saucedemo/tasks/login.py](../examples/saucedemo/tasks/login.py) — Task implementation
-4. [screenplay_core/consequences/ensure.py](../screenplay_core/consequences/ensure.py) — the Ensure DSL
+4. [screenplay_core/playwright/ensure.py](../screenplay_core/playwright/ensure.py) — the Ensure DSL
 5. [tests/taskhub/test_taskhub_hybrid.py](../tests/taskhub/test_taskhub_hybrid.py) — cross-boundary tests
 6. [tests/taskhub/test_taskhub_bdd.py](../tests/taskhub/test_taskhub_bdd.py) — BDD steps
 7. [tests/taskhub/conftest.py](../tests/taskhub/conftest.py) — server lifecycle and fixture design

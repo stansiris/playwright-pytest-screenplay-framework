@@ -1,6 +1,6 @@
 from examples.saucedemo.ui.components.app_shell import AppShell
 from screenplay_core.core.task import Task
-from screenplay_core.interactions.click import Click
+from screenplay_core.playwright.interactions.click import Click
 
 
 class Logout(Task):

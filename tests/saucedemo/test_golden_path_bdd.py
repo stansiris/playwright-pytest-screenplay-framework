@@ -20,9 +20,9 @@ from examples.saucedemo.ui.pages.checkout_complete_page import CheckoutCompleteP
 from examples.saucedemo.ui.pages.checkout_overview_page import CheckoutOverviewPage
 from examples.saucedemo.ui.pages.inventory_page import InventoryPage
 from examples.saucedemo.ui.pages.login_page import LoginPage
-from screenplay_core.consequences.ensure import Ensure
+from screenplay_core.playwright.ensure import Ensure
 from screenplay_core.core.actor import Actor
-from screenplay_core.questions.texts_of import TextsOf
+from screenplay_core.playwright.questions.texts_of import TextsOf
 
 
 @scenario(

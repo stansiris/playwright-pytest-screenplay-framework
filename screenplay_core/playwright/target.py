@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 
 from playwright.sync_api import Locator, Page
 
-from screenplay_core.abilities.browse_the_web import BrowseTheWeb
+from screenplay_core.playwright.browse_the_web import BrowseTheWeb
 
 if TYPE_CHECKING:
     from screenplay_core.core.actor import Actor

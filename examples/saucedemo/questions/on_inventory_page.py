@@ -1,7 +1,7 @@
 from urllib.parse import urlparse
 
 from examples.saucedemo.ui.pages.inventory_page import InventoryPage
-from screenplay_core.abilities.browse_the_web import BrowseTheWeb
+from screenplay_core.playwright.browse_the_web import BrowseTheWeb
 from screenplay_core.core.actor import Actor
 from screenplay_core.core.question import Question
 

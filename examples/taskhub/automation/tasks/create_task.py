@@ -1,8 +1,8 @@
 from examples.taskhub.automation.ui.targets import TaskHubTargets
 from screenplay_core.core.task import Task
-from screenplay_core.interactions.click import Click
-from screenplay_core.interactions.fill import Fill
-from screenplay_core.interactions.select_by_value import SelectByValue
+from screenplay_core.playwright.interactions.click import Click
+from screenplay_core.playwright.interactions.fill import Fill
+from screenplay_core.playwright.interactions.select_by_value import SelectByValue
 
 
 class CreateTask(Task):

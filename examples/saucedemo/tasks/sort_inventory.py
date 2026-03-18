@@ -1,7 +1,7 @@
 from examples.saucedemo.ui.pages.inventory_page import InventoryPage
 from screenplay_core.core.actor import Actor
 from screenplay_core.core.task import Task
-from screenplay_core.interactions.select_by_value import SelectByValue
+from screenplay_core.playwright.interactions.select_by_value import SelectByValue
 
 SORT_OPTION_VALUE = {
     "Name (A to Z)": "az",

@@ -1,6 +1,6 @@
 import re
 
-from screenplay_core.core.target import Target
+from screenplay_core.playwright.target import Target
 
 
 def _inventory_card_for_product(page, product_name: str):

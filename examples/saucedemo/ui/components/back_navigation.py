@@ -1,4 +1,4 @@
-from screenplay_core.core.target import Target
+from screenplay_core.playwright.target import Target
 
 
 def back_to_products_locator(page):

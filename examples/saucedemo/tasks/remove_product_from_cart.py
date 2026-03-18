@@ -1,7 +1,7 @@
 from examples.saucedemo.ui.pages.inventory_page import InventoryPage
 from screenplay_core.core.actor import Actor
 from screenplay_core.core.task import Task
-from screenplay_core.interactions.click import Click
+from screenplay_core.playwright.interactions.click import Click
 
 
 class RemoveProductFromCart(Task):

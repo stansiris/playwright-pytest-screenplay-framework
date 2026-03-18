@@ -74,6 +74,14 @@ Screenplay Core      →  Actor, Task, Interaction, Question, Target, Ensure
 Playwright / requests →  browser and HTTP execution
 ```
 
+`screenplay_core` is internally split into three modules reflecting their actual dependencies:
+
+```
+screenplay_core/core/        →  pure Python abstractions (Actor, Task, Interaction, Question, Consequence)
+screenplay_core/playwright/  →  Playwright extension (Target, BrowseTheWeb, Ensure, interactions, questions)
+screenplay_core/http/        →  HTTP extension (CallTheApi)
+```
+
 ```mermaid
 graph TD
 
@@ -247,11 +255,9 @@ pytest -m "smoke or api" -q
 
 ```
 screenplay_core/
-    abilities/          # BrowseTheWeb, CallTheApi
-    core/               # Actor, Task, Interaction, Question, Target
-    interactions/       # Click, Fill, NavigateTo, …
-    questions/          # TextOf, CurrentUrl, IsVisible, …
-    consequences/       # Ensure (Playwright expect() DSL)
+    core/               # Actor, Task, Interaction, Question, Consequence (pure Python)
+    playwright/         # Target, BrowseTheWeb, Ensure, interactions/, questions/
+    http/               # CallTheApi
 
 examples/
     saucedemo/
@@ -293,7 +299,7 @@ A good reading order for understanding the framework end to end:
 1. [`tests/saucedemo/test_login.py`](tests/saucedemo/test_login.py) — smallest complete Screenplay test
 2. [`screenplay_core/core/actor.py`](screenplay_core/core/actor.py) — how the actor executes tasks, consequences, and questions
 3. [`examples/saucedemo/tasks/login.py`](examples/saucedemo/tasks/login.py) — domain behavior modeled as a reusable Task
-4. [`screenplay_core/consequences/ensure.py`](screenplay_core/consequences/ensure.py) — how Playwright assertions are exposed through the Screenplay DSL
+4. [`screenplay_core/playwright/ensure.py`](screenplay_core/playwright/ensure.py) — how Playwright assertions are exposed through the Screenplay DSL
 5. [`tests/taskhub/test_taskhub_hybrid.py`](tests/taskhub/test_taskhub_hybrid.py) — cross-boundary test using both `BrowseTheWeb` and `CallTheApi`
 6. [`tests/taskhub/test_taskhub_bdd.py`](tests/taskhub/test_taskhub_bdd.py) — BDD scenarios wired to Screenplay steps via pytest-bdd
 
@@ -326,6 +332,7 @@ Test artifacts (screenshots, traces, HTML report, JUnit XML) are uploaded on fai
 This repository demonstrates:
 
 - Screenplay Pattern implementation in Python with clear layer boundaries
+- Internal module split: runtime-agnostic `core/`, Playwright extension `playwright/`, HTTP extension `http/`
 - Playwright integration exposed through a custom assertion DSL (`Ensure`)
 - Dual-ability actors: `BrowseTheWeb` for UI and `CallTheApi` for JSON APIs
 - Cross-boundary (hybrid) testing combining UI and API actors in a single test

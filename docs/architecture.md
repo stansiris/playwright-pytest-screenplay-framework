@@ -28,9 +28,9 @@ flowchart TB
   end
 
   subgraph CL["Core — screenplay_core/"]
-    CORE["core/ — Actor · Task · Interaction · Question · Target · Consequence"]
-    AB["abilities/ — BrowseTheWeb · CallTheApi"]
-    BI["interactions/ · questions/ · consequences/ — Click · Fill · TextOf · Ensure · …"]
+    CORE["core/ — Actor · Task · Interaction · Question · Consequence (pure Python)"]
+    AB["playwright/ — Target · BrowseTheWeb · Ensure · interactions/ · questions/"]
+    BI["http/ — CallTheApi"]
   end
 
   subgraph RT["Runtime"]
@@ -49,7 +49,7 @@ flowchart TB
 |---|---|
 | **Test layer** | Describes behavior — no `page`, `locator`, or `expect()` calls |
 | **Example target layer** | App-specific vocabulary: Tasks, Questions, Targets, API clients |
-| **Screenplay core** | Reusable building blocks: Actor, Task, Interaction, Question, Target, Ensure |
+| **Screenplay core** | Reusable building blocks split into `core/` (pure abstractions), `playwright/` (Playwright extension), and `http/` (HTTP extension) |
 | **Runtime** | Playwright drives the browser; `requests` makes HTTP API calls |
 
 ---
@@ -371,11 +371,11 @@ the same server in a single test. They share no state; the test coordinates them
 
 | Directory | Responsibility |
 |---|---|
-| `screenplay_core/core` | Abstract base types and Actor orchestration: `Activity`, `Task`, `Interaction`, `Consequence`, `Question`, `Target`, `Actor`. |
-| `screenplay_core/abilities` | External system wrappers: `BrowseTheWeb` (Playwright page), `CallTheApi` (requests session). |
-| `screenplay_core/interactions` | Reusable low-level browser actions: `Click`, `Fill`, `NavigateTo`, `PressKey`, `ScrollIntoView`, etc. |
-| `screenplay_core/questions` | Generic read-model queries reusable across domains: `TextOf`, `CurrentUrl`, `IsVisible`, `AttributeOf`, etc. |
-| `screenplay_core/consequences` | `Ensure` — the Playwright `expect()` DSL adapter. |
+| `screenplay_core/core` | Runtime-agnostic abstractions — zero external dependencies: `Activity`, `Task`, `Interaction`, `Consequence`, `Question`, `Actor`. |
+| `screenplay_core/playwright` | Playwright extension: `Target` (locator recipe), `BrowseTheWeb` (page wrapper), `Ensure` (`expect()` DSL adapter). |
+| `screenplay_core/playwright/interactions` | Reusable low-level browser actions: `Click`, `Fill`, `NavigateTo`, `PressKey`, `ScrollIntoView`, etc. |
+| `screenplay_core/playwright/questions` | Generic read-model queries reusable across domains: `TextOf`, `CurrentUrl`, `IsVisible`, `AttributeOf`, etc. |
+| `screenplay_core/http` | HTTP extension: `CallTheApi` (requests session wrapper). |
 | `examples/saucedemo/ui/pages` | Page-level Target catalogs for SauceDemo (one class per page). |
 | `examples/saucedemo/ui/components` | Shared Targets used across multiple SauceDemo pages. |
 | `examples/saucedemo/tasks` | SauceDemo business Tasks: `Login`, `Logout`, `AddProductToCart`, `CompleteCheckout`, etc. |

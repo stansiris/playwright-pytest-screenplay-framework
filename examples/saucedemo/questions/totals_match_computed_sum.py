@@ -4,8 +4,8 @@ from decimal import Decimal
 from examples.saucedemo.ui.pages.checkout_overview_page import CheckoutOverviewPage
 from screenplay_core.core.actor import Actor
 from screenplay_core.core.question import Question
-from screenplay_core.questions.text_of import TextOf
-from screenplay_core.questions.texts_of import TextsOf
+from screenplay_core.playwright.questions.text_of import TextOf
+from screenplay_core.playwright.questions.texts_of import TextsOf
 
 MONEY_PATTERN = re.compile(r"\$([0-9]+(?:\.[0-9]{2})?)")
 TWO_DECIMAL_PLACES = Decimal("0.01")

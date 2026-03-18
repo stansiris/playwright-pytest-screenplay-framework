@@ -61,7 +61,7 @@ from playwright.sync_api import LocatorAssertions, expect
 # Screenplay core abstractions
 from screenplay_core.core.actor import Actor
 from screenplay_core.core.consequence import Consequence
-from screenplay_core.core.target import Target
+from screenplay_core.playwright.target import Target
 
 
 class Ensure:

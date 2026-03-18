@@ -14,9 +14,9 @@ from examples.saucedemo.ui.pages.cart_page import CartPage
 from examples.saucedemo.ui.pages.checkout_info_page import CheckoutInfoPage
 from examples.saucedemo.ui.pages.checkout_overview_page import CheckoutOverviewPage
 from examples.saucedemo.ui.pages.login_page import LoginPage
-from screenplay_core.consequences.ensure import Ensure
+from screenplay_core.playwright.ensure import Ensure
 from screenplay_core.core.actor import Actor
-from screenplay_core.questions.current_url import CurrentUrl
+from screenplay_core.playwright.questions.current_url import CurrentUrl
 
 PRODUCT_NAME = "Sauce Labs Backpack"
 FIRST_NAME = "John"

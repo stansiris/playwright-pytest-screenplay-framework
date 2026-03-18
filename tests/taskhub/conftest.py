@@ -16,9 +16,9 @@ import requests
 from examples.taskhub.automation.tasks.login import LoginToTaskHub
 from examples.taskhub.automation.tasks.open_taskhub import OpenTaskHub
 from examples.taskhub.automation.ui.targets import TaskHubTargets
-from screenplay_core.abilities.browse_the_web import BrowseTheWeb
-from screenplay_core.abilities.call_the_api import CallTheApi
-from screenplay_core.consequences.ensure import Ensure
+from screenplay_core.playwright.browse_the_web import BrowseTheWeb
+from screenplay_core.http.call_the_api import CallTheApi
+from screenplay_core.playwright.ensure import Ensure
 from screenplay_core.core.actor import Actor
 
 REPO_ROOT = Path(__file__).resolve().parents[2]

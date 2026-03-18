@@ -143,7 +143,7 @@ For a login test these already exist:
 | Logout | [`examples/saucedemo/tasks/logout.py`](../examples/saucedemo/tasks/logout.py) |
 | Login page targets | [`examples/saucedemo/ui/pages/login_page.py`](../examples/saucedemo/ui/pages/login_page.py) |
 | Inventory page targets | [`examples/saucedemo/ui/pages/inventory_page.py`](../examples/saucedemo/ui/pages/inventory_page.py) |
-| Assertions | [`screenplay_core/consequences/ensure.py`](../screenplay_core/consequences/ensure.py) |
+| Assertions | [`screenplay_core/playwright/ensure.py`](../screenplay_core/playwright/ensure.py) |
 
 When everything you need already exists, you only need to write the test itself.
 
@@ -161,7 +161,7 @@ from examples.saucedemo.tasks.logout import Logout
 from examples.saucedemo.tasks.open_saucedemo import OpenSauceDemo
 from examples.saucedemo.ui.pages.inventory_page import InventoryPage
 from examples.saucedemo.ui.pages.login_page import LoginPage
-from screenplay_core.consequences.ensure import Ensure
+from screenplay_core.playwright.ensure import Ensure
 
 
 @pytest.mark.smoke
@@ -219,7 +219,7 @@ Create a new file under `examples/saucedemo/tasks/` and subclass `Task`.
 
 ```python
 from screenplay_core.core.task import Task
-from screenplay_core.interactions.click import Click
+from screenplay_core.playwright.interactions.click import Click
 from examples.saucedemo.ui.pages.login_page import LoginPage
 
 

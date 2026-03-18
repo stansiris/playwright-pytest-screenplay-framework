@@ -4,7 +4,7 @@ from typing import Any
 
 from requests import Response
 
-from screenplay_core.abilities.call_the_api import CallTheApi
+from screenplay_core.http.call_the_api import CallTheApi
 
 
 class TaskHubApiClient:

@@ -1,6 +1,6 @@
 from examples.taskhub.automation.ui.targets import TaskHubTargets
 from screenplay_core.core.task import Task
-from screenplay_core.interactions.click import Click
+from screenplay_core.playwright.interactions.click import Click
 
 
 class LogoutFromTaskHub(Task):

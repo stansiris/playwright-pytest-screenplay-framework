@@ -1,7 +1,7 @@
 from examples.saucedemo.ui.pages.login_page import LoginPage
 from screenplay_core.core.task import Task
-from screenplay_core.interactions.click import Click
-from screenplay_core.interactions.fill import Fill
+from screenplay_core.playwright.interactions.click import Click
+from screenplay_core.playwright.interactions.fill import Fill
 
 
 class Login(Task):

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 
-from screenplay_core.core.target import Target
+from screenplay_core.playwright.target import Target
 
 
 def _task_row_by_id_locator(page, task_id: int):

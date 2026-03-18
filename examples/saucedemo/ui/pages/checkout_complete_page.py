@@ -1,6 +1,6 @@
 import re
 
-from screenplay_core.core.target import Target
+from screenplay_core.playwright.target import Target
 
 CHECKOUT_COMPLETE_TITLE_TEXT = re.compile(r"^Checkout: Complete!$")
 
