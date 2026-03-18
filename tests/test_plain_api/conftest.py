@@ -16,6 +16,7 @@ def pytest_configure(config) -> None:
     if not getattr(config.option, "base_url", None):
         config.option.base_url = "http://127.0.0.1:5001"
 
+
 @pytest.fixture(scope="session")
 def api(playwright: Playwright, base_url: str) -> Generator[APIRequestContext, None, None]:
     """Standalone APIRequestContext — no browser, no cookie sharing."""
@@ -35,12 +36,16 @@ def _make_api_auth_context(
 
 
 @pytest.fixture
-def api_auth_admin(playwright: Playwright, base_url: str) -> Generator[APIRequestContext, None, None]:
+def api_auth_admin(
+    playwright: Playwright, base_url: str
+) -> Generator[APIRequestContext, None, None]:
     """APIRequestContext with admin credentials — no browser, no cookie sharing."""
     yield from _make_api_auth_context(playwright, base_url, DEFAULT_USERNAME, DEFAULT_PASSWORD)
 
 
 @pytest.fixture
-def api_auth_guest(playwright: Playwright, base_url: str) -> Generator[APIRequestContext, None, None]:
+def api_auth_guest(
+    playwright: Playwright, base_url: str
+) -> Generator[APIRequestContext, None, None]:
     """APIRequestContext with guest credentials — no browser, no cookie sharing."""
     yield from _make_api_auth_context(playwright, base_url, SECONDARY_USERNAME, SECONDARY_PASSWORD)

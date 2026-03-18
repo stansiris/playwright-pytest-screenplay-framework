@@ -34,8 +34,10 @@ def test_failed_login_401(api: APIRequestContext):
     assert response.status == 401
     assert response.json() == {"error": "Invalid credentials."}
 
-def test_resource_authorization_403(api_auth_admin: APIRequestContext, api_auth_guest: APIRequestContext):
 
+def test_resource_authorization_403(
+    api_auth_admin: APIRequestContext, api_auth_guest: APIRequestContext
+):
     admin_create_task_response = api_auth_admin.post(
         "/api/tasks",
         data={
@@ -47,17 +49,22 @@ def test_resource_authorization_403(api_auth_admin: APIRequestContext, api_auth_
         },
     )
 
-    assert admin_create_task_response.ok \
-        and admin_create_task_response.status == 201, \
-        f"Admin task creation failed with status {admin_create_task_response.status}: {admin_create_task_response.text()}"
+    assert admin_create_task_response.ok and admin_create_task_response.status == 201, (
+        f"Admin task creation failed with status "
+        f"{admin_create_task_response.status}: {admin_create_task_response.text()}"
+    )
 
     logger.info(f"Admin created task with ID: {admin_create_task_response.json()}")
 
     admin_task_id = admin_create_task_response.json().get("id")
 
     guest_get_task_response = api_auth_guest.get(f"/api/tasks/{admin_task_id}")
-    assert not guest_get_task_response.ok \
-        and guest_get_task_response.status == 403, \
-        f"Guest should not access admin task, but got status {guest_get_task_response.status}: {guest_get_task_response.text()}"
-    
-    logger.info(f"Guest access to admin task correctly denied with status {guest_get_task_response.status}, response: {guest_get_task_response.text()}")
+    assert not guest_get_task_response.ok and guest_get_task_response.status == 403, (
+        f"Guest should not access admin task, but got status "
+        f"{guest_get_task_response.status}: {guest_get_task_response.text()}"
+    )
+
+    logger.info(
+        f"Guest access to admin task correctly denied with status "
+        f"{guest_get_task_response.status}, response: {guest_get_task_response.text()}"
+    )
