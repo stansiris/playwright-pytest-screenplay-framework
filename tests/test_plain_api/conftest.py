@@ -11,10 +11,17 @@ from examples.taskhub.app.seed import (
 )
 
 
-def pytest_configure(config) -> None:
+@pytest.fixture(scope="session")
+def base_url(pytestconfig) -> str:
     """Default base_url for test_plain_api suite — overridable via --base-url on CLI."""
-    if not getattr(config.option, "base_url", None):
-        config.option.base_url = "http://127.0.0.1:5001"
+    url = pytestconfig.getoption("base_url", default=None) or "http://127.0.0.1:5001"
+    return url
+
+
+@pytest.fixture(scope="session")
+def browser_context_args(browser_context_args: dict, base_url: str) -> dict:
+    """Inject the test_plain_api base_url into every BrowserContext for this suite."""
+    return {**browser_context_args, "base_url": base_url}
 
 
 @pytest.fixture(scope="session")

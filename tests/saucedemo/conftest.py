@@ -10,6 +10,12 @@ def base_url(pytestconfig) -> str:
     return url.rstrip("/") + "/"
 
 
+@pytest.fixture(scope="session")
+def browser_context_args(browser_context_args: dict, base_url: str) -> dict:
+    """Inject the saucedemo base_url into every BrowserContext for this suite."""
+    return {**browser_context_args, "base_url": base_url}
+
+
 @pytest.fixture
 def customer(page, base_url):
     return Actor("Customer").can(

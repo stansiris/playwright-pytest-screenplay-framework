@@ -13,14 +13,14 @@ def test_health(api: APIRequestContext):
 
 
 def test_successful_login(api: APIRequestContext):
-    response = api.post("/api/login", json={"username": "admin", "password": "admin123"})
+    response = api.post("/api/login", data={"username": "admin", "password": "admin123"})
 
     assert response.ok
     assert response.json() == {"username": "admin"}
 
 
 def test_failed_login_400(api: APIRequestContext):
-    response = api.post("/api/login", json={"username": "admin", "password": ""})
+    response = api.post("/api/login", data={"username": "admin", "password": ""})
 
     assert not response.ok
     assert response.status == 400
@@ -28,7 +28,7 @@ def test_failed_login_400(api: APIRequestContext):
 
 
 def test_failed_login_401(api: APIRequestContext):
-    response = api.post("/api/login", json={"username": "admin", "password": "wrongpassword"})
+    response = api.post("/api/login", data={"username": "admin", "password": "wrongpassword"})
 
     assert not response.ok
     assert response.status == 401
