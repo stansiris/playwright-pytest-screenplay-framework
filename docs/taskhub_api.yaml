@@ -187,6 +187,8 @@ paths:
                 $ref: "#/components/schemas/Task"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
 
@@ -212,6 +214,8 @@ paths:
           $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
 
@@ -221,24 +225,18 @@ paths:
       security:
         - sessionCookie: []
       responses:
-        "200":
-          description: Task deleted
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Task deleted.
+        "204":
+          description: Task deleted — no content
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
 
   /api/test/reset:
     post:
-      summary: Reset DB and session — wipes all tasks, re-seeds default user
+      summary: Reset DB and session — wipes all tasks, re-seeds default and secondary users
       tags: [test-helpers]
       responses:
         "200":
@@ -253,6 +251,16 @@ paths:
                     example: Reset complete.
                   seed:
                     type: object
+                    properties:
+                      username:
+                        type: string
+                        example: admin
+                      secondary_username:
+                        type: string
+                        example: guest
+                      task_count:
+                        type: integer
+                        example: 3
 
   /api/test/seed:
     post:
@@ -396,6 +404,15 @@ components:
             $ref: "#/components/schemas/Error"
           example:
             error: Unauthorized.
+
+    Forbidden:
+      description: Authenticated but not authorised to access this resource
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            error: Access forbidden.
 
     NotFound:
       description: Resource not found

@@ -237,6 +237,19 @@ def get_task_by_id(
     return _row_to_dict(row)
 
 
+def get_task_owner(
+    task_id: int,
+    db_path: str | Path | None = None,
+) -> str | None:
+    """Return the owner_username of a task regardless of ownership, or None if not found."""
+    with managed_connection(db_path) as connection:
+        row = connection.execute(
+            "SELECT owner_username FROM tasks WHERE id = ?",
+            (task_id,),
+        ).fetchone()
+    return row["owner_username"] if row else None
+
+
 def update_task(
     task_id: int,
     owner_username: str,

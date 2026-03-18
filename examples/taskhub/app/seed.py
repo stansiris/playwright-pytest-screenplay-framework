@@ -11,6 +11,9 @@ from . import db
 DEFAULT_USERNAME = "admin"
 DEFAULT_PASSWORD = "admin123"
 
+SECONDARY_USERNAME = "guest"
+SECONDARY_PASSWORD = "guest123"
+
 DEFAULT_TASKS: tuple[dict[str, Any], ...] = (
     {
         "title": "Review TaskHub smoke checks",
@@ -40,6 +43,14 @@ def seed_default_user(db_path: str | None = None) -> dict[str, Any]:
     return db.upsert_user(
         DEFAULT_USERNAME,
         generate_password_hash(DEFAULT_PASSWORD),
+        db_path=db_path,
+    )
+
+
+def seed_secondary_user(db_path: str | None = None) -> dict[str, Any]:
+    return db.upsert_user(
+        SECONDARY_USERNAME,
+        generate_password_hash(SECONDARY_PASSWORD),
         db_path=db_path,
     )
 
@@ -74,8 +85,10 @@ def seed_default_tasks(
 def reset_and_seed(db_path: str | None = None) -> dict[str, Any]:
     db.reset_database(db_path=db_path)
     seed_default_user(db_path=db_path)
+    seed_secondary_user(db_path=db_path)
     tasks = seed_default_tasks(db_path=db_path, replace_existing=True)
     return {
         "username": DEFAULT_USERNAME,
+        "secondary_username": SECONDARY_USERNAME,
         "task_count": len(tasks),
     }

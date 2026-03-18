@@ -32,6 +32,7 @@ def create_app(test_config: dict[str, Any] | None = None) -> Flask:
     db_path = _db_path_from_app(app)
     db.init_database(db_path)
     seed.seed_default_user(db_path=db_path)
+    seed.seed_secondary_user(db_path=db_path)
 
     def login_required(view: Callable[..., Any]) -> Callable[..., Any]:
         @wraps(view)
@@ -265,16 +266,19 @@ def create_app(test_config: dict[str, Any] | None = None) -> Flask:
     @api_login_required
     def api_task_by_id(task_id: int):
         username = _current_user() or ""
-        existing = db.get_task_by_id(task_id, username, db_path=db_path)
-        if existing is None:
+        owner = db.get_task_owner(task_id, db_path=db_path)
+        if owner is None:
             return _json_error("Task not found.", 404)
+        if owner != username:
+            return _json_error("Access forbidden.", 403)
 
         if request.method == "GET":
+            existing = db.get_task_by_id(task_id, username, db_path=db_path)
             return jsonify(existing)
 
         if request.method == "DELETE":
             db.delete_task(task_id, username, db_path=db_path)
-            return jsonify({"message": "Task deleted."})
+            return "", 204
 
         payload = request.get_json(silent=True) or {}
         update_kwargs: dict[str, Any] = {}
@@ -313,6 +317,7 @@ def create_app(test_config: dict[str, Any] | None = None) -> Flask:
     @app.post("/api/test/seed")
     def api_test_seed():
         seed.seed_default_user(db_path=db_path)
+        seed.seed_secondary_user(db_path=db_path)
         tasks = seed.seed_default_tasks(db_path=db_path, replace_existing=True)
         return jsonify(
             {
