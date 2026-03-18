@@ -16,7 +16,6 @@ def pytest_configure(config) -> None:
     if not getattr(config.option, "base_url", None):
         config.option.base_url = "http://127.0.0.1:5001"
 
-
 @pytest.fixture(scope="session")
 def api(playwright: Playwright, base_url: str) -> Generator[APIRequestContext, None, None]:
     """Standalone APIRequestContext — no browser, no cookie sharing."""
