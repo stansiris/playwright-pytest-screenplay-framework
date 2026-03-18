@@ -144,9 +144,8 @@ def test_api_delete_task(taskhub_api_actor: Actor) -> None:
 
     delete_task = DeleteTaskViaApi.for_task(create_task.task_id)
     taskhub_api_actor.attempts_to(delete_task)
-    assert delete_task.result.status_code == 200
-    assert isinstance(delete_task.result.payload, dict)
-    assert delete_task.result.payload["message"] == "Task deleted."
+    assert delete_task.result.status_code == 204
+    assert delete_task.result.payload is None
 
     task_response = taskhub_api_actor.asks_for(FetchTaskViaApi.by_id(create_task.task_id))
     assert task_response.status_code == 404
