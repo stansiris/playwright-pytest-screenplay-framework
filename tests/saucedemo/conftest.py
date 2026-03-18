@@ -6,7 +6,14 @@ from screenplay_core.core.actor import Actor
 
 @pytest.fixture(scope="session")
 def base_url(pytestconfig) -> str:
-    return pytestconfig.getoption("base_url").rstrip("/") + "/"
+    url = pytestconfig.getoption("base_url", default=None) or "https://www.saucedemo.com/"
+    return url.rstrip("/") + "/"
+
+
+@pytest.fixture(scope="session")
+def browser_context_args(browser_context_args: dict, base_url: str) -> dict:
+    """Inject the saucedemo base_url into every BrowserContext for this suite."""
+    return {**browser_context_args, "base_url": base_url}
 
 
 @pytest.fixture

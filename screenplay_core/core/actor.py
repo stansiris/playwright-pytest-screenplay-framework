@@ -1,11 +1,14 @@
 import logging
 import time
+from typing import TypeVar
 
 from screenplay_core.core.activity import Activity
 from screenplay_core.core.consequence import Consequence
 from screenplay_core.core.interaction import Interaction
 from screenplay_core.core.question import Question
 from screenplay_core.core.task import Task
+
+T = TypeVar("T")
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +30,7 @@ class Actor:
         self._abilities[ability.__class__] = ability
         return self
 
-    def ability_to(self, ability_class):
+    def ability_to(self, ability_class: type[T]) -> T:
         """Resolve a previously registered ability by class or base class."""
         # Fast path: exact ability class lookup.
         if ability_class in self._abilities:

@@ -128,6 +128,12 @@ def taskhub_base_url(taskhub_server) -> str:
     return taskhub_server["base_url"].rstrip("/") + "/"
 
 
+@pytest.fixture(scope="session")
+def browser_context_args(browser_context_args, taskhub_server) -> dict:
+    """Inject the dynamic TaskHub base_url into every BrowserContext for this suite."""
+    return {**browser_context_args, "base_url": taskhub_server["base_url"]}
+
+
 @pytest.fixture(autouse=True)
 def reset_taskhub_data(taskhub_base_url: str) -> None:
     response = requests.post(f"{taskhub_base_url.rstrip('/')}/api/test/reset", timeout=10)

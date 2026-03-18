@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "taskhub/me_response",
+  "title": "MeResponse",
+  "description": "Response from GET /api/me",
+  "type": "object",
+  "required": ["username"],
+  "additionalProperties": false,
+  "properties": {
+    "username": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}
