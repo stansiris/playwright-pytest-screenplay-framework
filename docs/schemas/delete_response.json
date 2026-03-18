@@ -2,14 +2,6 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "taskhub/delete_response",
   "title": "DeleteResponse",
-  "description": "Response from DELETE /api/tasks/{task_id}",
-  "type": "object",
-  "required": ["message"],
-  "additionalProperties": false,
-  "properties": {
-    "message": {
-      "type": "string",
-      "minLength": 1
-    }
-  }
+  "description": "Response from DELETE /api/tasks/{task_id} — returns 204 No Content with an empty body.",
+  "type": "null"
 }
