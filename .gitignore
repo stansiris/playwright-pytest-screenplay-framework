@@ -29,6 +29,7 @@ coverage.xml
 playwright-report/
 test-results/
 generated/
+playwright/.auth
 
 # Logs and temp files
 *.log
@@ -43,6 +44,7 @@ generated/
 # IDE/editor settings
 .idea/
 .vscode/
+.claude/
 
 # OS files
 .DS_Store
