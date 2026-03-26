@@ -125,7 +125,7 @@ def customer(page, base_url):
 ```
 
 - `page` is the Playwright page provided by `pytest-playwright`.
-- `base_url` is read from `pyproject.toml` (`[tool.pytest.ini_options]`).
+- `base_url` comes from pytest's `--base-url` option, with a fallback to `https://www.saucedemo.com/` in `tests/saucedemo/conftest.py`.
 - `.can(BrowseTheWeb.using(...))` gives the actor browser capability.
 
 Any test that receives `customer` has a ready-to-use actor with a live browser page.

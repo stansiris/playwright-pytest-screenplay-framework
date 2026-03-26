@@ -98,7 +98,7 @@ On top of a reusable framework core.
 
 This project ships three things.
 
-First, a reusable **Screenplay core** in `screenplay_core/`. This is the framework itself — Actor, Task, Interaction, Target, Question, Consequence — twelve source files, zero external dependencies beyond Playwright and requests.
+First, a reusable **Screenplay core** in `screenplay_core/`. It is split into `core/` for the runtime-agnostic abstractions, `playwright/` for the browser extension classes (`Target`, `BrowseTheWeb`, `Ensure`) plus the `interactions/` and `questions/` subpackages, and `http/` for `CallTheApi`.
 
 Second, two **example targets** in `examples/`. SauceDemo is a public-facing e-commerce demo site used by the automation community. TaskHub is a local Flask application with a web UI, a JSON REST API, an SQLite database, and test utility endpoints — built specifically to demonstrate realistic automation scenarios.
 
@@ -562,18 +562,18 @@ flowchart TB
 
 | Suite | Tests | Type |
 |---|---|---|
-| `tests/saucedemo/test_login.py` | 8 | UI · parametrised |
-| `tests/saucedemo/test_inventory.py` | 6 | UI |
-| `tests/saucedemo/test_product_details.py` | 8 | UI |
-| `tests/saucedemo/test_checkout_*.py` | 10 | UI |
+| `tests/saucedemo/test_login.py` | 8 | UI + parametrized |
+| `tests/saucedemo/test_inventory.py` | 8 | UI |
+| `tests/saucedemo/test_product_details.py` | 9 | UI |
+| `tests/saucedemo/test_checkout_*.py` | 13 | UI |
 | `tests/saucedemo/test_ui_pages.py` | 7 | UI |
 | `tests/saucedemo/test_actor_strictness.py` | 7 | Framework unit |
-| `tests/saucedemo/test_bdd_*.py` | 5 | BDD |
+| `tests/saucedemo/*_bdd.py` | 7 | BDD |
 | `tests/taskhub/test_taskhub_ui.py` | 8 | UI |
 | `tests/taskhub/test_taskhub_api.py` | 7 | API |
 | `tests/taskhub/test_taskhub_hybrid.py` | 2 | Hybrid |
 | `tests/taskhub/test_taskhub_bdd.py` | 4 | BDD |
-| **Total** | **~80** | |
+| **Total** | **80** | |
 
 ### Key files to read in order
 

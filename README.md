@@ -78,7 +78,7 @@ Playwright / requests →  browser and HTTP execution
 
 ```
 screenplay_core/core/        →  pure Python abstractions (Actor, Task, Interaction, Question, Consequence)
-screenplay_core/playwright/  →  Playwright extension (Target, BrowseTheWeb, Ensure, interactions, questions)
+screenplay_core/playwright/  →  Playwright extension classes (Target, BrowseTheWeb, Ensure) plus interactions/ and questions/ subpackages
 screenplay_core/http/        →  HTTP extension (CallTheApi)
 ```
 
