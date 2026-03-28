@@ -1,0 +1,428 @@
+openapi: 3.0.3
+
+info:
+  title: Work Items API
+  description: |
+    REST API for the Work Items Flask application.
+    Authentication uses server-side sessions (cookie-based).
+    Call `POST /api/login` first to obtain a session cookie, then include it in all subsequent requests.
+  version: "1.0.0"
+
+servers:
+  - url: http://127.0.0.1:{port}
+    description: Local test server (port is dynamic — read from conftest fixture)
+    variables:
+      port:
+        default: "5001"
+
+tags:
+  - name: auth
+    description: Session authentication
+  - name: work-items
+    description: Work item CRUD operations
+  - name: test-helpers
+    description: Test lifecycle helpers (reset/seed) - not for production use
+
+paths:
+
+  /health:
+    get:
+      summary: Health check
+      tags: [auth]
+      responses:
+        "200":
+          description: App is running
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+
+  /api/login:
+    post:
+      summary: Log in and start a session
+      tags: [auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username:
+                  type: string
+                  example: admin
+                password:
+                  type: string
+                  example: admin123
+      responses:
+        "200":
+          description: Login successful — session cookie set
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  username:
+                    type: string
+                    example: admin
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/logout:
+    post:
+      summary: Clear the current session
+      tags: [auth]
+      responses:
+        "200":
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Logged out.
+
+  /api/me:
+    get:
+      summary: Return the currently authenticated user
+      tags: [auth]
+      security:
+        - sessionCookie: []
+      responses:
+        "200":
+          description: Authenticated username
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  username:
+                    type: string
+                    example: admin
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/work-items:
+    get:
+      summary: List work items for the authenticated user
+      tags: [work-items]
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: filter
+          in: query
+          description: Filter work items by status
+          required: false
+          schema:
+            type: string
+            enum: [all, active, completed]
+            default: all
+      responses:
+        "200":
+          description: Work item list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkItemList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+    post:
+      summary: Create a new work item
+      tags: [work-items]
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WorkItemCreate"
+      responses:
+        "201":
+          description: Work item created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkItem"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/work-items/{work_item_id}:
+    parameters:
+      - name: work_item_id
+        in: path
+        required: true
+        schema:
+          type: integer
+        example: 1
+
+    get:
+      summary: Get a single work item by ID
+      tags: [work-items]
+      security:
+        - sessionCookie: []
+      responses:
+        "200":
+          description: Work item found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkItem"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    put:
+      summary: Update a work item (partial update - only include fields you want to change)
+      tags: [work-items]
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WorkItemUpdate"
+      responses:
+        "200":
+          description: Work item updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkItem"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    delete:
+      summary: Delete a work item by ID
+      tags: [work-items]
+      security:
+        - sessionCookie: []
+      responses:
+        "204":
+          description: Work item deleted — no content
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/test/reset:
+    post:
+      summary: Reset DB and session — wipes all work items, re-seeds default and secondary users
+      tags: [test-helpers]
+      responses:
+        "200":
+          description: Reset complete
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Reset complete.
+                  seed:
+                    type: object
+                    properties:
+                      username:
+                        type: string
+                        example: admin
+                      secondary_username:
+                        type: string
+                        example: guest
+                      work_item_count:
+                        type: integer
+                        example: 3
+
+  /api/test/seed:
+    post:
+      summary: Re-seed default user and default work items (non-destructive to schema)
+      tags: [test-helpers]
+      responses:
+        "200":
+          description: Seed complete
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Seed complete.
+                  username:
+                    type: string
+                    example: admin
+                  work_item_count:
+                    type: integer
+                    example: 5
+
+components:
+
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: session
+      description: Flask session cookie — obtained by calling POST /api/login
+
+  schemas:
+
+    WorkItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: Buy groceries
+        description:
+          type: string
+          nullable: true
+          example: Milk, eggs, bread
+        status:
+          type: string
+          enum: [ACTIVE, COMPLETED]
+          example: ACTIVE
+        priority:
+          type: string
+          enum: [LOW, MEDIUM, HIGH]
+          example: MEDIUM
+        due_date:
+          type: string
+          format: date
+          nullable: true
+          example: "2026-03-20"
+        created_at:
+          type: string
+          format: date-time
+          example: "2026-03-15T10:00:00+00:00"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2026-03-15T10:00:00+00:00"
+        owner_username:
+          type: string
+          example: admin
+
+    WorkItemList:
+      type: object
+      required: [work_items]
+      properties:
+        work_items:
+          type: array
+          items:
+            $ref: "#/components/schemas/WorkItem"
+
+    WorkItemCreate:
+      type: object
+      required: [title]
+      properties:
+        title:
+          type: string
+          example: Buy groceries
+        description:
+          type: string
+          nullable: true
+          example: Milk, eggs, bread
+        status:
+          type: string
+          enum: [ACTIVE, COMPLETED]
+          default: ACTIVE
+        priority:
+          type: string
+          enum: [LOW, MEDIUM, HIGH]
+          default: MEDIUM
+        due_date:
+          type: string
+          format: date
+          nullable: true
+          example: "2026-03-20"
+
+    WorkItemUpdate:
+      type: object
+      description: All fields are optional - include only what you want to change
+      properties:
+        title:
+          type: string
+          example: Updated title
+        description:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [ACTIVE, COMPLETED]
+        priority:
+          type: string
+          enum: [LOW, MEDIUM, HIGH]
+        due_date:
+          type: string
+          format: date
+          nullable: true
+          example: "2026-04-01"
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Work item not found.
+
+  responses:
+
+    BadRequest:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
+    Unauthorized:
+      description: Not authenticated
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            error: Unauthorized.
+
+    Forbidden:
+      description: Authenticated but not authorised to access this resource
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            error: Access forbidden.
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            error: Work item not found.
