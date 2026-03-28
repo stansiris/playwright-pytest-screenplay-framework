@@ -10,7 +10,7 @@ A production-style test automation framework built with Python, Playwright, Pyte
 reusable Screenplay core:
 
 - **SauceDemo** — external public e-commerce app (UI + BDD)
-- **TaskHub** — bundled Flask app (UI, JSON API, and hybrid cross-boundary tests)
+- **Work Items** — bundled Flask app (UI, JSON API, and hybrid cross-boundary tests)
 
 The primary goal is to demonstrate how the Screenplay Pattern can be implemented in Python
 to produce readable, layered, and maintainable automation — not to be a large test suite.
@@ -55,7 +55,7 @@ pytest -q
 |---|---|
 | Actor | Represents a user; orchestrates all actions and questions. |
 | Ability | Grants the actor capability to reach an external system (`BrowseTheWeb`, `CallTheApi`). |
-| Task | A high-level business action composed of interactions (`Login`, `CreateTask`). |
+| Task | A high-level business action composed of interactions (`Login`, `CreateWorkItem`). |
 | Interaction | A single low-level browser operation (`Click`, `Fill`, `NavigateTo`). |
 | Target | A named, lazy locator recipe resolved through the actor's `BrowseTheWeb` ability. |
 | Question | Reads and returns information from the system under test. |
@@ -87,9 +87,9 @@ graph TD
 
 Actor["Actor"]
 Ability["Ability<br/>(BrowseTheWeb, CallTheApi)"]
-Task["Task<br/>(Login, CreateTask)"]
+Task["Task<br/>(Login, CreateWorkItem)"]
 Interaction["Interaction<br/>(Click, Fill, NavigateTo)"]
-Question["Question<br/>(TaskVisible, TextOf)"]
+Question["Question<br/>(WorkItemVisible, TextOf)"]
 Consequence["Consequence<br/>(Ensure.that)"]
 Target["Target<br/>(UI Locator Recipe)"]
 Playwright["Playwright / requests"]
@@ -157,26 +157,26 @@ def test_successful_login(customer, username, password) -> None:
     )
 ```
 
-### TaskHub — hybrid test (create via API, verify in UI)
+### Work Items — hybrid test (create via API, verify in UI)
 
 ```python
 @pytest.mark.hybrid
-def test_create_task_via_api_verify_in_ui(taskhub_api_actor, taskhub_customer) -> None:
-    title = "Hybrid API to UI task"
-    create_task = CreateTaskViaApi.with_payload(
+def test_create_work_item_via_api_verify_in_ui(work_items_api_actor, work_items_customer) -> None:
+    title = "Hybrid API to UI work item"
+    create_work_item = CreateWorkItemViaApi.with_payload(
         {"title": title, "description": "Created via API", "priority": "HIGH"}
     )
-    taskhub_api_actor.attempts_to(
-        LoginToTaskHubApi.with_credentials("admin", "admin123"),
-        create_task,
+    work_items_api_actor.attempts_to(
+        LoginToWorkItemsApi.with_credentials("admin", "admin123"),
+        create_work_item,
     )
-    assert create_task.result.status_code == 201
+    assert create_work_item.result.status_code == 201
 
-    taskhub_customer.attempts_to(
-        OpenTaskHub.app(),
-        LoginToTaskHub.with_credentials("admin", "admin123"),
-        Ensure.that(TaskHubTargets.task_item_for_id(create_task.task_id)).to_be_visible(),
-        Ensure.that(TaskHubTargets.task_title_text_for_id(create_task.task_id)).to_have_text(title),
+    work_items_customer.attempts_to(
+        OpenWorkItems.app(),
+        LoginToWorkItems.with_credentials("admin", "admin123"),
+        Ensure.that(WorkItemsTargets.work_item_for_id(create_work_item.work_item_id)).to_be_visible(),
+        Ensure.that(WorkItemsTargets.work_item_title_text_for_id(create_work_item.work_item_id)).to_have_text(title),
     )
 ```
 
@@ -196,18 +196,18 @@ pytest tests/saucedemo -q
 
 ---
 
-## TaskHub
+## Work Items
 
-A lightweight Flask + SQLite task management app bundled in this repository. It exists so
+A lightweight Flask + SQLite work item management app bundled in this repository. It exists so
 the framework can demonstrate UI, API, and hybrid automation without any external dependency.
 
 ### Where it lives
 
 | Path | Purpose |
 |---|---|
-| `examples/taskhub/app/` | Flask app source (routes, db, seed data) |
-| `examples/taskhub/automation/` | Tasks, Questions, Targets, API client |
-| `tests/taskhub/` | UI, API, hybrid, and BDD test suites |
+| `examples/work_items/app/` | Flask app source (routes, db, seed data) |
+| `examples/work_items/automation/` | Tasks, Questions, Targets, API client |
+| `tests/work_items/` | UI, API, hybrid, and BDD test suites |
 
 ### Default credentials
 
@@ -217,21 +217,21 @@ the framework can demonstrate UI, API, and hybrid automation without any externa
 ### Run locally
 
 ```bash
-python -m examples.taskhub.app.app
+python -m examples.work_items.app.app
 # → http://127.0.0.1:5001/
 ```
 
 ### Run the tests
 
-`tests/taskhub/conftest.py` starts a TaskHub server automatically on a free port for each
+`tests/work_items/conftest.py` starts a Work Items server automatically on a free port for each
 test session. No manual server start needed.
 
 ```bash
-pytest tests/taskhub -q                          # all TaskHub tests
-pytest tests/taskhub/test_taskhub_ui.py -q       # UI only
-pytest tests/taskhub/test_taskhub_api.py -q      # API only
-pytest tests/taskhub/test_taskhub_hybrid.py -q   # hybrid only
-pytest tests/taskhub/test_taskhub_bdd.py -q      # BDD only
+pytest tests/work_items -q                          # all Work Items tests
+pytest tests/work_items/test_work_items_ui.py -q       # UI only
+pytest tests/work_items/test_work_items_api.py -q      # API only
+pytest tests/work_items/test_work_items_hybrid.py -q   # hybrid only
+pytest tests/work_items/test_work_items_bdd.py -q      # BDD only
 ```
 
 ### Test markers
@@ -266,13 +266,13 @@ examples/
         ui/
             pages/      # LoginPage, InventoryPage, CartPage, …
             components/ # AppShell, BackNavigation
-    taskhub/
+    work_items/
         app/            # Flask app, db, seed
         automation/
-            tasks/      # LoginToTaskHub, CreateTask, EditTask, …
-            questions/  # TaskVisible, TaskCompleted, FlashMessages, …
-            ui/         # TaskHubTargets (all data-testid selectors)
-            api/        # TaskHubApiClient
+            tasks/      # LoginToWorkItems, CreateWorkItem, EditWorkItem, …
+            questions/  # WorkItemVisible, WorkItemCompleted, FlashMessages, …
+            ui/         # WorkItemsTargets (all data-testid selectors)
+            api/        # Work Items API helpers
 
 tests/
     conftest.py         # Browser launch option overrides
@@ -280,7 +280,7 @@ tests/
         conftest.py     # customer actor fixture, base URL
         features/       # Gherkin feature files (pytest-bdd)
         test_*.py       # Direct pytest + BDD suites
-    taskhub/
+    work_items/
         conftest.py     # Server lifecycle, per-test reset, actor fixtures
         test_*.py       # UI, API, hybrid suites
 
@@ -298,10 +298,10 @@ A good reading order for understanding the framework end to end:
 
 1. [`tests/saucedemo/test_login.py`](tests/saucedemo/test_login.py) — smallest complete Screenplay test
 2. [`screenplay_core/core/actor.py`](screenplay_core/core/actor.py) — how the actor executes tasks, consequences, and questions
-3. [`examples/saucedemo/tasks/login.py`](examples/saucedemo/tasks/login.py) — domain behavior modeled as a reusable Task
+3. [`examples/saucedemo/tasks/login.py`](examples/saucedemo/tasks/login.py) - domain behavior modeled as a reusable Task
 4. [`screenplay_core/playwright/ensure.py`](screenplay_core/playwright/ensure.py) — how Playwright assertions are exposed through the Screenplay DSL
-5. [`tests/taskhub/test_taskhub_hybrid.py`](tests/taskhub/test_taskhub_hybrid.py) — cross-boundary test using both `BrowseTheWeb` and `CallTheApi`
-6. [`tests/taskhub/test_taskhub_bdd.py`](tests/taskhub/test_taskhub_bdd.py) — BDD scenarios wired to Screenplay steps via pytest-bdd
+5. [`tests/work_items/test_work_items_hybrid.py`](tests/work_items/test_work_items_hybrid.py) — cross-boundary test using both `BrowseTheWeb` and `CallTheApi`
+6. [`tests/work_items/test_work_items_bdd.py`](tests/work_items/test_work_items_bdd.py) — BDD scenarios wired to Screenplay steps via pytest-bdd
 
 ---
 

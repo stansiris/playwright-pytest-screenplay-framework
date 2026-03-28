@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "work_items/work_item_list",
+  "title": "WorkItemList",
+  "description": "Response from GET /api/work-items",
+  "type": "object",
+  "required": ["work_items"],
+  "additionalProperties": false,
+  "properties": {
+    "work_items": {
+      "type": "array",
+      "items": {
+        "$ref": "work_item.json"
+      }
+    }
+  }
+}

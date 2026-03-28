@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "taskhub/login_response",
+  "$id": "work_items/login_response",
   "title": "LoginResponse",
   "description": "Response from POST /api/login",
   "type": "object",

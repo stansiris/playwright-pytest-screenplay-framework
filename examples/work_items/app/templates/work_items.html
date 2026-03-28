@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+
+{% block title %}Work Items{% endblock %}
+
+{% block content %}
+<section class="panel">
+    <header class="panel-header">
+        <h1>Work Items Dashboard</h1>
+        <p class="muted">Create, track, and update your work items.</p>
+    </header>
+
+    <form method="post" action="{{ url_for('create_work_item_ui') }}" class="work-item-form">
+        <input type="hidden" name="current_filter" value="{{ active_filter }}">
+
+        <label for="new-work-item-title">Title</label>
+        <input
+            id="new-work-item-title"
+            name="title"
+            type="text"
+            maxlength="180"
+            data-testid="work-item-title-input"
+        >
+
+        <label for="new-work-item-description">Description</label>
+        <textarea
+            id="new-work-item-description"
+            name="description"
+            rows="3"
+            maxlength="1000"
+            data-testid="work-item-description-input"
+        ></textarea>
+
+        <div class="inline-grid">
+            <div>
+                <label for="new-work-item-priority">Priority</label>
+                <select
+                    id="new-work-item-priority"
+                    name="priority"
+                    data-testid="work-item-priority-input"
+                >
+                    <option value="LOW">LOW</option>
+                    <option value="MEDIUM" selected>MEDIUM</option>
+                    <option value="HIGH">HIGH</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="new-work-item-due-date">Due Date</label>
+                <input
+                    id="new-work-item-due-date"
+                    name="due_date"
+                    type="date"
+                    data-testid="work-item-due-date-input"
+                >
+            </div>
+        </div>
+
+        <button type="submit" class="primary" data-testid="add-work-item-button">
+            Add Work Item
+        </button>
+    </form>
+</section>
+
+<section class="panel">
+    <div class="filters">
+        <a
+            href="{{ url_for('work_items_dashboard', filter='all') }}"
+            class="filter {% if active_filter == 'all' %}active{% endif %}"
+            data-testid="filter-button"
+            data-filter="all"
+        >
+            All
+        </a>
+        <a
+            href="{{ url_for('work_items_dashboard', filter='active') }}"
+            class="filter {% if active_filter == 'active' %}active{% endif %}"
+            data-testid="filter-button"
+            data-filter="active"
+        >
+            Active
+        </a>
+        <a
+            href="{{ url_for('work_items_dashboard', filter='completed') }}"
+            class="filter {% if active_filter == 'completed' %}active{% endif %}"
+            data-testid="filter-button"
+            data-filter="completed"
+        >
+            Completed
+        </a>
+    </div>
+
+    <div class="work-item-list" data-testid="work-item-list-container">
+        {% if work_items %}
+            {% for work_item in work_items %}
+            <article
+                class="work-item-card {% if work_item.status == 'COMPLETED' %}completed{% endif %}"
+                data-testid="work-item-card"
+                data-work-item-id="{{ work_item.id }}"
+            >
+                <div class="work-item-card-header">
+                    <h3 data-testid="work-item-title-text">{{ work_item.title }}</h3>
+                    <span class="pill pill-{{ work_item.priority|lower }}">{{ work_item.priority }}</span>
+                </div>
+
+                {% if work_item.description %}
+                <p class="work-item-description">{{ work_item.description }}</p>
+                {% endif %}
+
+                <p class="work-item-meta">
+                    Status: <strong>{{ work_item.status }}</strong>
+                    {% if work_item.due_date %}
+                    <span class="separator">|</span> Due: {{ work_item.due_date }}
+                    {% endif %}
+                </p>
+
+                <div class="work-item-actions">
+                    <form
+                        method="post"
+                        action="{{ url_for('toggle_work_item_ui', work_item_id=work_item.id) }}"
+                    >
+                        <input type="hidden" name="current_filter" value="{{ active_filter }}">
+                        <button type="submit" data-testid="work-item-completion-toggle">
+                            {% if work_item.status == 'COMPLETED' %}Mark Incomplete{% else %}Mark Complete{% endif %}
+                        </button>
+                    </form>
+
+                    <form method="get" action="{{ url_for('work_items_dashboard') }}">
+                        <input type="hidden" name="filter" value="{{ active_filter }}">
+                        <input type="hidden" name="edit" value="{{ work_item.id }}">
+                        <button type="submit" data-testid="edit-work-item-open-button">Edit</button>
+                    </form>
+
+                    <form
+                        method="post"
+                        action="{{ url_for('delete_work_item_ui', work_item_id=work_item.id) }}"
+                    >
+                        <input type="hidden" name="current_filter" value="{{ active_filter }}">
+                        <button
+                            type="submit"
+                            class="danger"
+                            data-testid="delete-work-item-button"
+                        >
+                            Delete
+                        </button>
+                    </form>
+                </div>
+
+                {% if edit_work_item_id == work_item.id %}
+                <form
+                    method="post"
+                    action="{{ url_for('edit_work_item_ui', work_item_id=work_item.id) }}"
+                    class="work-item-form edit-form"
+                >
+                    <input type="hidden" name="current_filter" value="{{ active_filter }}">
+
+                    <label for="edit-title-{{ work_item.id }}">Title</label>
+                    <input
+                        id="edit-title-{{ work_item.id }}"
+                        name="title"
+                        type="text"
+                        maxlength="180"
+                        value="{{ work_item.title }}"
+                        data-testid="edit-work-item-title-input"
+                    >
+
+                    <label for="edit-description-{{ work_item.id }}">Description</label>
+                    <textarea
+                        id="edit-description-{{ work_item.id }}"
+                        name="description"
+                        rows="3"
+                        maxlength="1000"
+                        data-testid="edit-work-item-description-input"
+                    >{{ work_item.description or '' }}</textarea>
+
+                    <div class="inline-grid">
+                        <div>
+                            <label for="edit-priority-{{ work_item.id }}">Priority</label>
+                            <select
+                                id="edit-priority-{{ work_item.id }}"
+                                name="priority"
+                                data-testid="edit-work-item-priority-select"
+                            >
+                                <option value="LOW" {% if work_item.priority == 'LOW' %}selected{% endif %}>LOW</option>
+                                <option value="MEDIUM" {% if work_item.priority == 'MEDIUM' %}selected{% endif %}>MEDIUM</option>
+                                <option value="HIGH" {% if work_item.priority == 'HIGH' %}selected{% endif %}>HIGH</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="edit-due-date-{{ work_item.id }}">Due Date</label>
+                            <input
+                                id="edit-due-date-{{ work_item.id }}"
+                                name="due_date"
+                                type="date"
+                                value="{{ work_item.due_date or '' }}"
+                                data-testid="edit-work-item-due-date-input"
+                            >
+                        </div>
+                    </div>
+
+                    <div class="work-item-actions">
+                        <button
+                            type="submit"
+                            class="primary"
+                            data-testid="edit-work-item-save-button"
+                        >
+                            Save
+                        </button>
+                        <a
+                            href="{{ url_for('work_items_dashboard', filter=active_filter) }}"
+                            data-testid="edit-work-item-cancel-button"
+                        >
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+                {% endif %}
+            </article>
+            {% endfor %}
+        {% else %}
+        <p class="muted">No work items in this filter yet.</p>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

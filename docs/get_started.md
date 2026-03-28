@@ -63,7 +63,7 @@ Abilities connect the actor to external systems.
 
 ### Tasks
 
-A Task is a named, reusable business action. Tests call Tasks — not raw browser operations.
+A Task is a named, reusable business action. Tests call Tasks - not raw browser operations.
 Tasks are composed of low-level **Interactions** (`Click`, `Fill`, `NavigateTo`, etc.).
 
 ```python

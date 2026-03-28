@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "taskhub/error_response",
+  "$id": "work_items/error_response",
   "title": "ErrorResponse",
   "description": "Error envelope returned on 4xx responses",
   "type": "object",

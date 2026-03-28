@@ -19,12 +19,12 @@ depend on lower layers; lower layers never import from above).
 flowchart TB
   subgraph TL["Test Layer — tests/"]
     SD["SauceDemo — test_*.py · features/ · conftest.py"]
-    TH["TaskHub — test_*.py · conftest.py"]
+    TH["Work Items — test_*.py · conftest.py"]
   end
 
   subgraph EL["Target Layer — examples/"]
     SDE["saucedemo/ — tasks · questions · ui/pages · ui/components"]
-    THE["taskhub/ — automation/tasks · automation/questions · automation/ui · app/"]
+    THE["work_items/ — automation/tasks · automation/questions · automation/ui · app/"]
   end
 
   subgraph CL["Core — screenplay_core/"]
@@ -325,20 +325,20 @@ sequenceDiagram
   participant Test as Test Function
   participant ApiActor as API Actor (CallTheApi)
   participant UiActor as UI Actor (BrowseTheWeb)
-  participant Server as TaskHub Server
+  participant Server as Work Items Server
 
-  Test->>ApiActor: attempts_to(LoginToTaskHubApi, CreateTaskViaApi)
-  ApiActor->>Server: POST /api/login, POST /api/tasks
+  Test->>ApiActor: attempts_to(LoginToWorkItemsApi, CreateWorkItemViaApi)
+  ApiActor->>Server: POST /api/login, POST /api/work-items
   Server-->>ApiActor: 200, 201
   ApiActor-->>Test: done
-  Test->>Test: assert create_task.result.status_code == 201
+  Test->>Test: assert create_work_item.result.status_code == 201
 
-  Test->>UiActor: attempts_to(OpenTaskHub, LoginToTaskHub)
+  Test->>UiActor: attempts_to(OpenWorkItems, LoginToWorkItems)
   UiActor->>Server: browser GET /login, POST /login
   Server-->>UiActor: 200
 
   Test->>UiActor: attempts_to(Ensure.that(task_item).to_be_visible())
-  UiActor->>Server: browser renders /tasks
+  UiActor->>Server: browser renders /work-items
   Server-->>UiActor: page with task visible
   UiActor-->>Test: done
 ```
@@ -380,15 +380,15 @@ the same server in a single test. They share no state; the test coordinates them
 | `examples/saucedemo/ui/components` | Shared Targets used across multiple SauceDemo pages. |
 | `examples/saucedemo/tasks` | SauceDemo business Tasks: `Login`, `Logout`, `AddProductToCart`, `CompleteCheckout`, etc. |
 | `examples/saucedemo/questions` | SauceDemo Questions: inventory state, totals, login page state. |
-| `examples/taskhub/app` | Flask app-under-test: routes, SQLite db, seed data. |
-| `examples/taskhub/automation/ui` | `TaskHubTargets` — all `data-testid` and `data-task-id` selectors for TaskHub. |
-| `examples/taskhub/automation/tasks` | TaskHub UI Tasks (`CreateTask`, `EditTask`, `DeleteTask`, …) and API Tasks (`CreateTaskViaApi`, `LoginToTaskHubApi`, …). |
-| `examples/taskhub/automation/questions` | TaskHub Questions: task visibility, completion state, flash messages, API-based lookups. |
-| `examples/taskhub/automation/api` | `TaskHubApiClient` — thin HTTP client wrapping `CallTheApi`. |
+| `examples/work_items/app` | Flask app-under-test: routes, SQLite db, seed data. |
+| `examples/work_items/automation/ui` | `WorkItemsTargets` — all `data-testid` and `data-work-item-id` selectors for Work Items. |
+| `examples/work_items/automation/tasks` | Work Items UI Tasks (`CreateWorkItem`, `EditWorkItem`, `DeleteWorkItem`, …) and API Tasks (`CreateWorkItemViaApi`, `LoginToWorkItemsApi`, …). |
+| `examples/work_items/automation/questions` | Work Items Questions: work item visibility, completion state, flash messages, API-based lookups. |
+| `examples/work_items/automation/api` | Work Items API helper layer built on top of `CallTheApi`. |
 | `tests/conftest.py` | Shared browser launch option overrides (applies to all test suites). |
 | `tests/saucedemo/conftest.py` | `customer` actor fixture and `base_url` normalization for SauceDemo. |
 | `tests/saucedemo/features` | Gherkin feature files for SauceDemo pytest-bdd suites. |
 | `tests/saucedemo/test_*.py` | SauceDemo pytest and pytest-bdd test suites. |
-| `tests/taskhub/conftest.py` | TaskHub session-scoped server lifecycle, per-test data reset, and actor fixtures (`taskhub_customer`, `taskhub_logged_in_customer`, `taskhub_api_actor`). |
-| `tests/taskhub/features` | Gherkin feature files for TaskHub pytest-bdd suites. |
-| `tests/taskhub/test_*.py` | TaskHub UI, API, hybrid, and BDD test suites. |
+| `tests/work_items/conftest.py` | Work Items session-scoped server lifecycle, per-test data reset, and actor fixtures (`work_items_customer`, `work_items_logged_in_customer`, `work_items_api_actor`). |
+| `tests/work_items/features` | Gherkin feature files for Work Items pytest-bdd suites. |
+| `tests/work_items/test_*.py` | Work Items UI, API, hybrid, and BDD test suites. |

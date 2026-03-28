@@ -89,7 +89,7 @@ This is the key design insight: behaviour is stable; implementation is not. Scre
 Two fully working example targets:
 
   SauceDemo  — external public e-commerce app
-  TaskHub    — local Flask app built from scratch
+  Work Items    — local Flask app built from scratch
 
 On top of a reusable framework core.
 ```
@@ -100,9 +100,9 @@ This project ships three things.
 
 First, a reusable **Screenplay core** in `screenplay_core/`. It is split into `core/` for the runtime-agnostic abstractions, `playwright/` for the browser extension classes (`Target`, `BrowseTheWeb`, `Ensure`) plus the `interactions/` and `questions/` subpackages, and `http/` for `CallTheApi`.
 
-Second, two **example targets** in `examples/`. SauceDemo is a public-facing e-commerce demo site used by the automation community. TaskHub is a local Flask application with a web UI, a JSON REST API, an SQLite database, and test utility endpoints — built specifically to demonstrate realistic automation scenarios.
+Second, two **example targets** in `examples/`. SauceDemo is a public-facing e-commerce demo site used by the automation community. Work Items is a local Flask application with a web UI, a JSON REST API, an SQLite database, and test utility endpoints — built specifically to demonstrate realistic automation scenarios.
 
-Third, a **test suite** in `tests/` — eighty tests across SauceDemo and TaskHub covering UI, API, hybrid, and BDD scenarios.
+Third, a **test suite** in `tests/` — eighty tests across SauceDemo and Work Items covering UI, API, hybrid, and BDD scenarios.
 
 The important thing is that the framework knows nothing about the examples, and the examples know nothing about each other. The Screenplay core is genuinely reusable.
 
@@ -115,11 +115,11 @@ The important thing is that the framework knows nothing about the examples, and 
 ```mermaid
 flowchart TB
     subgraph Tests["Tests — tests/"]
-        T["test_login.py\ntest_taskhub_ui.py\ntest_taskhub_api.py"]
+        T["test_login.py\ntest_work_items_ui.py\ntest_work_items_api.py"]
     end
 
     subgraph Examples["Target Layer — examples/"]
-        TK["Tasks · Questions · Targets\nSauceDemo & TaskHub"]
+        TK["Tasks · Questions · Targets\nSauceDemo & Work Items"]
     end
 
     subgraph Core["Core — screenplay_core/"]
@@ -141,7 +141,7 @@ The architecture has four layers, each with a single responsibility.
 
 At the top, **tests** describe behaviour. They import Tasks and Targets from the example target layer and compose them into scenarios. A test file should be so thin that a product manager could read it.
 
-The **target layer** is where application-specific knowledge lives. Tasks implement behaviour for SauceDemo or TaskHub. Targets define which UI elements matter and how to find them. Questions answer questions about the application state. This layer knows everything about the app; the test layer knows nothing.
+The **target layer** is where application-specific knowledge lives. Tasks implement behaviour for SauceDemo or Work Items. Targets define which UI elements matter and how to find them. Questions answer questions about the application state. This layer knows everything about the app; the test layer knows nothing.
 
 The **Screenplay core** is the framework. It defines the rules — what an Actor can do, what a Task must implement, what a Consequence means. It enforces layer boundaries at runtime. It knows nothing about any specific application.
 
@@ -173,7 +173,7 @@ The Actor is the runtime engine of the framework. Three methods do everything.
 
 `.attempts_to(*activities)` executes a sequence of Tasks and Consequences. Crucially, it rejects raw Interactions at the boundary — if you pass a `Click()` directly, you get a `TypeError` explaining that `attempts_to()` accepts Tasks and Consequences only, and that Interactions belong inside Tasks. This is not a convention; it is enforced at runtime.
 
-`.asks_for(question)` evaluates a Question and returns an answer. `TextOf`, `CurrentUrl`, `IsVisible`, `TaskIdForTitle` — all of these return values that tests can assert against.
+`.asks_for(question)` evaluates a Question and returns an answer. `TextOf`, `CurrentUrl`, `IsVisible`, `WorkItemIdForTitle` — all of these return values that tests can assert against.
 
 Every activity is logged with its name, duration in milliseconds, and success or failure. This makes debugging a failing CI run straightforward.
 
@@ -280,7 +280,7 @@ A Task implements a named business action. The `perform_as(actor)` method is the
 
 Factory class methods like `.with_credentials()` provide a fluent, readable construction API. The test reads `Login.with_credentials("standard_user", "secret_sauce")` — a complete sentence. The Task holds the implementation details.
 
-Tasks compose. A task can call `actor.attempts_to(OtherTask())` inside `perform_as` to build complex workflows from simpler ones. `OpenTaskHub.app()` navigates to the base URL. `LoginToTaskHub.with_credentials()` fills and submits the form. A logged-in fixture calls both.
+Tasks compose. A task can call `actor.attempts_to(OtherTask())` inside `perform_as` to build complex workflows from simpler ones. `OpenWorkItems.app()` navigates to the base URL. `LoginToWorkItems.with_credentials()` fills and submits the form. A logged-in fixture calls both.
 
 ---
 
@@ -322,22 +322,22 @@ Because `ability_to()` resolves by class, an actor can hold both abilities simul
 
 **Slide content**
 ```python
-def test_create_task_via_api_verify_in_ui(
-    taskhub_api_actor, taskhub_customer
+def test_create_work_item_via_api_verify_in_ui(
+    work_items_api_actor, work_items_customer
 ) -> None:
-    # API actor creates a task
-    create_task = CreateTaskViaApi.with_payload({"title": "Hybrid task", "priority": "HIGH"})
-    taskhub_api_actor.attempts_to(
-        LoginToTaskHubApi.with_credentials("admin", "admin123"),
-        create_task,
+    # API actor creates a work item
+    create_work_item = CreateWorkItemViaApi.with_payload({"title": "Hybrid work item", "priority": "HIGH"})
+    work_items_api_actor.attempts_to(
+        LoginToWorkItemsApi.with_credentials("admin", "admin123"),
+        create_work_item,
     )
-    assert create_task.result.status_code == 201
+    assert create_work_item.result.status_code == 201
 
     # UI actor verifies it appears in the browser
-    taskhub_customer.attempts_to(
-        OpenTaskHub.app(),
-        LoginToTaskHub.with_credentials("admin", "admin123"),
-        Ensure.that(TaskHubTargets.task_item_for_id(create_task.task_id)).to_be_visible(),
+    work_items_customer.attempts_to(
+        OpenWorkItems.app(),
+        LoginToWorkItems.with_credentials("admin", "admin123"),
+        Ensure.that(WorkItemsTargets.work_item_for_id(create_work_item.work_item_id)).to_be_visible(),
     )
 ```
 
@@ -345,17 +345,17 @@ def test_create_task_via_api_verify_in_ui(
 
 Hybrid tests are the most powerful feature of a dual-ability framework, and they are the hardest pattern to demonstrate in a Page Object Model world.
 
-In this test, two actors work together. The API actor logs in through the REST API and creates a task, bypassing the browser entirely. This is fast and deterministic — no UI interaction required to set up state. The UI actor then opens a browser, logs in through the web interface, and verifies the task is visible in the rendered task list.
+In this test, two actors work together. The API actor logs in through the REST API and creates a work item, bypassing the browser entirely. This is fast and deterministic — no UI interaction required to set up state. The UI actor then opens a browser, logs in through the web interface, and verifies the work item is visible in the rendered list.
 
 The test proves two things simultaneously: the API created the resource correctly, and the UI renders it correctly. It could not pass if either layer was broken.
 
-The reverse pattern also exists: the UI actor creates a task through the browser form, and the API actor then queries the REST endpoint to verify the task was persisted with the correct fields. Both directions are tested.
+The reverse pattern also exists: the UI actor creates a work item through the browser form, and the API actor then queries the REST endpoint to verify the work item was persisted with the correct fields. Both directions are tested.
 
 This kind of cross-boundary test is what distinguishes framework design from test scripting. It requires deliberate architectural choices — separate actors, separate abilities, clean fixture isolation — that are not accidents.
 
 ---
 
-## 12. TaskHub — A Real App-Under-Test
+## 12. Work Items — A Real App-Under-Test
 
 **Slide content**
 ```
@@ -363,10 +363,10 @@ Flask + SQLite web application
 built specifically to demonstrate realistic automation.
 
 Routes:
-  GET  /login       /tasks       /health
-  POST /api/login   /api/tasks
-  PUT  /api/tasks/<id>
-  DEL  /api/tasks/<id>
+  GET  /login       /work-items       /health
+  POST /api/login   /api/work-items
+  PUT  /api/work-items/<id>
+  DEL  /api/work-items/<id>
   POST /api/test/reset   /api/test/seed
 ```
 
@@ -374,11 +374,11 @@ Routes:
 
 SauceDemo is an external site the automation community uses as a shared practice target. It is good for demonstrating UI automation, but it cannot show API testing, hybrid tests, or server lifecycle management because you do not control it.
 
-TaskHub solves that. It is a Flask application with an SQLite database, written from scratch for this project. The web UI uses `data-testid` and `data-task-id` attributes on every interactive element — stable selectors that do not break when styling changes. The REST API accepts and returns JSON.
+Work Items solves that. It is a Flask application with an SQLite database, written from scratch for this project. The web UI uses `data-testid` and `data-work-item-id` attributes on every interactive element — stable selectors that do not break when styling changes. The REST API accepts and returns JSON.
 
-Two special endpoints make testing clean. `POST /api/test/reset` drops all tasks and re-seeds a fixed baseline dataset. `POST /api/test/seed` adds a deterministic set of tasks from a fixture file. These endpoints run before every test, ensuring complete test isolation with zero shared state.
+Two special endpoints make testing clean. `POST /api/test/reset` drops all work items and re-seeds a fixed baseline dataset. `POST /api/test/seed` adds a deterministic set of work items from a fixture file. These endpoints run before every test, ensuring complete test isolation with zero shared state.
 
-The test infrastructure starts TaskHub automatically. A session-scoped pytest fixture finds a free port, launches the Flask process as a subprocess, polls `/health` until the server is ready, and then yields the base URL to all tests in the session. On teardown, the process is terminated cleanly. Tests never need to start the server manually.
+The test infrastructure starts Work Items automatically. A session-scoped pytest fixture finds a free port, launches the Flask process as a subprocess, polls `/health` until the server is ready, and then yields the base URL to all tests in the session. On teardown, the process is terminated cleanly. Tests never need to start the server manually.
 
 ---
 
@@ -387,23 +387,23 @@ The test infrastructure starts TaskHub automatically. A session-scoped pytest fi
 **Slide content**
 ```gherkin
 @integration @ui
-Scenario: Create a task and verify it appears in the list
-  Given I am logged in to TaskHub
-  When I create a TaskHub task titled "BDD created task" with priority "HIGH"
-  Then the TaskHub task titled "BDD created task" should be visible
+Scenario: Create a work item and verify it appears in the list
+  Given I am logged in to Work Items
+  When I create a work item titled "BDD created work item" with priority "HIGH"
+  Then the work item titled "BDD created work item" should be visible
 
-Scenario: Delete a task and verify it is removed
-  Given I am logged in to TaskHub
-  When I create a TaskHub task titled "BDD task to delete" with priority "LOW"
-  And I delete the TaskHub task titled "BDD task to delete"
-  Then the TaskHub task titled "BDD task to delete" should not be visible
+Scenario: Delete a work item and verify it is removed
+  Given I am logged in to Work Items
+  When I create a work item titled "BDD work item to delete" with priority "LOW"
+  And I delete the work item titled "BDD work item to delete"
+  Then the work item titled "BDD work item to delete" should not be visible
 ```
 
 **Narrative**
 
-The project includes BDD scenarios using pytest-bdd with Gherkin feature files. The four TaskHub scenarios cover login, task creation, task completion with filtering, and task deletion.
+The project includes BDD scenarios using pytest-bdd with Gherkin feature files. The four Work Items scenarios cover login, work item creation, work item completion with filtering, and work item deletion.
 
-What makes this integration clean is that the step definitions are thin — they do nothing except call Screenplay tasks. The `When` step for creating a task calls `CreateTask.named(title=title, priority=priority)`. The `Then` step calls `TaskIdForTitle(title)` to find the task and `Ensure.that(...).to_be_visible()` to assert it. No locator logic, no `page.click()` — the step definitions compose the same Tasks that the regular tests use.
+What makes this integration clean is that the step definitions are thin — they do nothing except call Screenplay tasks. The `When` step for creating a task calls `CreateWorkItem.named(title=title, priority=priority)`. The `Then` step calls `WorkItemIdForTitle(title)` to find the task and `Ensure.that(...).to_be_visible()` to assert it. No locator logic, no `page.click()` — the step definitions compose the same Tasks that the regular tests use.
 
 This means there is no code duplication between BDD and non-BDD tests. Adding a Gherkin scenario does not require reimplementing existing behaviour. The Screenplay task library is shared across all test styles.
 
@@ -455,7 +455,7 @@ Designing a framework means making decisions about where knowledge lives, how la
 
 Dual-ability actors and hybrid tests require thinking about test infrastructure as a distributed system — two clients, one server, assertions that cross boundaries.
 
-Building TaskHub alongside the automation shows that the engineer can think about testability from both sides: how to design an application that is easy to automate reliably, and how to automate it once it is built.
+Building Work Items alongside the automation shows that the engineer can think about testability from both sides: how to design an application that is easy to automate reliably, and how to automate it once it is built.
 
 The documentation — architecture diagrams, design decision Q&A, getting-started walkthrough — reflects production-team thinking: other people will work with this code, and they need to understand it.
 
@@ -546,15 +546,15 @@ sequenceDiagram
     A->>I: perform_as(actor) [Click button]
 ```
 
-### Fixture dependency graph (TaskHub)
+### Fixture dependency graph (Work Items)
 
 ```mermaid
 flowchart TB
-    S[taskhub_server\nsession scope] --> U[taskhub_base_url\nsession scope]
-    U --> R[reset_taskhub_data\nautouse per-test]
-    U --> C[taskhub_customer\nper-test]
-    C --> L[taskhub_logged_in_customer\nper-test]
-    U --> API[taskhub_api_actor\nper-test]
+    S[work_items_server\nsession scope] --> U[work_items_base_url\nsession scope]
+    U --> R[reset_work_items_data\nautouse per-test]
+    U --> C[work_items_customer\nper-test]
+    C --> L[work_items_logged_in_customer\nper-test]
+    U --> API[work_items_api_actor\nper-test]
     PW[page\npytest-playwright] --> C
 ```
 
@@ -569,10 +569,10 @@ flowchart TB
 | `tests/saucedemo/test_ui_pages.py` | 7 | UI |
 | `tests/saucedemo/test_actor_strictness.py` | 7 | Framework unit |
 | `tests/saucedemo/*_bdd.py` | 7 | BDD |
-| `tests/taskhub/test_taskhub_ui.py` | 8 | UI |
-| `tests/taskhub/test_taskhub_api.py` | 7 | API |
-| `tests/taskhub/test_taskhub_hybrid.py` | 2 | Hybrid |
-| `tests/taskhub/test_taskhub_bdd.py` | 4 | BDD |
+| `tests/work_items/test_work_items_ui.py` | 8 | UI |
+| `tests/work_items/test_work_items_api.py` | 7 | API |
+| `tests/work_items/test_work_items_hybrid.py` | 2 | Hybrid |
+| `tests/work_items/test_work_items_bdd.py` | 4 | BDD |
 | **Total** | **80** | |
 
 ### Key files to read in order
@@ -581,6 +581,6 @@ flowchart TB
 2. [screenplay_core/core/actor.py](../screenplay_core/core/actor.py) — how the actor runs activities
 3. [examples/saucedemo/tasks/login.py](../examples/saucedemo/tasks/login.py) — Task implementation
 4. [screenplay_core/playwright/ensure.py](../screenplay_core/playwright/ensure.py) — the Ensure DSL
-5. [tests/taskhub/test_taskhub_hybrid.py](../tests/taskhub/test_taskhub_hybrid.py) — cross-boundary tests
-6. [tests/taskhub/test_taskhub_bdd.py](../tests/taskhub/test_taskhub_bdd.py) — BDD steps
-7. [tests/taskhub/conftest.py](../tests/taskhub/conftest.py) — server lifecycle and fixture design
+5. [tests/work_items/test_work_items_hybrid.py](../tests/work_items/test_work_items_hybrid.py) — cross-boundary tests
+6. [tests/work_items/test_work_items_bdd.py](../tests/work_items/test_work_items_bdd.py) — BDD steps
+7. [tests/work_items/conftest.py](../tests/work_items/conftest.py) — server lifecycle and fixture design
