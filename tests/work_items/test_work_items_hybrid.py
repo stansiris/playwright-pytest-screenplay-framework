@@ -64,9 +64,7 @@ def test_create_work_item_via_api_verify_in_ui(
         OpenWorkItems.app(),
         LoginToWorkItems.with_credentials("admin", "admin123"),
         Ensure.that(WorkItemsTargets.work_item_for_id(work_item_id)).to_be_visible(),
-        Ensure.that(WorkItemsTargets.work_item_title_text_for_id(work_item_id)).to_have_text(
-            title
-        ),
+        Ensure.that(WorkItemsTargets.work_item_title_text_for_id(work_item_id)).to_have_text(title),
     )
 
 
