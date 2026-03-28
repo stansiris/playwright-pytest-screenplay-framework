@@ -163,20 +163,22 @@ def test_successful_login(customer, username, password) -> None:
 @pytest.mark.hybrid
 def test_create_work_item_via_api_verify_in_ui(work_items_api_actor, work_items_customer) -> None:
     title = "Hybrid API to UI work item"
-    create_work_item = CreateWorkItemViaApi.with_payload(
-        {"title": title, "description": "Created via API", "priority": "HIGH"}
-    )
     work_items_api_actor.attempts_to(
         LoginToWorkItemsApi.with_credentials("admin", "admin123"),
-        create_work_item,
+        CreateWorkItemViaApi.with_payload(
+            {"title": title, "description": "Created via API", "priority": "HIGH"}
+        ),
     )
-    assert create_work_item.result.status_code == 201
+    create_response = work_items_api_actor.ability_to(CallTheApi).last_response
+    assert create_response is not None
+    assert create_response.status_code == 201
+    work_item_id = create_response.json()["id"]
 
     work_items_customer.attempts_to(
         OpenWorkItems.app(),
         LoginToWorkItems.with_credentials("admin", "admin123"),
-        Ensure.that(WorkItemsTargets.work_item_for_id(create_work_item.work_item_id)).to_be_visible(),
-        Ensure.that(WorkItemsTargets.work_item_title_text_for_id(create_work_item.work_item_id)).to_have_text(title),
+        Ensure.that(WorkItemsTargets.work_item_for_id(work_item_id)).to_be_visible(),
+        Ensure.that(WorkItemsTargets.work_item_title_text_for_id(work_item_id)).to_have_text(title),
     )
 ```
 
@@ -206,7 +208,7 @@ the framework can demonstrate UI, API, and hybrid automation without any externa
 | Path | Purpose |
 |---|---|
 | `examples/work_items/app/` | Flask app source (routes, db, seed data) |
-| `examples/work_items/automation/` | Tasks, Questions, Targets, API client |
+| `examples/work_items/automation/` | Tasks, Questions, Targets, API facade/helper |
 | `tests/work_items/` | UI, API, hybrid, and BDD test suites |
 
 ### Default credentials
@@ -285,6 +287,7 @@ tests/
         test_*.py       # UI, API, hybrid suites
 
 docs/
+    api_testing.md     # API testing notes, design decisions, and open questions
     architecture.md     # Class hierarchy, dependency map, runtime sequences
     design_decisions.md # Q&A on key architectural choices
     get_started.md      # Step-by-step guide: write your first test
@@ -320,6 +323,8 @@ Test artifacts (screenshots, traces, HTML report, JUnit XML) are uploaded on fai
 ---
 
 ## Further Reading
+
+- [docs/api_testing.md](docs/api_testing.md) - API testing design notes, response ownership, and future discussion topics
 
 - [docs/architecture.md](docs/architecture.md) — full class hierarchy and runtime sequence diagrams
 - [docs/design_decisions.md](docs/design_decisions.md) — why Screenplay over Page Object Model, and other key choices

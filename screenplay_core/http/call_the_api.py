@@ -22,6 +22,7 @@ class CallTheApi:
         self.base_url = base_url.rstrip("/")
         self.session = session or requests.Session()
         self.timeout_seconds = timeout_seconds
+        self.last_response: Response | None = None
 
     @staticmethod
     def at(
@@ -41,11 +42,13 @@ class CallTheApi:
         # Apply a safe default timeout unless the caller explicitly overrides it.
         if "timeout" not in kwargs:
             kwargs["timeout"] = self.timeout_seconds
-        return self.session.request(
+        response = self.session.request(
             method=method.upper(),
             url=self._url(path),
             **kwargs,
         )
+        self.last_response = response
+        return response
 
     def get(self, path: str, **kwargs: Any) -> Response:
         return self.request("GET", path, **kwargs)

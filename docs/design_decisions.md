@@ -22,7 +22,8 @@ These decisions are meant to preserve separation between:
 - [Q3. Why does `Ensure.that()` exist](#q3-why-does-ensurethat-exist)
 - [Q4. Why is `Ensure.that()` modeled as a Consequence](#q4-why-is-ensurethat-modeled-as-a-consequence)
 - [Q5. What is the difference between `Question` and `Ensure`](#q5-what-is-the-difference-between-question-and-ensure)
-- [Q6. What is the practical summary of these decisions](#q6-what-is-the-practical-summary-of-these-decisions)
+- [Q6. Where does the raw API `Response` live after `attempts_to()`](#q6-where-does-the-raw-api-response-live-after-attempts_to)
+- [Q7. What is the practical summary of these decisions](#q7-what-is-the-practical-summary-of-these-decisions)
 
 ---
 
@@ -185,7 +186,59 @@ Rule of thumb:
 
 ---
 
-## Q6. What is the practical summary of these decisions
+## Q6. Where does the raw API `Response` live after `attempts_to()`
+
+API tests in this project still use the Screenplay pattern.
+
+- Tasks perform API actions
+- Questions read API state
+- `Actor.attempts_to(...)` returns `None`
+
+That creates a practical problem: a test may still need the raw HTTP
+`requests.Response` for assertions such as status code or error payload.
+
+The framework solves this by storing the latest raw response on the generic
+HTTP ability, `CallTheApi`, as `last_response`.
+
+Why this location:
+
+- not on the `Actor`, because `Actor` should remain a generic orchestrator
+- not on Task objects, because Tasks should model actions rather than become
+  mutable result containers
+- not in a separate memory helper, because that adds another layer and makes
+  the API flow harder to follow
+
+`CallTheApi` is the object that actually performs the HTTP request, so it is
+the narrowest and most natural owner for the latest raw response.
+
+Example:
+
+```python
+work_items_api_actor.attempts_to(
+    LoginToWorkItemsApi.with_credentials("admin", "admin123"),
+    CreateWorkItemViaApi.with_payload({"title": "Example"}),
+)
+
+response = work_items_api_actor.ability_to(CallTheApi).last_response
+assert response is not None
+assert response.status_code == 201
+```
+
+Important subtlety:
+
+API Questions also make HTTP calls through `CallTheApi`, so they overwrite
+`last_response` too. If a test needs the raw response from a specific API Task,
+it should assert on `last_response` immediately after that Task runs, before
+asking an API Question.
+
+For the longer-running record of API-testing-specific issues and follow-up
+decisions, see `docs/api_testing.md`.
+
+This means `last_response` is intentionally a latest-wins value.
+
+---
+
+## Q7. What is the practical summary of these decisions
 
 The framework is intentionally strict in order to preserve readable tests,
 reusable behavior, clean separation of concerns, and strong Playwright

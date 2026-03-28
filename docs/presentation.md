@@ -326,18 +326,20 @@ def test_create_work_item_via_api_verify_in_ui(
     work_items_api_actor, work_items_customer
 ) -> None:
     # API actor creates a work item
-    create_work_item = CreateWorkItemViaApi.with_payload({"title": "Hybrid work item", "priority": "HIGH"})
     work_items_api_actor.attempts_to(
         LoginToWorkItemsApi.with_credentials("admin", "admin123"),
-        create_work_item,
+        CreateWorkItemViaApi.with_payload({"title": "Hybrid work item", "priority": "HIGH"}),
     )
-    assert create_work_item.result.status_code == 201
+    create_response = work_items_api_actor.ability_to(CallTheApi).last_response
+    assert create_response is not None
+    assert create_response.status_code == 201
+    work_item_id = create_response.json()["id"]
 
     # UI actor verifies it appears in the browser
     work_items_customer.attempts_to(
         OpenWorkItems.app(),
         LoginToWorkItems.with_credentials("admin", "admin123"),
-        Ensure.that(WorkItemsTargets.work_item_for_id(create_work_item.work_item_id)).to_be_visible(),
+        Ensure.that(WorkItemsTargets.work_item_for_id(work_item_id)).to_be_visible(),
     )
 ```
 

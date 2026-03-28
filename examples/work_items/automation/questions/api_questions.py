@@ -3,10 +3,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from examples.work_items.automation.api.client import WorkItemsApiClient
+from requests import Response
+
+from examples.work_items.automation.api.work_items_api import WorkItemsApi
 from screenplay_core.core.actor import Actor
 from screenplay_core.core.question import Question
-from screenplay_core.http.call_the_api import CallTheApi
 
 
 @dataclass(frozen=True)
@@ -15,118 +16,105 @@ class ApiResponseSnapshot:
     payload: Any
 
 
-def _work_items_api(actor: Actor) -> WorkItemsApiClient:
-    return WorkItemsApiClient(actor.ability_to(CallTheApi))
-
-
-def _snapshot(response) -> ApiResponseSnapshot:
+def _json_or_none(response: Response) -> Any:
     try:
-        payload = response.json()
+        return response.json()
     except ValueError:
-        payload = None
-    return ApiResponseSnapshot(status_code=response.status_code, payload=payload)
+        return None
+
+
+def _snapshot(response: Response) -> ApiResponseSnapshot:
+    return ApiResponseSnapshot(
+        status_code=response.status_code,
+        payload=_json_or_none(response),
+    )
 
 
 class CurrentUserViaApi(Question):
     """Question: current authenticated user from /api/me."""
 
     def answered_by(self, actor: Actor) -> ApiResponseSnapshot:
-        response = _work_items_api(actor).get_me()
+        response = WorkItemsApi.for_actor(actor).me()
         return _snapshot(response)
 
     def __repr__(self) -> str:
         return "CurrentUserViaApi()"
 
 
+@dataclass(frozen=True)
 class FetchWorkItemsViaApi(Question):
     """Question: response snapshot from GET /api/work-items."""
 
-    def __init__(self, filter_name: str = "all"):
-        self.filter_name = filter_name
+    filter_name: str = "all"
 
     def answered_by(self, actor: Actor) -> ApiResponseSnapshot:
-        response = _work_items_api(actor).get_work_items(filter_name=self.filter_name)
+        response = WorkItemsApi.for_actor(actor).work_items(filter_name=self.filter_name)
         return _snapshot(response)
-
-    def __repr__(self) -> str:
-        return f"FetchWorkItemsViaApi(filter_name='{self.filter_name}')"
 
     @classmethod
     def all(cls) -> FetchWorkItemsViaApi:
         return cls(filter_name="all")
 
 
+@dataclass(frozen=True)
 class FetchWorkItemViaApi(Question):
     """Question: response snapshot from GET /api/work-items/<id>."""
 
-    def __init__(self, work_item_id: int):
-        self.work_item_id = work_item_id
+    work_item_id: int
 
     def answered_by(self, actor: Actor) -> ApiResponseSnapshot:
-        response = _work_items_api(actor).get_work_item(self.work_item_id)
+        response = WorkItemsApi.for_actor(actor).work_item(self.work_item_id)
         return _snapshot(response)
-
-    def __repr__(self) -> str:
-        return f"FetchWorkItemViaApi(work_item_id={self.work_item_id})"
 
     @classmethod
     def by_id(cls, work_item_id: int) -> FetchWorkItemViaApi:
         return cls(work_item_id=work_item_id)
 
 
+@dataclass(frozen=True)
 class WorkItemExistsViaApi(Question):
     """Question: whether a work item currently exists by id."""
 
-    def __init__(self, work_item_id: int):
-        self.work_item_id = work_item_id
+    work_item_id: int
 
     def answered_by(self, actor: Actor) -> bool:
-        response = _work_items_api(actor).get_work_item(self.work_item_id)
+        response = WorkItemsApi.for_actor(actor).work_item(self.work_item_id)
         return response.status_code == 200
 
-    def __repr__(self) -> str:
-        return f"WorkItemExistsViaApi(work_item_id={self.work_item_id})"
 
-
+@dataclass(frozen=True)
 class WorkItemFieldEqualsViaApi(Question):
     """Question: whether a work item field equals an expected value."""
 
-    def __init__(self, work_item_id: int, field_name: str, expected_value: Any):
-        self.work_item_id = work_item_id
-        self.field_name = field_name
-        self.expected_value = expected_value
+    work_item_id: int
+    field_name: str
+    expected_value: Any
 
     def answered_by(self, actor: Actor) -> bool:
-        response = _work_items_api(actor).get_work_item(self.work_item_id)
+        response = WorkItemsApi.for_actor(actor).work_item(self.work_item_id)
         if response.status_code != 200:
             return False
 
-        payload = response.json()
+        payload = _json_or_none(response)
         if not isinstance(payload, dict):
             return False
 
         return payload.get(self.field_name) == self.expected_value
 
-    def __repr__(self) -> str:
-        return (
-            f"WorkItemFieldEqualsViaApi(work_item_id={self.work_item_id}, "
-            f"field_name='{self.field_name}', expected_value={self.expected_value!r})"
-        )
 
-
+@dataclass(frozen=True)
 class WorkItemIdForTitleViaApi(Question):
     """Question: resolve a work item id by exact title match in GET /api/work-items."""
 
-    def __init__(self, title: str, filter_name: str = "all"):
-        self.title = title
-        self.filter_name = filter_name
+    title: str
+    filter_name: str = "all"
 
     def answered_by(self, actor: Actor) -> int | None:
-        response = _work_items_api(actor).get_work_items(filter_name=self.filter_name)
+        response = WorkItemsApi.for_actor(actor).work_items(filter_name=self.filter_name)
         if response.status_code != 200:
             return None
 
-        payload = response.json()
+        payload = _json_or_none(response)
         if not isinstance(payload, dict):
             return None
 
@@ -147,8 +135,3 @@ class WorkItemIdForTitleViaApi(Question):
                 return None
 
         return None
-
-    def __repr__(self) -> str:
-        return (
-            f"WorkItemIdForTitleViaApi(title='{self.title}', " f"filter_name='{self.filter_name}')"
-        )

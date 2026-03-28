@@ -48,7 +48,7 @@ flowchart TB
 | Layer | Responsibility |
 |---|---|
 | **Test layer** | Describes behavior — no `page`, `locator`, or `expect()` calls |
-| **Example target layer** | App-specific vocabulary: Tasks, Questions, Targets, API clients |
+| **Example target layer** | App-specific vocabulary: Tasks, Questions, Targets, API facades/helpers |
 | **Screenplay core** | Reusable building blocks split into `core/` (pure abstractions), `playwright/` (Playwright extension), and `http/` (HTTP extension) |
 | **Runtime** | Playwright drives the browser; `requests` makes HTTP API calls |
 
@@ -299,24 +299,35 @@ sequenceDiagram
   participant Test as Test Function
   participant A as API Actor
   participant ApiTask as API Task
+  participant WorkItemsApi
   participant CallTheApi
   participant HTTP as requests.Session
 
   Test->>A: attempts_to(ApiTask)
   A->>ApiTask: perform_as(actor)
-  ApiTask->>CallTheApi: actor.ability_to(CallTheApi)
-  CallTheApi-->>ApiTask: CallTheApi instance
-  ApiTask->>HTTP: session.post / get / put / delete
-  HTTP-->>ApiTask: Response
-  ApiTask->>ApiTask: store result (self.result)
+  ApiTask->>WorkItemsApi: WorkItemsApi.for_actor(actor)
+  WorkItemsApi->>CallTheApi: actor.ability_to(CallTheApi)
+  WorkItemsApi->>HTTP: CallTheApi -> session.post / get / put / delete
+  HTTP-->>CallTheApi: Response
+  CallTheApi->>CallTheApi: store last_response
   ApiTask-->>A: done
   A-->>Test: done
-  Test->>Test: assert task.result.status_code == 201
+  Test->>Test: assert call_the_api.last_response.status_code == 201
 ```
 
 The API actor uses `CallTheApi` instead of `BrowseTheWeb`. There is no `Target` or
-Playwright involvement. API Tasks store their response in `self.result` so tests can
-inspect status codes and payloads after `attempts_to()` returns.
+Playwright involvement. API Tasks remain the action layer, and `CallTheApi` remembers
+the latest raw `Response` on the HTTP ability itself. That keeps response ownership off
+the generic `Actor` while still letting tests assert on status codes after
+`attempts_to()` returns.
+
+Important subtlety: API Questions also make HTTP calls through `CallTheApi`, so they
+overwrite `CallTheApi.last_response` too. Tests that need to assert on the raw response
+from a specific API Task should do so immediately after that Task runs, before calling
+`asks_for(...)` with an API Question.
+
+For the longer-running record of API-testing-specific issues and decisions, see
+`docs/api_testing.md`.
 
 ### 4.5 Hybrid test: two actors
 
@@ -324,14 +335,18 @@ inspect status codes and payloads after `attempts_to()` returns.
 sequenceDiagram
   participant Test as Test Function
   participant ApiActor as API Actor (CallTheApi)
+  participant ApiTask as API Task
+  participant WorkItemsApi
   participant UiActor as UI Actor (BrowseTheWeb)
   participant Server as Work Items Server
 
   Test->>ApiActor: attempts_to(LoginToWorkItemsApi, CreateWorkItemViaApi)
-  ApiActor->>Server: POST /api/login, POST /api/work-items
+  ApiActor->>ApiTask: perform_as(actor)
+  ApiTask->>WorkItemsApi: WorkItemsApi.for_actor(actor)
+  WorkItemsApi->>Server: POST /api/login, POST /api/work-items
   Server-->>ApiActor: 200, 201
   ApiActor-->>Test: done
-  Test->>Test: assert create_work_item.result.status_code == 201
+  Test->>Test: assert call_the_api.last_response.status_code == 201
 
   Test->>UiActor: attempts_to(OpenWorkItems, LoginToWorkItems)
   UiActor->>Server: browser GET /login, POST /login
