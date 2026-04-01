@@ -30,6 +30,7 @@ playwright-report/
 test-results/
 generated/
 playwright/.auth
+.playwright-cli/
 
 # Logs and temp files
 *.log
@@ -44,7 +45,8 @@ playwright/.auth
 # IDE/editor settings
 .idea/
 .vscode/
-.claude/
+.claude/*
+!.claude/commands/
 
 # OS files
 .DS_Store

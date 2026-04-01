@@ -195,6 +195,23 @@ pytest tests/saucedemo/test_login_get_started.py -q
 
 ---
 
+## Shortcut: Generate the Scaffold Automatically
+
+If you are adding tests for a brand-new application target, the `/generate-screenplay-tests`
+Claude Code skill can generate the full Screenplay layer stack for you — Target catalog,
+Tasks, Questions, conftest, and test file — from a single command:
+
+```
+/generate-screenplay-tests https://your-app-url.com
+```
+
+The skill discovers locators from the live page, shows you the generated code for review,
+writes the files to the correct layer paths, and runs `ruff` + `black` before finishing.
+
+See [generate_tests_skill.md](generate_tests_skill.md) for a worked example.
+
+---
+
 ## When You Need Something New
 
 ### Adding a new Target

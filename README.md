@@ -322,13 +322,28 @@ Test artifacts (screenshots, traces, HTML report, JUnit XML) are uploaded on fai
 
 ---
 
+## Claude Code Skill
+
+This repository ships a `/generate-screenplay-tests` Claude Code skill that scaffolds the full Screenplay layer stack for any new application target.
+
+Running `/generate-screenplay-tests https://example.com` will:
+
+1. Discover locators from the live page (preferring `data-testid`, falling back to `name`, `role`, or visible text selectors when the site has none).
+2. Generate a `Target` catalog, `Task` files, `Question` files, a `conftest.py` fixture, and a test file — all placed in the correct layer paths.
+3. Show the generated code for review before writing any files.
+4. Run `ruff` and `black` after writing and fix any formatting issues.
+
+See [docs/generate_tests_skill.md](docs/generate_tests_skill.md) for a worked example using ParaBank.
+
+---
+
 ## Further Reading
 
 - [docs/api_testing.md](docs/api_testing.md) - API testing design notes, response ownership, and future discussion topics
-
 - [docs/architecture.md](docs/architecture.md) — full class hierarchy and runtime sequence diagrams
 - [docs/design_decisions.md](docs/design_decisions.md) — why Screenplay over Page Object Model, and other key choices
 - [docs/get_started.md](docs/get_started.md) — step-by-step: write and run your first test
+- [docs/generate_tests_skill.md](docs/generate_tests_skill.md) — using the Claude Code skill to scaffold a new target in minutes
 
 ---
 
