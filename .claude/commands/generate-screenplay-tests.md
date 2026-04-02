@@ -1,12 +1,19 @@
 ---
 name: generate-screenplay-tests
 description: Generate Screenplay Targets, Tasks, Questions, and test scaffolding for a new app or scenario
-argument-hint: "<url-or-scenario> [AppName]"
+argument-hint: "<url> <scenario description> [AppName]"
 ---
 
 You are generating test code for the **playwright-pytest-screenplay-framework** portfolio project.
 The project uses the **Screenplay Pattern** with a strict 4-layer architecture.
 Arguments provided: $ARGUMENTS
+
+Parse the arguments as follows:
+- **URL** — the first token (starts with `http://` or `https://`). Used to drive the browser and discover locators.
+- **Scenario** — everything after the URL up to (but not including) an optional AppName. Describes the user journey and test goals. Used to decide which Tasks, Questions, and test cases to generate.
+- **AppName** (optional) — a PascalCase name for the app (e.g. `ParaBank`). If omitted, derive it from the URL hostname.
+
+If no URL is supplied, ask the user for one before proceeding. Do not guess.
 
 ---
 
@@ -42,11 +49,10 @@ Arguments provided: $ARGUMENTS
 
 ### Step 1 — Discover locators
 
-**If a URL was provided:**
-Run the following to capture `data-testid` attributes directly from the live page:
+Navigate to the **URL** from the arguments and capture `data-testid` attributes from the live page:
 
 ```python
-# Execute this via Bash (requires the app to be running)
+# Execute this via Bash
 python - <<'EOF'
 from playwright.sync_api import sync_playwright
 
@@ -69,9 +75,6 @@ Use the discovered `data-testid` values to hand-craft `Target` lambdas using the
 
 **If the page has no `data-testid` attributes:**
 Fall back to `name`, `id`, `type`, `role`, or visible text selectors. Extract them with a broader query and hand-craft the lambdas.
-
-**If you must infer from HTML source:**
-Read the HTML, extract every `data-testid` value, and hand-craft the `Target` lambdas using the pattern below.
 
 ---
 
@@ -105,7 +108,7 @@ Insert new targets into the existing `targets.py` file, grouped by page/section.
 
 ### Step 3 — Scaffold Tasks
 
-For each user action identified in the scenario, create one Task file.
+Read the **scenario** from the arguments. It describes the user journey (e.g. "log in with invalid credentials and verify an error message"). Identify each distinct user action in that journey and create one Task file per action.
 
 ```python
 # examples/<app_name>/automation/tasks/<task_name>.py

@@ -25,8 +25,10 @@ adds it end-to-end in one session.
 
 ### Step 1 — Invoke the skill
 
+The skill requires two arguments: a **URL** (to navigate and discover locators) and a **scenario description** (to define what to test).
+
 ```
-/generate-screenplay-tests Generate negative test cases for login page at parabank, https://parabank.parasoft.com/parabank/index.htm
+/generate-screenplay-tests https://parabank.parasoft.com/parabank/index.htm Generate negative test cases for the login page: empty credentials, username only, password only ParaBank
 ```
 
 ### Step 2 — The skill discovers locators

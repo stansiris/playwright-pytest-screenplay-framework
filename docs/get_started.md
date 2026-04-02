@@ -199,10 +199,11 @@ pytest tests/saucedemo/test_login_get_started.py -q
 
 If you are adding tests for a brand-new application target, the `/generate-screenplay-tests`
 Claude Code skill can generate the full Screenplay layer stack for you — Target catalog,
-Tasks, Questions, conftest, and test file — from a single command:
+Tasks, Questions, conftest, and test file — from two arguments: the app URL and a
+scenario description:
 
 ```
-/generate-screenplay-tests https://your-app-url.com
+/generate-screenplay-tests https://your-app-url.com <scenario description>
 ```
 
 The skill discovers locators from the live page, shows you the generated code for review,

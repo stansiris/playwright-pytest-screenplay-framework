@@ -326,10 +326,10 @@ Test artifacts (screenshots, traces, HTML report, JUnit XML) are uploaded on fai
 
 This repository ships a `/generate-screenplay-tests` Claude Code skill that scaffolds the full Screenplay layer stack for any new application target.
 
-Running `/generate-screenplay-tests https://example.com` will:
+Running `/generate-screenplay-tests <url> <scenario description>` will:
 
-1. Discover locators from the live page (preferring `data-testid`, falling back to `name`, `role`, or visible text selectors when the site has none).
-2. Generate a `Target` catalog, `Task` files, `Question` files, a `conftest.py` fixture, and a test file — all placed in the correct layer paths.
+1. Navigate to the URL and discover locators from the live page (preferring `data-testid`, falling back to `name`, `role`, or visible text selectors when the site has none).
+2. Use the scenario description to decide which Tasks, Questions, and test cases to generate, then create a `Target` catalog, `Task` files, `Question` files, a `conftest.py` fixture, and a test file — all placed in the correct layer paths.
 3. Show the generated code for review before writing any files.
 4. Run `ruff` and `black` after writing and fix any formatting issues.
 
