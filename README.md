@@ -324,16 +324,58 @@ Test artifacts (screenshots, traces, HTML report, JUnit XML) are uploaded on fai
 
 ## Claude Code Skill
 
-This repository ships a `/generate-screenplay-tests` Claude Code skill that scaffolds the full Screenplay layer stack for any new application target.
+[Claude Code](https://claude.ai/code) is Anthropic's AI coding assistant. It runs in your
+terminal and understands your codebase. Custom skills (slash commands) extend it with
+project-specific behaviours defined in `.claude/commands/`.
 
-Running `/generate-screenplay-tests <url> <scenario description>` will:
+This repository ships a `/generate-screenplay-tests` skill that scaffolds the full
+Screenplay layer stack for any new application target — Target catalog, Tasks, Questions,
+`conftest.py` fixture, and test file — all correctly layered, linted, and ready to run.
 
-1. Navigate to the URL and discover locators from the live page (preferring `data-testid`, falling back to `name`, `role`, or visible text selectors when the site has none).
-2. Use the scenario description to decide which Tasks, Questions, and test cases to generate, then create a `Target` catalog, `Task` files, `Question` files, a `conftest.py` fixture, and a test file — all placed in the correct layer paths.
-3. Show the generated code for review before writing any files.
-4. Run `ruff` and `black` after writing and fix any formatting issues.
+### Prerequisites
 
-See [docs/generate_tests_skill.md](docs/generate_tests_skill.md) for a worked example using ParaBank.
+Install Claude Code:
+
+```bash
+npm install -g @anthropic-ai/claude-code
+```
+
+Then launch it from the project root:
+
+```bash
+claude
+```
+
+### Usage
+
+```
+/generate-screenplay-tests <url> <scenario description> [AppName]
+```
+
+| Argument | Required | Description |
+|---|---|---|
+| `url` | yes | The live page URL. Claude navigates it headlessly to discover locators. |
+| `scenario description` | yes | Plain-English description of the user journey and test goals. |
+| `AppName` | no | PascalCase name for the app. Derived from the hostname if omitted. |
+
+### Example
+
+```
+/generate-screenplay-tests https://parabank.parasoft.com/parabank/index.htm \
+  Generate negative test cases for the login page: empty credentials, username only, password only \
+  ParaBank
+```
+
+The skill will:
+
+1. Launch a headless Playwright browser, navigate to the URL, and extract locators
+   (preferring `data-testid`, falling back to `name`, `id`, `role`, or visible text).
+2. Generate a `Target` catalog, `Task` files, `Question` files, a `conftest.py` fixture,
+   and a test file — placed in the correct layer paths under `examples/` and `tests/`.
+3. Show all generated code for review before writing any files.
+4. Run `ruff` and `black` after writing and fix any issues automatically.
+
+See [docs/generate_tests_skill.md](docs/generate_tests_skill.md) for a full worked example.
 
 ---
 
