@@ -5,6 +5,7 @@ import time
 
 from screenplay_core.core.activity import Activity
 from screenplay_core.core.question import Question
+from screenplay_core.core.task import Task
 
 logger = logging.getLogger(__name__)
 
@@ -26,24 +27,29 @@ def log_screenplay_step(func):
             return func(*args, **kwargs)
 
         label = _describe_screenplay_object(screenplay_obj)
-        is_question = isinstance(screenplay_obj, Question)
         start = time.perf_counter()
 
-        logger.info("%s: %s %s %s", screenplay_obj.__class__.__base__.__name__, self.name, "asks" if is_question else "starts", label)
+        if isinstance(screenplay_obj, Question):
+            logger.info("%s asks %s", self.name, label)
+        elif isinstance(screenplay_obj, Task):
+            logger.info("%s performs %s", self.name, label)
+        else:
+            logger.info("%s starts %s", self.name, label)
+
         try:
             result = func(*args, **kwargs)
         except Exception as exc:
-            logger.error(
+            logger.exception(
                 "%s failed %s after %.0f ms: %s",
-                self.name,
-                label,
+                self.name, label,
                 _elapsed_ms(start),
-                exc,
-            )
+                exc)
             raise
 
-        if is_question:
+        if isinstance(screenplay_obj, Question):
             logger.info("%s got %s -> %r (%.0f ms)", self.name, label, result, _elapsed_ms(start))
+        elif isinstance(screenplay_obj, Task):
+            logger.info("%s performed %s (%.0f ms)", self.name, label, _elapsed_ms(start))
         else:
             logger.info("%s ends %s (%.0f ms)", self.name, label, _elapsed_ms(start))
 

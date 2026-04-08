@@ -23,7 +23,15 @@ Customer got CurrentUrl() -> "https://www.saucedemo.com/inventory.html" (12 ms)
 Customer failed CurrentUrl() after 5000 ms: Customer does not have ability BrowseTheWeb.
 ```
 
-Activities log in this style:
+Tasks log in this style:
+
+```text
+Customer performs Login(username='standard_user')
+Customer performed Login(username='standard_user') (135 ms)
+Customer failed Login(username='standard_user') after 5000 ms: boom
+```
+
+Interactions and consequences log in this style:
 
 ```text
 Customer starts Click(target='Login button')
@@ -36,7 +44,8 @@ Customer failed Click(target='Login button') after 5000 ms: Customer does not ha
 The decorator handles lifecycle:
 
 - `asks` / `got` / `failed` for `Question`
-- `starts` / `ends` / `failed` for `Activity`
+- `performs` / `performed` / `failed` for `Task`
+- `starts` / `ends` / `failed` for other `Activity` types such as `Interaction` and `Consequence`
 
 The Screenplay object itself provides meaning through `__repr__`.
 
@@ -61,6 +70,32 @@ Examples:
 
 If `__repr__` is weak, the logs are weak.
 If `__repr__` is clear, the logs are clear.
+
+## Where Logging Happens
+
+`Actor.attempts_to()` is intentionally not decorated.
+It validates each supplied activity and delegates each one to `_perform_activity()`.
+
+That means the decorator runs at the per-step level on:
+
+- `Actor.asks_for()`
+- `Actor._perform_activity()`
+
+This keeps multi-step task execution readable in the log output instead of collapsing several steps into one wrapper line.
+
+## Failure Output
+
+Failures are logged with `logger.exception(...)`.
+
+That means a failure entry includes:
+
+- the actor name
+- the step label
+- elapsed time
+- the exception message
+- the traceback
+
+The first log line stays compact, while the traceback still appears for diagnosis.
 
 ## `__repr__` Guidelines
 

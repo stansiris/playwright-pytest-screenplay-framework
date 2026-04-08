@@ -51,7 +51,6 @@ class Actor:
 
         raise Exception(f"{self.name} does not have ability {ability_class.__name__}.")
 
-    # @log_screenplay_step
     def attempts_to(self, *activities: Task | Consequence) -> None:
         """Execute Task/Consequence activities in order."""
         for activity in activities:
