@@ -19,7 +19,7 @@ Questions log in this style:
 
 ```text
 Customer asks CurrentUrl()
-Customer got CurrentUrl() -> "https://www.saucedemo.com/inventory.html" (12 ms)
+Customer got CurrentUrl() (12 ms)
 Customer failed CurrentUrl() after 5000 ms: Customer does not have ability BrowseTheWeb.
 ```
 
@@ -46,6 +46,9 @@ The decorator handles lifecycle:
 - `asks` / `got` / `failed` for `Question`
 - `performs` / `performed` / `failed` for `Task`
 - `starts` / `ends` / `failed` for other `Activity` types such as `Interaction` and `Consequence`
+
+Question answers themselves are intentionally not logged.
+That keeps lifecycle logs focused on the workflow, avoids payload noise, and reduces the chance of leaking sensitive data through a question result.
 
 The Screenplay object itself provides meaning through `__repr__`.
 
@@ -97,6 +100,8 @@ That means a failure entry includes:
 
 The first log line stays compact, while the traceback still appears for diagnosis.
 
+If a test needs to inspect a returned value, do that in the test or assertion layer rather than depending on lifecycle logging.
+
 ## `__repr__` Guidelines
 
 Use `ClassName(...)` format for concrete `Task`, `Interaction`, and `Question` classes.
@@ -120,6 +125,7 @@ Avoid:
 - large blobs of text
 - low-level locator internals
 - unstable memory-address style output
+- question return values in lifecycle logs
 
 Keep `__repr__`:
 

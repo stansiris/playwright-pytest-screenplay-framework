@@ -1,7 +1,7 @@
 import inspect
-from functools import wraps
 import logging
 import time
+from functools import wraps
 
 from screenplay_core.core.activity import Activity
 from screenplay_core.core.question import Question
@@ -47,7 +47,7 @@ def log_screenplay_step(func):
             raise
 
         if isinstance(screenplay_obj, Question):
-            logger.info("%s got %s -> %r (%.0f ms)", self.name, label, result, _elapsed_ms(start))
+            logger.info("%s got %s (%.0f ms)", self.name, label, _elapsed_ms(start))
         elif isinstance(screenplay_obj, Task):
             logger.info("%s performed %s (%.0f ms)", self.name, label, _elapsed_ms(start))
         else:
