@@ -7,6 +7,20 @@ from examples.work_items.automation.api.work_items_api import WorkItemsApi
 from screenplay_core.core.task import Task
 
 
+def _payload_summary(payload: dict[str, Any]) -> str:
+    """Return a compact, human-readable summary for work-item payloads."""
+    parts: list[str] = []
+    for key in ("title", "status", "priority"):
+        value = payload.get(key)
+        if value:
+            parts.append(f"{key}={value!r}")
+
+    if parts:
+        return ", ".join(parts)
+
+    return f"payload_keys={sorted(payload.keys())!r}"
+
+
 @dataclass
 class LoginToWorkItemsApi(Task):
     username: str
@@ -14,6 +28,9 @@ class LoginToWorkItemsApi(Task):
 
     def perform_as(self, actor) -> None:
         WorkItemsApi.for_actor(actor).login(self.username, self.password)
+
+    def __repr__(self) -> str:
+        return f"LoginToWorkItemsApi(username={self.username!r})"
 
     @classmethod
     def with_credentials(cls, username: str, password: str) -> LoginToWorkItemsApi:
@@ -26,6 +43,9 @@ class CreateWorkItemViaApi(Task):
 
     def perform_as(self, actor) -> None:
         WorkItemsApi.for_actor(actor).create_work_item(self.payload)
+
+    def __repr__(self) -> str:
+        return f"CreateWorkItemViaApi({_payload_summary(self.payload)})"
 
     @classmethod
     def with_payload(cls, payload: dict[str, Any]) -> CreateWorkItemViaApi:
@@ -43,6 +63,12 @@ class UpdateWorkItemViaApi(Task):
             self.payload,
         )
 
+    def __repr__(self) -> str:
+        return (
+            f"UpdateWorkItemViaApi(work_item_id={self.work_item_id}, "
+            f"{_payload_summary(self.payload)})"
+        )
+
     @classmethod
     def for_work_item(
         cls,
@@ -58,6 +84,9 @@ class DeleteWorkItemViaApi(Task):
 
     def perform_as(self, actor) -> None:
         WorkItemsApi.for_actor(actor).delete_work_item(self.work_item_id)
+
+    def __repr__(self) -> str:
+        return f"DeleteWorkItemViaApi(work_item_id={self.work_item_id})"
 
     @classmethod
     def for_work_item(cls, work_item_id: int) -> DeleteWorkItemViaApi:

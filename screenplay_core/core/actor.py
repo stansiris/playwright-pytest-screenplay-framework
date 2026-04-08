@@ -1,5 +1,3 @@
-import logging
-import time
 from typing import TypeVar
 
 from screenplay_core.core.activity import Activity
@@ -7,10 +5,9 @@ from screenplay_core.core.consequence import Consequence
 from screenplay_core.core.interaction import Interaction
 from screenplay_core.core.question import Question
 from screenplay_core.core.task import Task
+from screenplay_core.lifecycle.decorators import log_screenplay_step
 
 T = TypeVar("T")
-
-logger = logging.getLogger(__name__)
 
 
 class AmbiguousAbilityError(Exception):
@@ -54,6 +51,7 @@ class Actor:
 
         raise Exception(f"{self.name} does not have ability {ability_class.__name__}.")
 
+    # @log_screenplay_step
     def attempts_to(self, *activities: Task | Consequence) -> None:
         """Execute Task/Consequence activities in order."""
         for activity in activities:
@@ -80,48 +78,12 @@ class Actor:
                 )
             self._perform_activity(interaction)
 
+    @log_screenplay_step
     def asks_for(self, question: Question):
-        """Execute a question and return its answer with timing/logging."""
-        q_name = question.__class__.__name__
-        logger.info("%s asks %s %s", self.name, q_name, _safe_repr(question))
-        start = time.perf_counter()
-        try:
-            answer = question.answered_by(self)
-        except Exception:
-            logger.exception("%s FAILED %s after %.0f ms", self.name, q_name, _elapsed_ms(start))
-            raise
+        """Execute a question and return its answer."""
+        return question.answered_by(self)
 
-        logger.info("%s got %s -> %r (%.0f ms)", self.name, q_name, answer, _elapsed_ms(start))
-        return answer
-
+    @log_screenplay_step
     def _perform_activity(self, activity: Activity) -> None:
-        """Run a single activity with standardized telemetry and error logging."""
-        activity_name = activity.__class__.__name__
-        logger.info("%s performs %s %s", self.name, activity_name, _safe_repr(activity))
-
-        start = time.perf_counter()
-        try:
-            activity.perform_as(self)
-        except Exception:
-            logger.exception(
-                "%s FAILED %s after %.0f ms",
-                self.name,
-                activity_name,
-                _elapsed_ms(start),
-            )
-            raise
-
-        logger.info("%s DONE %s (%.0f ms)", self.name, activity_name, _elapsed_ms(start))
-
-
-def _safe_repr(obj) -> str:
-    """Safely render object representation for logs."""
-    try:
-        return repr(obj)
-    except Exception:
-        return f"<{obj.__class__.__name__}>"
-
-
-def _elapsed_ms(start: float) -> float:
-    """Compute elapsed milliseconds from a perf_counter start value."""
-    return (time.perf_counter() - start) * 1000
+        """Run a single activity."""
+        activity.perform_as(self)

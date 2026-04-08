@@ -13,7 +13,3 @@ class Task(Activity):
     def perform_interactions(self, actor: "Actor", *interactions: Interaction) -> None:
         """Delegate composed interactions to actor's internal interaction runner."""
         actor._attempts_to_interactions(*interactions)
-
-    def __repr__(self) -> str:
-        """Return a compact, class-based default representation."""
-        return f"{self.__class__.__name__}()"
