@@ -11,3 +11,7 @@ class Question(ABC):
     @abstractmethod
     def answered_by(self, actor: "Actor"):
         """Return an answer computed by the given actor."""
+
+    def __repr__(self) -> str:
+        """Return a compact class-based default representation."""
+        return f"{self.__class__.__name__}()"

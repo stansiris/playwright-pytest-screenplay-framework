@@ -51,6 +51,9 @@ class FetchWorkItemsViaApi(Question):
         response = WorkItemsApi.for_actor(actor).work_items(filter_name=self.filter_name)
         return _snapshot(response)
 
+    def __repr__(self) -> str:
+        return f"FetchWorkItemsViaApi(filter_name={self.filter_name!r})"
+
     @classmethod
     def all(cls) -> FetchWorkItemsViaApi:
         return cls(filter_name="all")
@@ -66,6 +69,9 @@ class FetchWorkItemViaApi(Question):
         response = WorkItemsApi.for_actor(actor).work_item(self.work_item_id)
         return _snapshot(response)
 
+    def __repr__(self) -> str:
+        return f"FetchWorkItemViaApi(work_item_id={self.work_item_id})"
+
     @classmethod
     def by_id(cls, work_item_id: int) -> FetchWorkItemViaApi:
         return cls(work_item_id=work_item_id)
@@ -80,6 +86,9 @@ class WorkItemExistsViaApi(Question):
     def answered_by(self, actor: Actor) -> bool:
         response = WorkItemsApi.for_actor(actor).work_item(self.work_item_id)
         return response.status_code == 200
+
+    def __repr__(self) -> str:
+        return f"WorkItemExistsViaApi(work_item_id={self.work_item_id})"
 
 
 @dataclass(frozen=True)
@@ -100,6 +109,14 @@ class WorkItemFieldEqualsViaApi(Question):
             return False
 
         return payload.get(self.field_name) == self.expected_value
+
+    def __repr__(self) -> str:
+        return (
+            "WorkItemFieldEqualsViaApi("
+            f"work_item_id={self.work_item_id}, "
+            f"field_name={self.field_name!r}, "
+            f"expected_value={self.expected_value!r})"
+        )
 
 
 @dataclass(frozen=True)
@@ -135,3 +152,9 @@ class WorkItemIdForTitleViaApi(Question):
                 return None
 
         return None
+
+    def __repr__(self) -> str:
+        return (
+            f"WorkItemIdForTitleViaApi(title={self.title!r}, "
+            f"filter_name={self.filter_name!r})"
+        )
