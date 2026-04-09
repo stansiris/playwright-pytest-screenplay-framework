@@ -2,16 +2,12 @@ name: CI
 
 # Trigger strategy:
 # - push/pull_request: fast validation for active development
-# - schedule: unattended confidence runs
-# - workflow_dispatch: manual rerun/debug
+# - workflow_dispatch: manually launched full regression
 on:
   push:
     branches: [main, master, "feature/**"]
   pull_request:
     branches: [main, master]
-  schedule:
-    - cron: "0 2 * * 1-5" # Weekday nightly (02:00 UTC)
-    - cron: "0 3 * * 0" # Weekly full run (Sunday 03:00 UTC)
   workflow_dispatch:
 
 # Avoid duplicate runs for the same ref when new commits arrive.
@@ -102,9 +98,9 @@ jobs:
           retention-days: 14
 
   # Full cross-platform/browser regression.
-  # Intended for scheduled and manual runs due to runtime cost.
+  # Run only when launched manually to keep push/PR feedback lean.
   full_matrix_regression:
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch'
     needs: lint
     runs-on: ${{ matrix.os }}
     timeout-minutes: 45
@@ -113,6 +109,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
         browser: [chromium, firefox]
+        shard: [1, 2, 3]
 
     env:
       BROWSER: ${{ matrix.browser }}
@@ -143,16 +140,22 @@ jobs:
         run: python -m playwright install ${{ matrix.browser }}
 
       - name: Test full regression suite (pytest)
+        # pytest-split will balance shard contents using .test_durations when available.
         # Full regression should execute the complete collected suite, including
         # framework-level tests that intentionally have no functional marker.
-        run: pytest -q -n auto --browser "${{ env.BROWSER }}"
+        run: >
+          pytest -q -n auto
+          --browser "${{ env.BROWSER }}"
+          --splits 3
+          --group ${{ matrix.shard }}
+          --splitting-algorithm least_duration
 
       - name: Upload test artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-results-full-regression-${{ matrix.os }}-${{ matrix.browser }}
+          name: test-results-full-regression-${{ matrix.os }}-${{ matrix.browser }}-shard-${{ matrix.shard }}
           path: test-results
           if-no-files-found: warn
-          # Keep scheduled/manual artifacts longer for diagnosis/history.
+          # Keep manually triggered artifacts longer for diagnosis/history.
           retention-days: 30
