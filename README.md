@@ -324,7 +324,7 @@ Test artifacts (screenshots, traces, HTML report, JUnit XML) are uploaded on fai
 
 ## Claude Code Skill
 
-[Claude Code](https://claude.ai/code) is Anthropic's AI coding assistant. It runs in your
+[Claude Code](https://www.anthropic.com/claude-code) is Anthropic's AI coding assistant. It runs in your
 terminal and understands your codebase. Custom skills (slash commands) extend it with
 project-specific behaviours defined in `.claude/commands/`.
 

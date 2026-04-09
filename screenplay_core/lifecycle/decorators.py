@@ -40,10 +40,8 @@ def log_screenplay_step(func):
             result = func(*args, **kwargs)
         except Exception as exc:
             logger.exception(
-                "%s failed %s after %.0f ms: %s",
-                self.name, label,
-                _elapsed_ms(start),
-                exc)
+                "%s failed %s after %.0f ms: %s", self.name, label, _elapsed_ms(start), exc
+            )
             raise
 
         if isinstance(screenplay_obj, Question):

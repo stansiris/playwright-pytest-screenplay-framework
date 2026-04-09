@@ -73,13 +73,14 @@ exclude = '''
   | venv
   | build
   | dist
+  | \.claude
 )/
 '''
 
 [tool.ruff]
 line-length = 100
 target-version = "py311"
-exclude = [".venv", "build", "dist"]
+exclude = [".venv", ".claude", "build", "dist"]
 extend-exclude = ["venv"]
 
 [tool.ruff.lint]

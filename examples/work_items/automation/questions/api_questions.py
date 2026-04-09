@@ -155,6 +155,5 @@ class WorkItemIdForTitleViaApi(Question):
 
     def __repr__(self) -> str:
         return (
-            f"WorkItemIdForTitleViaApi(title={self.title!r}, "
-            f"filter_name={self.filter_name!r})"
+            f"WorkItemIdForTitleViaApi(title={self.title!r}, " f"filter_name={self.filter_name!r})"
         )
