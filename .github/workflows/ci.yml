@@ -2,13 +2,41 @@ name: CI
 
 # Trigger strategy:
 # - push/pull_request: fast validation for active development
-# - workflow_dispatch: manually launched full regression
+# - workflow_dispatch: manually launched full regression with configurable defaults
 on:
   push:
     branches: [main, master, "feature/**"]
   pull_request:
     branches: [main, master]
   workflow_dispatch:
+    inputs:
+      target_os:
+        description: "OS coverage for full regression"
+        required: false
+        type: choice
+        default: ubuntu-latest
+        options:
+          - ubuntu-latest
+          - windows-latest
+          - all
+      target_browser:
+        description: "Browser coverage for full regression"
+        required: false
+        type: choice
+        default: chromium
+        options:
+          - chromium
+          - firefox
+          - all
+      shard_count:
+        description: "Shard count per OS/browser combination"
+        required: false
+        type: choice
+        default: "2"
+        options:
+          - "1"
+          - "2"
+          - "3"
 
 # Avoid duplicate runs for the same ref when new commits arrive.
 concurrency:
@@ -99,6 +127,7 @@ jobs:
 
   # Full cross-platform/browser regression.
   # Run only when launched manually to keep push/PR feedback lean.
+  # Defaults keep the matrix small for free-tier usage, but inputs can scale it up.
   full_matrix_regression:
     if: github.event_name == 'workflow_dispatch'
     needs: lint
@@ -107,9 +136,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
-        browser: [chromium, firefox]
-        shard: [1, 2, 3]
+        os: ${{ fromJSON(inputs.target_os == 'all' && '["ubuntu-latest","windows-latest"]' || format('["{0}"]', inputs.target_os)) }}
+        browser: ${{ fromJSON(inputs.target_browser == 'all' && '["chromium","firefox"]' || format('["{0}"]', inputs.target_browser)) }}
+        shard: ${{ fromJSON(inputs.shard_count == '3' && '[1,2,3]' || inputs.shard_count == '2' && '[1,2]' || '[1]') }}
 
     env:
       BROWSER: ${{ matrix.browser }}
@@ -146,7 +175,7 @@ jobs:
         run: >
           pytest -q -n auto
           --browser "${{ env.BROWSER }}"
-          --splits 3
+          --splits ${{ inputs.shard_count }}
           --group ${{ matrix.shard }}
           --splitting-algorithm least_duration
 
