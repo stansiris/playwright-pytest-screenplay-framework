@@ -3,6 +3,8 @@ name: Manual CI
 # Dedicated on-demand workflow for running the broader regression suite
 # without waiting for the scheduled CI window.
 on:
+  push:
+    branches: ["feature/**"]
   workflow_dispatch:
 
 concurrency:
