@@ -82,7 +82,7 @@ jobs:
         # pytest-split will balance shard contents using .test_durations when available.
         # Full regression intentionally runs the whole collected suite, not only marked tests.
         run: >
-          pytest -q -n 2
+          pytest -q -n auto
           --browser "${{ env.BROWSER }}"
           --splits 3
           --group ${{ matrix.shard }}
