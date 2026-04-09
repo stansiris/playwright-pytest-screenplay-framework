@@ -85,7 +85,7 @@ jobs:
         # Unified pre-merge lane: smoke + integration + e2e + ui + api + hybrid.
         # Start with a conservative worker count for browser-heavy CI to reduce
         # the risk of oversubscribing GitHub-hosted runners.
-        run: pytest -q -n 2 --browser "${{ env.BROWSER }}" -m "smoke or integration or e2e or ui or api or hybrid" --cov=screenplay_core --cov=examples --cov-report=xml:test-results/coverage.xml --cov-report=term-missing
+        run: pytest -q -n auto --browser "${{ env.BROWSER }}" -m "smoke or integration or e2e or ui or api or hybrid" --cov=screenplay_core --cov=examples --cov-report=xml:test-results/coverage.xml --cov-report=term-missing
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
