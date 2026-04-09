@@ -143,10 +143,10 @@ jobs:
         if: runner.os != 'Linux'
         run: python -m playwright install ${{ matrix.browser }}
 
-      - name: Test full regression markers (pytest)
-        # Marker-union run; keep ui/api/hybrid explicit to avoid accidental coverage gaps
-        # if marker overlap changes later.
-        run: pytest -q --browser "${{ env.BROWSER }}" -m "smoke or integration or e2e or ui or api or hybrid"
+      - name: Test full regression suite (pytest)
+        # Full regression should execute the complete collected suite, including
+        # framework-level tests that intentionally have no functional marker.
+        run: pytest -q --browser "${{ env.BROWSER }}"
 
       - name: Upload test artifacts
         if: always()

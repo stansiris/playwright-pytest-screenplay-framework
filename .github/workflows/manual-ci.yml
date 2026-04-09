@@ -48,6 +48,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
         browser: [chromium, firefox]
+        shard: [1, 2, 3]
 
     env:
       BROWSER: ${{ matrix.browser }}
@@ -77,16 +78,21 @@ jobs:
         if: runner.os != 'Linux'
         run: python -m playwright install ${{ matrix.browser }}
 
-      - name: Test full regression markers (pytest)
-        # Marker-union run; keep ui/api/hybrid explicit to avoid accidental coverage gaps
-        # if marker overlap changes later.
-        run: pytest -q --browser "${{ env.BROWSER }}" -m "smoke or integration or e2e or ui or api or hybrid"
+      - name: Test full regression suite (pytest)
+        # pytest-split will balance shard contents using .test_durations when available.
+        # Full regression intentionally runs the whole collected suite, not only marked tests.
+        run: >
+          pytest -q -n 2
+          --browser "${{ env.BROWSER }}"
+          --splits 3
+          --group ${{ matrix.shard }}
+          --splitting-algorithm least_duration
 
       - name: Upload test artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-results-manual-${{ matrix.os }}-${{ matrix.browser }}
+          name: test-results-manual-${{ matrix.os }}-${{ matrix.browser }}-shard-${{ matrix.shard }}
           path: test-results
           if-no-files-found: warn
           retention-days: 30
