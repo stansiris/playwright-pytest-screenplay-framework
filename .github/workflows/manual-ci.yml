@@ -1,0 +1,92 @@
+name: Manual CI
+
+# Dedicated on-demand workflow for running the broader regression suite
+# without waiting for the scheduled CI window.
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: manual-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Lint (ruff)
+        run: python -m ruff check .
+
+      - name: Format check (black)
+        run: python -m black --check .
+
+  full_matrix_regression:
+    needs: lint
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        browser: [chromium, firefox]
+
+    env:
+      BROWSER: ${{ matrix.browser }}
+      PYTHONDONTWRITEBYTECODE: "1"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Install Playwright browser and Linux dependencies
+        if: runner.os == 'Linux'
+        run: python -m playwright install --with-deps ${{ matrix.browser }}
+
+      - name: Install Playwright browser
+        if: runner.os != 'Linux'
+        run: python -m playwright install ${{ matrix.browser }}
+
+      - name: Test full regression markers (pytest)
+        # Marker-union run; keep ui/api/hybrid explicit to avoid accidental coverage gaps
+        # if marker overlap changes later.
+        run: pytest -q --browser "${{ env.BROWSER }}" -m "smoke or integration or e2e or ui or api or hybrid"
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-manual-${{ matrix.os }}-${{ matrix.browser }}
+          path: test-results
+          if-no-files-found: warn
+          retention-days: 30
