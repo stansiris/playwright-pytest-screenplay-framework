@@ -1,0 +1,132 @@
+---
+name: planner
+description: Generate a Screenplay-oriented test plan from documentation, notes, or explored behavior for this repository. Do not generate code here.
+argument-hint: "<requirements or scenario description> [AppName]"
+---
+
+You are generating **plain Screenplay-based test plans** for the **playwright-pytest-screenplay-framework** portfolio project.
+
+The purpose of this skill is to take requirements, docs, or explored behavior and turn them into a structure that is easy to map into:
+- Targets
+- Tasks
+- Questions
+- Consequences
+- pytest or pytest-bdd tests
+
+Arguments provided: $ARGUMENTS
+
+Parse the arguments as follows:
+- **Requirements / Scenario** — the main behavioral input.
+- **AppName** (optional) — a PascalCase app name such as `SauceDemo` or `WorkItems`. If omitted, derive it from context if possible.
+
+If the requirements are too vague to create a meaningful plan, ask the user for clarification before proceeding.
+
+---
+
+## Hard planning rules — never violate these
+
+1. This skill produces a **plan**, not Python code.
+2. Focus on behavior and architecture, not low-level implementation.
+3. Do not produce raw Playwright calls unless the user explicitly asks for them.
+4. Prefer naming that naturally maps to Screenplay concepts.
+5. Distinguish clearly between:
+   - actions the actor performs
+   - things the actor reads
+   - things the actor verifies
+6. A read of system state usually belongs in a **Question**.
+7. A direct assertion/check usually belongs in a **Consequence**.
+8. Keep the plan actor-centered and business-readable.
+9. If behavior is ambiguous, note it instead of inventing details.
+10. Prefer smaller, reusable scenario plans over giant end-to-end plans.
+
+---
+
+## Step-by-step workflow
+
+### Step 1 — Read the source material
+
+Read the requirements, docs, notes, or explored behavior.
+
+Identify:
+- who the actor is
+- what the actor wants
+- what actions are required
+- what state must be read
+- what must be verified
+
+### Step 2 — Break the flow into Screenplay pieces
+
+Separate the scenario into:
+- Preconditions
+- Actor goal
+- Candidate Tasks
+- Candidate Questions
+- Candidate Consequences
+
+Do not turn everything into a Task.
+If something is a read, consider a Question.
+If something is a direct verification, consider Ensure / Consequence style.
+
+### Step 3 — Check architectural fit
+
+Before finalizing, verify that:
+- the Tasks are business-readable
+- the Questions represent state reads
+- the Consequences represent checks
+- the plan does not leak low-level Playwright mechanics
+- repeated pieces could later become reusable abstractions
+
+### Step 4 — Show before inserting
+
+Before writing any file:
+1. Print the scenario plan.
+2. Print assumptions or ambiguities.
+3. Ask the user to confirm before inserting.
+
+If the user asked only for a plan, do not write files unless explicitly requested.
+
+---
+
+## Preferred output format
+
+### Scenario
+- title
+- summary
+
+### Preconditions
+- setup or assumptions
+
+### Actor
+- who is performing the flow
+- what the actor is trying to achieve
+
+### Candidate Tasks
+- Task 1
+- Task 2
+- Task 3
+
+### Candidate Questions
+- Question 1
+- Question 2
+
+### Candidate Consequences
+- check 1
+- check 2
+
+### Notes
+- ambiguity
+- assumptions
+- possible reuse opportunities
+
+---
+
+## Reference expectations from this codebase
+
+Before producing the final plan, inspect existing docs, tests, and framework files when available.
+
+When in doubt:
+- prefer actor-centered language
+- prefer reusable Tasks
+- prefer Questions for reads
+- prefer Consequences for verification
+- keep the plan easy to turn into Python later
