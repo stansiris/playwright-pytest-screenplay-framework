@@ -38,6 +38,29 @@ If the requirements are too vague to create a meaningful plan, ask the user for 
 8. Keep the plan actor-centered and business-readable.
 9. If behavior is ambiguous, note it instead of inventing details.
 10. Prefer smaller, reusable scenario plans over giant end-to-end plans.
+11. The planner **may perform light exploratory browser work** when a live URL or running app is available.
+12. Any exploration must serve planning only. Do not generate final code in this skill.
+
+---
+
+## Exploration behavior
+
+When a live URL or running application is available, this skill may use **Playwright CLI** together with the user's input to improve the plan in real time.
+
+Use exploration to:
+- confirm the actual user flow
+- identify important screens, forms, states, and transitions
+- observe visible validation messages and outcome states
+- discover where the scenario branches or fails
+- validate whether the documented behavior matches the real app
+
+Do **not** use exploration to:
+- write final Python code
+- over-focus on selectors or implementation details
+- wander into unrelated flows
+- replace the user's stated requirements with guesses based only on UI discovery
+
+Treat exploration as a **planning aid**, not the final deliverable.
 
 ---
 
@@ -54,7 +77,19 @@ Identify:
 - what state must be read
 - what must be verified
 
-### Step 2 — Break the flow into Screenplay pieces
+### Step 2 — Explore when useful
+
+If a live URL or running application is available, perform light exploratory navigation with **Playwright CLI** to confirm the flow.
+
+Use the exploration to answer questions such as:
+- what is the actual sequence of user actions?
+- what states become visible after each action?
+- where are the likely success, validation, or error outcomes?
+- does the real UI behavior match the described requirement?
+
+Stop once you have enough information to create a strong plan.
+
+### Step 3 — Break the flow into Screenplay pieces
 
 Separate the scenario into:
 - Preconditions
@@ -67,7 +102,7 @@ Do not turn everything into a Task.
 If something is a read, consider a Question.
 If something is a direct verification, consider Ensure / Consequence style.
 
-### Step 3 — Check architectural fit
+### Step 4 — Check architectural fit
 
 Before finalizing, verify that:
 - the Tasks are business-readable
@@ -76,7 +111,7 @@ Before finalizing, verify that:
 - the plan does not leak low-level Playwright mechanics
 - repeated pieces could later become reusable abstractions
 
-### Step 4 — Show before inserting
+### Step 5 — Show before inserting
 
 Before writing any file:
 1. Print the scenario plan.
