@@ -361,9 +361,9 @@ claude
 ### Example
 
 ```
-/generate-screenplay-tests https://parabank.parasoft.com/parabank/index.htm \
-  Generate negative test cases for the login page: empty credentials, username only, password only \
-  ParaBank
+/generate-screenplay-tests https://www.saucedemo.com/ \
+  Generate negative login coverage for empty username, empty password, and locked out user \
+  SauceDemo
 ```
 
 The skill will:
