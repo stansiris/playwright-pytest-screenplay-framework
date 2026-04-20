@@ -80,13 +80,20 @@ source material was written as Screenplay planning notes, Gherkin, or both.
 
 ## File placement conventions
 
-| Artefact | Path |
-|----------|------|
-| Target catalog | `examples/<app_name>/automation/ui/targets.py` |
-| UI Tasks | `examples/<app_name>/automation/tasks/<task_name>.py` |
-| Questions | `examples/<app_name>/automation/questions/<question_name>.py` |
-| UI tests | `tests/<app_name>/test_<app_name>_ui.py` |
-| Feature files (if requested) | `tests/<app_name>/features/<feature_name>.feature` |
+Follow the existing structure for the target app instead of forcing a single folder layout.
+
+Repository examples currently use both of these shapes:
+
+| App style | Targets | Tasks | Questions | Tests |
+|-----------|---------|-------|-----------|-------|
+| SauceDemo-style UI pages | `examples/<app_name>/ui/pages/*.py` | `examples/<app_name>/tasks/*.py` | `examples/<app_name>/questions/*.py` | `tests/<app_name>/test_*.py` |
+| Work Items-style automation package | `examples/<app_name>/automation/ui/targets.py` | `examples/<app_name>/automation/tasks/*.py` | `examples/<app_name>/automation/questions/*.py` | `tests/<app_name>/test_*.py` |
+
+Rules:
+- inspect the existing app package first and preserve its layout
+- do not create a parallel directory style for an app that already has one
+- place new tests alongside the most similar existing test module rather than forcing `test_<app_name>_ui.py`
+- create feature files only if explicitly requested, under `tests/<app_name>/features/`
 
 `<app_name>` is the snake_case application name.
 
@@ -153,7 +160,7 @@ Create one Task file per meaningful action when that matches repository practice
 Rules:
 - Tasks should be business-readable
 - low-level mechanics stay inside `perform_as()`
-- use existing interactions such as Click, Fill, SelectByValue, Navigate where applicable
+- use existing interactions such as `Click`, `Fill`, `SelectByValue`, and `NavigateTo` where applicable
 - expose readable factory classmethods
 
 ### Step 5 - Generate Questions and Consequences

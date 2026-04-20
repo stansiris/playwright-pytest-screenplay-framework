@@ -322,15 +322,17 @@ Test artifacts (screenshots, traces, HTML report, JUnit XML) are uploaded on fai
 
 ---
 
-## Claude Code Skill
+## Claude Code Skills
 
 [Claude Code](https://www.anthropic.com/claude-code) is Anthropic's AI coding assistant. It runs in your
 terminal and understands your codebase. Custom skills (slash commands) extend it with
 project-specific behaviours defined in `.claude/commands/`.
 
-This repository ships a `/generate-screenplay-tests` skill that scaffolds the full
-Screenplay layer stack for any new application target — Target catalog, Tasks, Questions,
-`conftest.py` fixture, and test file — all correctly layered, linted, and ready to run.
+This repository ships two Claude Code skills for adding new coverage without drifting from
+the framework architecture:
+
+- `/planner` turns requirements, docs, or explored behavior into a Screenplay plan, Gherkin scenarios, or both
+- `/python-screenplay-generator` turns an approved plan or scenario into repository-native Targets, Tasks, Questions, and tests
 
 ### Prerequisites
 
@@ -349,33 +351,40 @@ claude
 ### Usage
 
 ```
-/generate-screenplay-tests <url> <scenario description> [AppName]
+/planner <requirements or scenario description> [AppName] [format=screenplay|gherkin|both]
+/python-screenplay-generator <approved plan or scenario description> [AppName]
 ```
 
 | Argument | Required | Description |
 |---|---|---|
-| `url` | yes | The live page URL. Claude navigates it headlessly to discover locators. |
-| `scenario description` | yes | Plain-English description of the user journey and test goals. |
-| `AppName` | no | PascalCase name for the app. Derived from the hostname if omitted. |
+| `requirements or scenario description` | yes | Plain-English description of the user journey, behavior, or test goals. |
+| `format` | no | Planner output format: `screenplay`, `gherkin`, or `both`. Defaults to `screenplay`. |
+| `approved plan or scenario description` | yes | The plan or scenario the generator should implement. It may include a live URL when locator discovery is needed. |
+| `AppName` | no | PascalCase name for the app. Derived from context if omitted. |
 
 ### Example
 
+Planner:
+
 ```
-/generate-screenplay-tests https://www.saucedemo.com/ \
-  Generate negative login coverage for empty username, empty password, and locked out user \
-  SauceDemo
+/planner Generate negative login coverage for empty username, empty password, and locked out user for https://www.saucedemo.com/ SauceDemo format=both
 ```
 
-The skill will:
+Generator:
 
-1. Launch a headless Playwright browser, navigate to the URL, and extract locators
-   (preferring `data-testid`, falling back to `name`, `id`, `role`, or visible text).
-2. Generate a `Target` catalog, `Task` files, `Question` files, a `conftest.py` fixture,
-   and a test file — placed in the correct layer paths under `examples/` and `tests/`.
-3. Show all generated code for review before writing any files.
-4. Run `ruff` and `black` after writing and fix any issues automatically.
+```
+/python-screenplay-generator Implement the approved SauceDemo negative login plan for https://www.saucedemo.com/ SauceDemo
+```
 
-See [docs/generate_tests_skill.md](docs/generate_tests_skill.md) for a full worked example.
+Together the skills will:
+
+1. Convert the request into a reusable Screenplay-oriented plan, Gherkin scenarios, or both.
+2. Inspect the existing app structure so new code lands in the correct layer paths for that target.
+3. Discover locators from a live URL when one is provided and needed.
+4. Show generated code for review before writing any files.
+5. Run `ruff` and `black` after writing and fix any issues automatically.
+
+See [docs/generate_tests_skill.md](docs/generate_tests_skill.md) for the full planning-plus-generation workflow.
 
 ---
 

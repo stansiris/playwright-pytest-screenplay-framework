@@ -63,7 +63,7 @@ Abilities connect the actor to external systems.
 
 ### Tasks
 
-A Task is a named, reusable business action. Tests call Tasks - not raw browser operations.
+A Task is a named, reusable business action. Tests call Tasks, not raw browser operations.
 Tasks are composed of low-level **Interactions** (`Click`, `Fill`, `NavigateTo`, etc.).
 
 ```python
@@ -90,7 +90,7 @@ element itself. It is resolved at runtime through the actor's `BrowseTheWeb` abi
 ```python
 # examples/saucedemo/ui/pages/login_page.py
 class LoginPage:
-    LOGIN_BUTTON   = Target("Login button",   lambda page: page.locator('[data-test="login-button"]'))
+    LOGIN_BUTTON = Target("Login button", lambda page: page.locator('[data-test="login-button"]'))
     LOGIN_USERNAME = Target("Login username", lambda page: page.locator('[data-test="username"]'))
     LOGIN_PASSWORD = Target("Login password", lambda page: page.locator('[data-test="password"]'))
 ```
@@ -98,7 +98,7 @@ class LoginPage:
 ### Consequences (`Ensure`)
 
 `Ensure` is the assertion DSL. It wraps Playwright's `expect()` so assertions stay inside
-the actor's activity flow and benefit from Playwright's auto-waiting and retry behaviour.
+the actor's activity flow and benefit from Playwright's auto-waiting and retry behavior.
 
 ```python
 actor.attempts_to(
@@ -195,19 +195,24 @@ pytest tests/saucedemo/test_login_get_started.py -q
 
 ---
 
-## Shortcut: Generate the Scaffold Automatically
+## Shortcut: Plan Then Generate
 
-If you are adding tests for a brand-new application target, the `/generate-screenplay-tests`
-Claude Code skill can generate the full Screenplay layer stack for you — Target catalog,
-Tasks, Questions, conftest, and test file — from two arguments: the app URL and a
-scenario description:
+If you are adding tests for a brand-new application target, use the two repository skills in
+sequence:
 
+1. `/planner` to turn the requirement into a Screenplay plan, Gherkin, or both
+2. `/python-screenplay-generator` to implement the approved plan in the repo's existing structure
+
+Example:
+
+```text
+/planner Generate negative login coverage for https://your-app-url.com MyApp format=both
+/python-screenplay-generator Implement the approved MyApp negative login plan for https://your-app-url.com MyApp
 ```
-/generate-screenplay-tests https://your-app-url.com <scenario description>
-```
 
-The skill discovers locators from the live page, shows you the generated code for review,
-writes the files to the correct layer paths, and runs `ruff` + `black` before finishing.
+The planner keeps the conversation behavioral and architecture-focused. The generator then
+discovers locators when needed, shows the code for review, writes the files to the correct
+layer paths for that app, and runs `ruff` + `black` before finishing.
 
 See [generate_tests_skill.md](generate_tests_skill.md) for a worked example.
 
@@ -222,10 +227,10 @@ Add it to the relevant page file under `examples/saucedemo/ui/pages/`.
 ```python
 # examples/saucedemo/ui/pages/login_page.py
 class LoginPage:
-    LOGIN_BUTTON        = Target("Login button",        lambda page: page.locator('[data-test="login-button"]'))
+    LOGIN_BUTTON = Target("Login button", lambda page: page.locator('[data-test="login-button"]'))
     LOGIN_ERROR_MESSAGE = Target("Login error message", lambda page: page.locator('[data-test="error"]'))
     # add a new target here
-    LOGIN_LOGO          = Target("Login logo",          lambda page: page.locator(".login_logo"))
+    LOGIN_LOGO = Target("Login logo", lambda page: page.locator(".login_logo"))
 ```
 
 If a target is shared across multiple pages, add it to the relevant file under
@@ -270,7 +275,7 @@ def admin(page, base_url):
     )
 ```
 
-Create a new actor fixture when the role is genuinely different — for example, a second
+Create a new actor fixture when the role is genuinely different, for example, a second
 concurrent user, a role with different abilities, or a role that needs different setup data.
 Do not create per-test actor fixtures inline in test files.
 
@@ -302,10 +307,10 @@ matches the actual DOM using the Playwright inspector (`playwright codegen <url>
 
 ## The Rule to Remember
 
-```
-Tests     →  describe behavior
-Tasks     →  implement behavior
-Fixtures  →  create actors and abilities
+```text
+Tests     ->  describe behavior
+Tasks     ->  implement behavior
+Fixtures  ->  create actors and abilities
 ```
 
 Keep these responsibilities separate and the test suite stays easy to scale and maintain.

@@ -8,9 +8,8 @@ Custom skills for this repository are in [.agents/](.agents/). Read the relevant
 
 | Skill | Path | Purpose |
 |-------|------|---------|
-| `python-screenplay-generator` | [.agents/python-screenplay-generator/SKILL.md](.agents/python-screenplay-generator/SKILL.md) | Generate Targets, Tasks, Questions, and test scaffolding |
-| `gherkin-planner` | [.agents/skills/gherkin-planner/SKILL.md](.agents/skills/gherkin-planner/SKILL.md) | Plan Gherkin scenarios |
-| `planner` | [.agents/skills/planner/SKILL.md](.agents/skills/planner/SKILL.md) | Plan Screenplay implementation |
+| `planner` | [.agents/skills/planner/SKILL.md](.agents/skills/planner/SKILL.md) | Generate Screenplay plans, Gherkin scenarios, or both |
+| `python-screenplay-generator` | [.agents/skills/python-screenplay-generator/SKILL.md](.agents/skills/python-screenplay-generator/SKILL.md) | Generate Targets, Tasks, Questions, and test scaffolding from an approved plan |
 
 ## Keeping Claude Code slash commands in sync
 

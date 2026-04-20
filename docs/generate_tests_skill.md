@@ -1,19 +1,22 @@
-# Scaffolding a New Test Target with the `/generate-screenplay-tests` Skill
+# Scaffolding a New Test Target with `/planner` and `/python-screenplay-generator`
 
 > This document doubles as a LinkedIn post. See the plain-text version at the bottom.
 
 ---
 
-## What the skill does
+## What the skills do
 
-The `/generate-screenplay-tests` Claude Code skill generates the complete Screenplay layer
-stack for a new application target or focused scenario slice: Target catalog updates, Tasks,
-Questions, actor fixture changes when needed, and test files from a URL or a scenario
-description.
+This repository now splits planning from code generation:
 
-It respects all framework layer rules: no `Interaction` in test files, no raw strings in
-`Target` lambdas, factory classmethods on every `Task`, and `pytestmark` on every test
-module. After writing the files it runs `ruff` and `black` and fixes any issues before
+- `/planner` turns requirements, notes, or explored behavior into a Screenplay-oriented plan, Gherkin, or both
+- `/python-screenplay-generator` turns the approved plan into the concrete Screenplay layer stack for the target app
+
+Together they can produce target catalog updates, Tasks, Questions, actor fixture changes
+when needed, and test files from a URL or a scenario description.
+
+The generator respects the framework layer rules: no `Interaction` in test files, no raw
+strings in `Target` lambdas, factory classmethods on every `Task`, and `pytestmark` on every
+test module. After writing the files it runs `ruff` and `black` and fixes any issues before
 reporting completion.
 
 ---
@@ -24,18 +27,31 @@ SauceDemo (`https://www.saucedemo.com/`) is one of the public targets already us
 repository. It makes a compact worked example because the login page is small, the outcomes
 are easy to verify, and the selectors are stable.
 
-### Step 1 - Invoke the skill
+### Step 1 - Plan the scenario
 
-The skill requires two arguments: a **URL** to navigate and discover locators, and a
-**scenario description** to define what to test.
+Start with the planner so the behavior is reviewed before code is generated.
 
+```text
+/planner Generate negative login coverage for empty username, empty password, and locked out user for https://www.saucedemo.com/ SauceDemo format=both
 ```
-/generate-screenplay-tests https://www.saucedemo.com/ Generate negative login coverage for empty username, empty password, and locked out user SauceDemo
+
+For this scenario, the planner would produce:
+
+- a Screenplay plan with candidate Tasks such as `OpenSauceDemo` and `Login.with_credentials(...)`
+- candidate Questions and Consequences for reading and verifying the error banner
+- matching Gherkin scenarios for the three negative paths
+
+### Step 2 - Generate from the approved plan
+
+Once the plan looks right, pass the approved scenario to the generator:
+
+```text
+/python-screenplay-generator Implement the approved SauceDemo negative login plan for https://www.saucedemo.com/ SauceDemo
 ```
 
-### Step 2 - The skill discovers locators
+### Step 3 - The generator discovers locators
 
-The skill runs a headless Playwright script against the live page:
+The generator runs a headless Playwright script against the live page:
 
 ```python
 from playwright.sync_api import sync_playwright
@@ -50,8 +66,8 @@ with sync_playwright() as p:
     # -> 0 results. SauceDemo uses `data-test`, not `data-testid`.
 ```
 
-No `data-testid` attributes were found. The skill falls back automatically to other stable
-attributes and records:
+No `data-testid` attributes were found. The generator falls back automatically to other
+stable attributes and records:
 
 | Element | Selector |
 |---|---|
@@ -72,7 +88,7 @@ app:
 > This is a good example of why the generator should validate behavior, not only inspect
 > markup. The page shape alone does not tell you which negative cases return distinct messages.
 
-### Step 3 - Generated code (shown for review before writing)
+### Step 4 - Generated code (shown for review before writing)
 
 **Target catalog** - `examples/saucedemo/ui/pages/login_page.py`
 
@@ -226,11 +242,11 @@ def test_locked_out_user_sees_expected_message(customer) -> None:
     assert error == _LOCKED_OUT_ERROR
 ```
 
-### Step 4 - Files written, lint passes
+### Step 5 - Files written, lint passes
 
-After confirmation, the skill writes or updates:
+After confirmation, the generator writes or updates:
 
-```
+```text
 examples/saucedemo/
   tasks/
     open_saucedemo.py
@@ -249,12 +265,12 @@ tests/saucedemo/
 
 ---
 
-## What the skill handles automatically
+## What the generator handles automatically
 
 - Falling back from `data-testid` to `data-test` or other stable attributes when a site has none
 - Running test submissions against the live app to confirm actual error text before asserting
 - Creating any missing `__init__.py` files so Python package imports resolve
-- Placing every artefact in the correct layer path
+- Preserving the existing structure for the target app instead of forcing a second folder layout
 - Enforcing all framework architectural rules: no `Interaction` in test files, lambda closures, factory classmethods
 - Linting and formatting after writing
 
